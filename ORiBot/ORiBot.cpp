@@ -3,8 +3,6 @@
 #include <Windows.h>
 #include <iostream>
 
-#define w 400
-
 using namespace std;
 using namespace cv;
 
@@ -61,38 +59,107 @@ Mat hwnd2mat(HWND hwnd)
 	return src;
 }
 
-int main(int argv, char** argc) 
+int main(int argv, char** argc)
 {
-	HWND hwndDesktop = GetDesktopWindow();
-	namedWindow("output", WINDOW_NORMAL);
-	Point pt = Point(10, 8);
-
+	/*HWND hwndDesktop = GetDesktopWindow();
 	int key = 0;
-
 	while (key != 27)
 	{
 		Mat img = hwnd2mat(hwndDesktop);
-		img = img(Rect(0, 0, 500, 500));
-		//Mat templ = img(Rect(100, 100, 128, 128));
-		vector<Mat> splitChannels(3);
-		split(img, splitChannels);
-		/*
-		for (int r = 0; r < img.rows; r++)
-			for (int c = 0; c < img.cols; c++)
-			{
-				//img.at<Vec4b>(r, c)[0] = 75;
-				//img.at<Vec4b>(r, c)[1] = 150;
-				//img.at<Vec4b>(r, c)[2] = 255;
-			}
-			*/
-		imshow("input", splitChannels[1]);
-		imshow("output", img);
 
-		// you can do some image processing here
-		//imshow("output", MatchingMethod(img, templ));
-		//imshow("template", templ);
-		key = waitKey(1); // you can change wait time
-	}
+		key = waitKey(1);
+	}*/
+
+	Mat img = imread("../Content/img/capture.bmp");
+	//img = img(Rect(0, 0, 128, 64));
+
+	//Mat mat = img;
+	/*std::vector<float> array;
+
+		array.assign((float*)mat.data, (float*)mat.data + mat.total());
+		cout << "\n";
+		cout << (float*)mat.data;
+		cout << "\n";
+		cout << (float*)mat.data + mat.total();
+		cout << "\n";*/
+
+	imshow("imageOri", img);
+	namedWindow("imageOri", cv::WINDOW_AUTOSIZE);
+	vector<Point> *gridPoints = new vector<Point>;
+
+#define maxBinsX 42
+#define maxBinsY 24
+#define binWidth 25
+#define binHeight 24
+#define blockWidth 6
+#define blockHeight 6
+
+	//EstimateBins
+	
+	Point firstTile;
+	for (int r = 0; r < img.rows -1; r++)
+		for (int c = 0; c < img.cols - 1; c++)
+		{
+			Vec3b color = img.at<Vec3b>(Point(c, r));
+			if ((int)(color.val[0]) == 0 && (int)(color.val[1]) == 255 && (int)(color.val[2]) == 0)
+			{
+				firstTile = Point(c, r);
+				r = img.rows;
+				break;
+				//img.at<Vec3b>(Point(c, r)) = Vec3b::all('0');
+			}
+		}
+
+	int xOffset = (int)(firstTile.x % binWidth);
+	int yOffset = (int)(firstTile.y % binHeight);
+	xOffset = 0;
+	yOffset = 0;
+	
+	for (int r = 0; r < maxBinsY + 1; r++)
+		for (int c = 0; c < maxBinsX +1; c++)
+		{
+			int startX = (int)(c * binWidth + xOffset);
+			int startY = (int)(r * binHeight+ yOffset);
+			Point start = Point(startX, startY);
+			int endX = (int)(c * binWidth + blockWidth + xOffset);
+			int endY = (int)(r * binHeight + blockHeight + yOffset);
+			Point end = Point(endX, endY);
+
+			if(startX < img.cols && endX < img.cols &&
+				startX > 0 && endX > 0 && 
+				startY < img.rows && endY < img.cols &&
+				startY > 0 && endY > 0)
+			cv::rectangle(img, start, end, cv::Scalar(0, 0, 255));
+		}
+
+
+	/*for (int r = 0; r < img.rows -1; r++)
+	{
+		vector<int> colstoSkipRowsAt;
+		for (int c = 0; c < img.cols -1; c++)
+		{
+			Vec3b color = img.at<Vec3b>(Point(c, r));	
+			if ((int)(color.val[0]) == 0 && (int)(color.val[1]) == 255 && (int)(color.val[2]) == 0)
+			{
+				gridPoints->push_back(Point(c, r));
+				img.at<Vec3b>(Point(c, r)) = Vec3b::all('0');
+
+				colstoSkipRowsAt.push_back(c);
+				c += 20;
+			}
+		}
+	}*/
+	
+	/*for (auto &iter : *gridPoints)
+	{
+		cout << iter << endl;
+	}*/
+
+	//namedWindow("image", WINDOW_NORMAL);
+	imshow("image", img);
+	namedWindow("image", cv::WINDOW_AUTOSIZE);
+	waitKey(0);
+	//}
 }
 
 Mat MatchingMethod(Mat img, Mat templateImg)
@@ -122,7 +189,7 @@ Mat MatchingMethod(Mat img, Mat templateImg)
 		for (int c = 0; c < img.rows; c++)
 			//if(result.at<uchar>(Point(i, j)) < threshold)
 		{
-			img.at<Vec3b>(r, c)[0] = img.at<Vec3b>(r, c)[0] * 0 ;
+			img.at<Vec3b>(r, c)[0] = img.at<Vec3b>(r, c)[0] * 0;
 			//rectangle(result, Point(i, j), Point(i + templateImg.cols, j + templateImg.rows), Scalar(0, 0, 255), 2, 8, 0);			
 		}
 
