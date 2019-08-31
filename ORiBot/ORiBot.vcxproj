@@ -156,6 +156,10 @@
   <ItemGroup>
     <ClCompile Include="ORiBot.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="imageResourceItem.h" />
+    <ClInclude Include="ImageResources.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

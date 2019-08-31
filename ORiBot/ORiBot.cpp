@@ -2,6 +2,7 @@
 #include<iostream>
 #include <Windows.h>
 #include <iostream>
+#include "ImageResources.h"
 
 using namespace std;
 using namespace cv;
@@ -21,6 +22,7 @@ void drawGridBins(Mat* img);
 bool multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, float Closeness, vector<Point2f>& List_Matches);
 bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, float Closeness, Point& matchPoint);
 boolean cropToGameWindow(Mat& img, Mat& imgGray);
+static ImageResources imageResources = ImageResources();
 
 Mat hwnd2mat(HWND hwnd) {
 
@@ -172,10 +174,8 @@ void drawGridBins(Mat* img)
 
 boolean cropToGameWindow(Mat& img, Mat& imgGray)
 {
-	Mat templateImgGray;
-	cvtColor(imread("../Content/img/templates/gameLogo.bmp"), templateImgGray, COLOR_BGR2GRAY);
 	Point start;
-	if (singleTemplateMatchingGrey(imgGray, templateImgGray, 0.9, 0.9, start))
+	if (singleTemplateMatchingGrey(imgGray, imageResources.imgGameLogo.imGray, 0.9, 0.9, start))
 	{
 		img = img(Rect(start.x - 6, start.y + 18, gameWindownWidth, gameWindownHeight)); //Possible memmory leak
 		return true;
@@ -186,6 +186,7 @@ boolean cropToGameWindow(Mat& img, Mat& imgGray)
 
 int main(int argv, char** argc)
 {
+
 	int key = 0;
 	while (key != 27)
 	{
