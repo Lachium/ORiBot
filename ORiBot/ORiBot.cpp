@@ -73,29 +73,18 @@ int main(int argv, char** argc)
 	Mat img = imread("../Content/img/capture.bmp");
 	//img = img(Rect(0, 0, 128, 64));
 
-	//Mat mat = img;
-	/*std::vector<float> array;
 
-		array.assign((float*)mat.data, (float*)mat.data + mat.total());
-		cout << "\n";
-		cout << (float*)mat.data;
-		cout << "\n";
-		cout << (float*)mat.data + mat.total();
-		cout << "\n";*/
+	//imshow("imageOri", img);
+	//namedWindow("imageOri", cv::WINDOW_AUTOSIZE);
 
-	imshow("imageOri", img);
-	namedWindow("imageOri", cv::WINDOW_AUTOSIZE);
-	vector<Point> *gridPoints = new vector<Point>;
-
-#define maxBinsX 42
-#define maxBinsY 24
-#define binWidth 25
-#define binHeight 24
+#define maxBinsX 49
+#define maxBinsY 27
+#define binWidth (1280/48)
+#define binHeight (720/27)
 #define blockWidth 6
 #define blockHeight 6
 
-	//EstimateBins
-	
+	//EstimateBins	
 	Point firstTile;
 	for (int r = 0; r < img.rows -1; r++)
 		for (int c = 0; c < img.cols - 1; c++)
@@ -106,54 +95,43 @@ int main(int argv, char** argc)
 				firstTile = Point(c, r);
 				r = img.rows;
 				break;
-				//img.at<Vec3b>(Point(c, r)) = Vec3b::all('0');
 			}
 		}
-
-	int xOffset = (int)(firstTile.x % binWidth);
-	int yOffset = (int)(firstTile.y % binHeight);
-	xOffset = 0;
-	yOffset = 0;
 	
-	for (int r = 0; r < maxBinsY + 1; r++)
+	Point2f estimatedBin = Point2f(firstTile.x/binWidth, firstTile.y / binHeight);
+
+	
+	int xOffset = 14;
+	int yOffset = 10;
+	vector<Point>* expectedPoints = new vector<Point>;
+	for (int r = 0; r < maxBinsY +1; r++)
 		for (int c = 0; c < maxBinsX +1; c++)
 		{
-			int startX = (int)(c * binWidth + xOffset);
-			int startY = (int)(r * binHeight+ yOffset);
+			double xShift = ((-(maxBinsX * 0.5) + c) * 0.8) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * 0.014;
+			double yShift = r * 0.82;
+
+			int startX = (int)(c * binWidth + xOffset + xShift);
+			int startY = (int)(r * binHeight+ yOffset + yShift);
 			Point start = Point(startX, startY);
-			int endX = (int)(c * binWidth + blockWidth + xOffset);
-			int endY = (int)(r * binHeight + blockHeight + yOffset);
+			int endX = (int)(start.x + blockWidth);
+			int endY = (int)(start.y + blockHeight);
 			Point end = Point(endX, endY);
 
-			if(startX < img.cols && endX < img.cols &&
-				startX > 0 && endX > 0 && 
-				startY < img.rows && endY < img.cols &&
-				startY > 0 && endY > 0)
-			cv::rectangle(img, start, end, cv::Scalar(0, 0, 255));
+			expectedPoints->push_back(Point(startX, startY));
 		}
 
+	int expectedBin = estimatedBin.y * (maxBinsX + 1) + estimatedBin.x;
+	xOffset = (int)(expectedPoints->at(expectedBin).x - firstTile.x);
+	yOffset = (int)(expectedPoints->at(expectedBin).y - firstTile.y);
+	Point start = expectedPoints->at(expectedBin) + Point(xOffset, yOffset);
+	int endX = (int)(start.x + blockWidth);
+	int endY = (int)(start.y + blockHeight);
+	Point end = Point(endX, endY);
 
-	/*for (int r = 0; r < img.rows -1; r++)
+	for (auto &iter : *expectedPoints)
 	{
-		vector<int> colstoSkipRowsAt;
-		for (int c = 0; c < img.cols -1; c++)
-		{
-			Vec3b color = img.at<Vec3b>(Point(c, r));	
-			if ((int)(color.val[0]) == 0 && (int)(color.val[1]) == 255 && (int)(color.val[2]) == 0)
-			{
-				gridPoints->push_back(Point(c, r));
-				img.at<Vec3b>(Point(c, r)) = Vec3b::all('0');
-
-				colstoSkipRowsAt.push_back(c);
-				c += 20;
-			}
-		}
-	}*/
-	
-	/*for (auto &iter : *gridPoints)
-	{
-		cout << iter << endl;
-	}*/
+		cv::rectangle(img, iter, Point(iter.x + blockWidth, iter.y + blockHeight), cv::Scalar(255, 100, 0));
+	}
 
 	//namedWindow("image", WINDOW_NORMAL);
 	imshow("image", img);
@@ -171,9 +149,6 @@ Mat MatchingMethod(Mat img, Mat templateImg)
 
 	Mat result;
 
-
-
-
 	matchTemplate(img, templateImg, result, TM_SQDIFF_NORMED);
 	//normalize(result, result, 0, 1, NORM_MINMAX, -1, Mat());
 
@@ -190,7 +165,7 @@ Mat MatchingMethod(Mat img, Mat templateImg)
 			//if(result.at<uchar>(Point(i, j)) < threshold)
 		{
 			img.at<Vec3b>(r, c)[0] = img.at<Vec3b>(r, c)[0] * 0;
-			//rectangle(result, Point(i, j), Point(i + templateImg.cols, j + templateImg.rows), Scalar(0, 0, 255), 2, 8, 0);			
+			//rectangle(result, Point(i, j), Point(i + templateImg.cols, j + templateImg.rows), Scalar(0, 0, 255), 2, 8, 0);            
 		}
 
 	return img;
