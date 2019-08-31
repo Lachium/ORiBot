@@ -6,10 +6,24 @@
 using namespace std;
 using namespace cv;
 
-Mat MatchingMethod(Mat img, Mat templateImg);
+#define maxBinsX 49
+#define maxBinsY 27
+#define gameWindownHeight 720
+#define gameWindownWidth 1280
+#define binWidth (gameWindownWidth/(maxBinsX-1))
+#define binHeight (gameWindownHeight/maxBinsY)
+#define blockWidth 6
+#define blockHeight 6
 
-Mat hwnd2mat(HWND hwnd)
-{
+vector<Point> * getGameGrid();
+Point colorSearchSingle(Mat* img, Vec3b color);
+void drawGridBins(Mat* img);
+bool multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, float Closeness, vector<Point2f>& List_Matches);
+bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, float Closeness, Point& matchPoint);
+boolean cropToGameWindow(Mat& img, Mat& imgGray);
+
+Mat hwnd2mat(HWND hwnd) {
+
 	HDC hwindowDC, hwindowCompatibleDC;
 
 	int height, width, srcheight, srcwidth;
@@ -26,8 +40,8 @@ Mat hwnd2mat(HWND hwnd)
 
 	srcheight = windowsize.bottom;
 	srcwidth = windowsize.right;
-	height = windowsize.bottom / 1;  //change this to whatever size you want to resize to
-	width = windowsize.right / 1;
+	height = windowsize.bottom;  //change this to whatever size you want to resize to
+	width = windowsize.right;
 
 	src.create(height, width, CV_8UC4);
 
@@ -52,66 +66,70 @@ Mat hwnd2mat(HWND hwnd)
 	GetDIBits(hwindowCompatibleDC, hbwindow, 0, height, src.data, (BITMAPINFO*)& bi, DIB_RGB_COLORS);  //copy from hwindowCompatibleDC to hbwindow
 
 	// avoid memory leak
-	DeleteObject(hbwindow);
-	DeleteDC(hwindowCompatibleDC);
-	ReleaseDC(hwnd, hwindowDC);
+	DeleteObject(hbwindow); DeleteDC(hwindowCompatibleDC); ReleaseDC(hwnd, hwindowDC);
 
 	return src;
 }
 
-int main(int argv, char** argc)
+bool multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float mthreshold, float closeness, vector<Point2f>& listmatches)
 {
-	/*HWND hwndDesktop = GetDesktopWindow();
-	int key = 0;
-	while (key != 27)
+	Mat mResult;
+	Size mTemplateSz = mTemplate.size();
+	Size mtemplateCloseRadiusSz((mTemplateSz.width / 2) * closeness, (mTemplateSz.height / 2) * closeness);
+
+	matchTemplate(mInput, mTemplate, mResult, TM_CCOEFF_NORMED);
+	threshold(mResult, mResult, mthreshold, 1.0, THRESH_TOZERO);
+	while (true)
 	{
-		Mat img = hwnd2mat(hwndDesktop);
+		double minval, maxval;
+		Point minloc, maxloc;
+		minMaxLoc(mResult, &minval, &maxval, &minloc, &maxloc);
 
-		key = waitKey(1);
-	}*/
-
-	Mat img = imread("../Content/img/capture.bmp");
-	//img = img(Rect(0, 0, 128, 64));
-
-
-	//imshow("imageOri", img);
-	//namedWindow("imageOri", cv::WINDOW_AUTOSIZE);
-
-#define maxBinsX 49
-#define maxBinsY 27
-#define binWidth (1280/48)
-#define binHeight (720/27)
-#define blockWidth 6
-#define blockHeight 6
-
-	//EstimateBins	
-	Point firstTile;
-	for (int r = 0; r < img.rows -1; r++)
-		for (int c = 0; c < img.cols - 1; c++)
+		if (maxval >= mthreshold)
 		{
-			Vec3b color = img.at<Vec3b>(Point(c, r));
-			if ((int)(color.val[0]) == 0 && (int)(color.val[1]) == 255 && (int)(color.val[2]) == 0)
-			{
-				firstTile = Point(c, r);
-				r = img.rows;
-				break;
-			}
+			listmatches.push_back(maxloc);
+			rectangle(mResult, Point2f(maxloc.x - mtemplateCloseRadiusSz.width, maxloc.y - mtemplateCloseRadiusSz.height), Point2f(maxloc.x + mtemplateCloseRadiusSz.width, maxloc.y + mtemplateCloseRadiusSz.height), Scalar(0), -1);
 		}
-	
-	Point2f estimatedBin = Point2f(firstTile.x/binWidth, firstTile.y / binHeight);
+		else
+			break;
+	}
+	return true;
+}
 
-	
-	int xOffset = 14;
-	int yOffset = 10;
+bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, float Closeness, Point& matchPoint)
+{
+	Mat mResult;
+	Size szTemplate = mTemplate.size();
+	Size szTemplateCloseRadius((szTemplate.width / 2) * Closeness, (szTemplate.height / 2) * Closeness);
+
+	matchTemplate(mInput, mTemplate, mResult, TM_CCOEFF_NORMED);
+	threshold(mResult, mResult, Threshold, 1.0, THRESH_TOZERO);
+
+	double minval, maxval;
+	Point minloc, maxloc;
+	minMaxLoc(mResult, &minval, &maxval, &minloc, &maxloc);
+
+	if (maxval >= Threshold)
+	{
+		matchPoint = (maxloc);
+		return true;
+	}
+	else
+		return false;
+}
+
+vector<Point>* getGameGrid()
+{
 	vector<Point>* expectedPoints = new vector<Point>;
-	for (int r = 0; r < maxBinsY +1; r++)
-		for (int c = 0; c < maxBinsX +1; c++)
+
+	for (int r = 0; r < maxBinsY + 1; r++)
+		for (int c = 0; c < maxBinsX + 1; c++)
 		{
 			double xShift = ((-(maxBinsX * 0.5) + c) * 0.8) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * 0.014;
 			double yShift = r * 0.82;
 
-			int startX = (int)(c * binWidth + xOffset + xShift);
-			int startY = (int)(r * binHeight+ yOffset + yShift);
+			int startX = (int)(c * binWidth + 14 + xShift);
+			int startY = (int)(r * binHeight + 10 + yShift);
 			Point start = Point(startX, startY);
 			int endX = (int)(start.x + blockWidth);
 			int endY = (int)(start.y + blockHeight);
@@ -119,54 +137,83 @@ int main(int argv, char** argc)
 
 			expectedPoints->push_back(Point(startX, startY));
 		}
+	return expectedPoints;
+}
+
+Point colorSearchSingle(Mat* img, Vec3b color)
+{
+	for (int c = 0; c < img->cols - 1; c++)
+		for (int r = 0; r < img->rows - 1; r++)
+			if (img->at<Vec3b>(Point(c, r)) == color)
+				return Point(c, r);
+
+	return Point(-1, -1);
+}
+
+void drawGridBins(Mat* img)
+{
+	Point firstTile = colorSearchSingle(img, Vec3b(0, 255, 0));
+	Point2f estimatedBin = Point2f(firstTile.x / binWidth, firstTile.y / binHeight);
+	vector<Point>* expectedPoints = getGameGrid();
 
 	int expectedBin = estimatedBin.y * (maxBinsX + 1) + estimatedBin.x;
-	xOffset = (int)(expectedPoints->at(expectedBin).x - firstTile.x);
-	yOffset = (int)(expectedPoints->at(expectedBin).y - firstTile.y);
+	int xOffset = (int)(expectedPoints->at(expectedBin).x - firstTile.x);
+	int yOffset = (int)(expectedPoints->at(expectedBin).y - firstTile.y);
 	Point start = expectedPoints->at(expectedBin) + Point(xOffset, yOffset);
 	int endX = (int)(start.x + blockWidth);
 	int endY = (int)(start.y + blockHeight);
 	Point end = Point(endX, endY);
 
-	for (auto &iter : *expectedPoints)
+	for (Point iter : *expectedPoints)
 	{
-		cv::rectangle(img, iter, Point(iter.x + blockWidth, iter.y + blockHeight), cv::Scalar(255, 100, 0));
+		rectangle(*img, iter, Point(iter.x + blockWidth, iter.y + blockHeight), cv::Scalar(255, 100, 0));
 	}
-
-	//namedWindow("image", WINDOW_NORMAL);
-	imshow("image", img);
-	namedWindow("image", cv::WINDOW_AUTOSIZE);
-	waitKey(0);
-	//}
 }
 
-Mat MatchingMethod(Mat img, Mat templateImg)
+boolean cropToGameWindow(Mat& img, Mat& imgGray)
 {
-	Mat img_display;
-	img.copyTo(img_display);
-	int result_cols = img.cols - templateImg.cols + 1;
-	int result_rows = img.rows - templateImg.rows + 1;
+	Mat templateImgGray;
+	cvtColor(imread("../Content/img/templates/gameLogo.bmp"), templateImgGray, COLOR_BGR2GRAY);
+	Point start;
+	if (singleTemplateMatchingGrey(imgGray, templateImgGray, 0.9, 0.9, start))
+	{
+		img = img(Rect(start.x - 6, start.y + 18, gameWindownWidth, gameWindownHeight)); //Possible memmory leak
+		return true;
+	}
+	else
+		return false;
+}
 
-	Mat result;
+int main(int argv, char** argc)
+{
+	int key = 0;
+	while (key != 27)
+	{
+		HWND hDesktopWnd;
+		hDesktopWnd = GetDesktopWindow();
+		Mat imgScreen = hwnd2mat(hDesktopWnd);
+		Mat imgScreenGray, mResult_Bgr = imgScreen.clone();
+		cvtColor(imgScreen, imgScreenGray, COLOR_BGR2GRAY);
 
-	matchTemplate(img, templateImg, result, TM_SQDIFF_NORMED);
-	//normalize(result, result, 0, 1, NORM_MINMAX, -1, Mat());
+
+		if (cropToGameWindow(imgScreen, imgScreenGray))
+			drawGridBins(&imgScreen);
 
 
-	double minVal; double maxVal; Point minLoc; Point maxLoc;
-	Point matchLoc;
-	minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc, Mat());
+		//vector<Point2f> List_Matches;
+		//Point matchP;
+		//singleTemplateMatchingGrey(imgScreenGray, imgScreenGray, 0.9, 0.9, matchP);
+		//rectangle(mResult_Bgr, matchP, Point(matchP.x + mTemplate_Bgr.cols, matchP.y + mTemplate_Bgr.rows), Scalar(0, 255, 0), 2);
 
-	matchLoc = minLoc;
-	list<Point> thresh;
-	int threshold = 1;
-	for (int r = 0; r < img.cols; r++)
-		for (int c = 0; c < img.rows; c++)
-			//if(result.at<uchar>(Point(i, j)) < threshold)
+		/*for (int i = 0; i < List_Matches.size(); i++)
 		{
-			img.at<Vec3b>(r, c)[0] = img.at<Vec3b>(r, c)[0] * 0;
-			//rectangle(result, Point(i, j), Point(i + templateImg.cols, j + templateImg.rows), Scalar(0, 0, 255), 2, 8, 0);            
-		}
+			rectangle(mResult_Bgr, List_Matches[i], Point(List_Matches[i].x + mTemplate_Bgr.cols, List_Matches[i].y + mTemplate_Bgr.rows), Scalar(0, 255, 0), 2);
+		}*/
 
-	return img;
+		key = waitKey(60);
+		imshow("Color Img", imgScreen);
+		//imshow("Gray Img", imgScreenGray);
+	}
+	waitKey(0);
+	return 0;
 }
