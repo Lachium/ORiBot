@@ -18,12 +18,18 @@
     <ClCompile Include="ORiBot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ImageHandelingComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imageResourceItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImageResources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageHandelingComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
