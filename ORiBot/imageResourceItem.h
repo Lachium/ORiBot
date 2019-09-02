@@ -15,7 +15,7 @@ public:
 		cvtColor(imgColor, imGray, COLOR_BGR2GRAY);
 	};
 	imageResourceItem(Mat img) {
-		imgColor = img;
+			imgColor = img;
 		cvtColor(imgColor, imGray, COLOR_BGR2GRAY);
 	};
 	imageResourceItem() {};

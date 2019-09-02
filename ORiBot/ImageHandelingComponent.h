@@ -28,10 +28,13 @@ public:
 private:
 	ImageResources imageResources;
 	Point gameLogoPos = Point(-1,-1);
+	vector<Point> expectedPoints;
 	Mat hwnd2mat(HWND hwnd);
-	bool multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, float Closeness, vector<Point2f>& List_Matches);
-	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, float Closeness, Point& matchPoint);
+	bool multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, vector<Point2f>& List_Matches);
+	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint);
 	bool singleTemplateMatchingGreyExact(Mat& mInput, Mat& mTemplate, float Threshold, Point& startPoint);
-	vector<Point>* getGameGrid();
-	Point colorSearchSingle(Mat& imgColor, Vec3b color);
+	void getGameGrid(vector<Point>& outputVec);
+	bool colorSearchSingle(Mat& imgColor, Vec3b color, Point& matchPoint);
+	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint);
+	void imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size);
 };

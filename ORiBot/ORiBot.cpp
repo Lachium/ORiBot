@@ -6,33 +6,28 @@ using namespace cv;
 
 int main(int argv, char** argc)
 {
-
+	clock_t start, end;
 	ImageHandelingComponent imageHandelingComponent = ImageHandelingComponent();
 
 	int key = 0;
-	while (key != 27)
+	while (true)
 	{
+		start = clock();
 		imageHandelingComponent.camptureScreen();
+		end = clock();
 
 		if (imageHandelingComponent.cropToGameWindow())
+		{
 			imageHandelingComponent.drawGridBins();
+		}
 		else
 			cout << "Could not Crop\n";
 
-
-		//vector<Point2f> List_Matches;
-		//Point matchP;
-		//singleTemplateMatchingGrey(imgScreenGray, imgScreenGray, 0.9, 0.9, matchP);
-		//rectangle(mResult_Bgr, matchP, Point(matchP.x + mTemplate_Bgr.cols, matchP.y + mTemplate_Bgr.rows), Scalar(0, 255, 0), 2);
-
-		/*for (int i = 0; i < List_Matches.size(); i++)
-		{
-			rectangle(mResult_Bgr, List_Matches[i], Point(List_Matches[i].x + mTemplate_Bgr.cols, List_Matches[i].y + mTemplate_Bgr.rows), Scalar(0, 255, 0), 2);
-		}*/
-
-		key = waitKey(60);
-		//imshow("Color Img", imageHandelingComponent.imgScreen.imgColor);
+		double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+		cout << fixed << time_taken * 1000 << setprecision(0); cout << "ms  "; cout << fixed << 1/time_taken << setprecision(1); cout << "FPS" << endl;;
+		imshow("Color Img", imageHandelingComponent.imgScreen.imgColor);
 		//imshow("Gray Img", imgScreenGray);
+		key = waitKey(10);
 	}
 	waitKey(0);
 	return 0;

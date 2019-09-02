@@ -3,11 +3,23 @@
 ImageHandelingComponent::ImageHandelingComponent()
 {
 	imageResources = ImageResources();
+	getGameGrid(expectedPoints);
 }
 
 void ImageHandelingComponent::camptureScreen()
 {
-	imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow()));
+	//Mat savedCapt = imread("../Content/img/screen.bmp"); // Fix mat.type
+	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
+	//imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
+	//Mat scCap = (hwnd2mat(GetDesktopWindow()));
+	//cv::cvtColor(scCap, scCap, COLOR_BGRA2BGR);
+	//cout << scCap.type();
+	imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
+	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
+	//imgScreen = imageResourceItem("../Content/img/screenshifted.bmp"); // Fix mat.type
+
+	
+	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
 }
 
 Mat ImageHandelingComponent::hwnd2mat(HWND hwnd) {
@@ -59,12 +71,9 @@ Mat ImageHandelingComponent::hwnd2mat(HWND hwnd) {
 	return src;
 }
 
-bool ImageHandelingComponent::multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float mthreshold, float closeness, vector<Point2f>& listmatches)
+bool ImageHandelingComponent::multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float mthreshold, vector<Point2f>& listmatches)
 {
 	Mat mResult;
-	Size mTemplateSz = mTemplate.size();
-	Size mtemplateCloseRadiusSz((mTemplateSz.width / 2) * closeness, (mTemplateSz.height / 2) * closeness);
-
 	matchTemplate(mInput, mTemplate, mResult, TM_CCOEFF_NORMED);
 	threshold(mResult, mResult, mthreshold, 1.0, THRESH_TOZERO);
 	while (true)
@@ -74,22 +83,16 @@ bool ImageHandelingComponent::multipleTemplateMatchingGrey(Mat& mInput, Mat& mTe
 		minMaxLoc(mResult, &minval, &maxval, &minloc, &maxloc);
 
 		if (maxval >= mthreshold)
-		{
 			listmatches.push_back(maxloc);
-			rectangle(mResult, Point2f(maxloc.x - mtemplateCloseRadiusSz.width, maxloc.y - mtemplateCloseRadiusSz.height), Point2f(maxloc.x + mtemplateCloseRadiusSz.width, maxloc.y + mtemplateCloseRadiusSz.height), Scalar(0), -1);
-		}
 		else
 			break;
 	}
 	return true;
 }
 
-bool ImageHandelingComponent::singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, float Closeness, Point& matchPoint)
+bool ImageHandelingComponent::singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint)
 {
 	Mat mResult;
-	Size szTemplate = mTemplate.size();
-	Size szTemplateCloseRadius((szTemplate.width / 2) * Closeness, (szTemplate.height / 2) * Closeness);
-
 	matchTemplate(mInput, mTemplate, mResult, TM_CCOEFF_NORMED);
 	threshold(mResult, mResult, Threshold, 1.0, THRESH_TOZERO);
 
@@ -139,10 +142,8 @@ bool ImageHandelingComponent::singleTemplateMatchingGreyExact(Mat& mInput, Mat& 
 	}
 }
 
-vector<Point>* ImageHandelingComponent::getGameGrid()
+void ImageHandelingComponent::getGameGrid(vector<Point>& outputVec)
 {
-	vector<Point>* expectedPoints = new vector<Point>;
-
 	for (int r = 0; r < maxBinsY + 1; r++)
 		for (int c = 0; c < maxBinsX + 1; c++)
 		{
@@ -156,52 +157,172 @@ vector<Point>* ImageHandelingComponent::getGameGrid()
 			int endY = (int)(start.y + blockHeight);
 			Point end = Point(endX, endY);
 
-			expectedPoints->push_back(Point(startX, startY));
+			outputVec.push_back(Point(startX, startY));
 		}
-	return expectedPoints;
 }
 
-Point ImageHandelingComponent::colorSearchSingle(Mat& imgColor, Vec3b color)
+bool ImageHandelingComponent::colorSearchSingle(Mat& colorImg, Vec3b color, Point & matchPoint)
 {
-	for (int c = 0; c < imgColor.cols- 1; c++)
-		for (int r = 0; r < imgColor.rows - 1; r++)
-			if (imgColor.at<Vec3b>(Point(c, r)) == color)
-				return Point(c, r);
+	int offset;
+	for (int r = 0; r < colorImg.rows -1; r++)
+		for (int c = 0; c < colorImg.cols - 1; c++)
+		{
+			//4 channel image compare to 3 channel image
+			if (colorImg.type() == 24)
+			{
+				//cout << colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				offset = abs((colorImg.at<Vec4b>(Point(c, r))[0] - color[0])) +
+					abs((colorImg.at<Vec4b>(Point(c, r))[1] - color[1])) +
+					abs((colorImg.at<Vec4b>(Point(c, r))[2] - color[2]));
 
-	return Point(-1, -1);
+				if (offset < 1)
+				{
+					cout << "offset: " << offset << endl;
+					matchPoint = Point(c, r);
+					return true;
+				}
+			}
+			//3 channel image compare to 3 channel image
+			else
+			{
+				//cout << colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				offset = abs((colorImg.at<Vec3b>(Point(c, r))[0] - color[0])) +
+					abs((colorImg.at<Vec3b>(Point(c, r))[1] - color[1])) +
+					abs((colorImg.at<Vec3b>(Point(c, r))[2] - color[2]));
+
+				if (offset == 0)
+				{
+					matchPoint = Point(c, r);
+					return true;
+				}
+			}
+		}
+	cout << "No Fast Color Find - offset: " << offset << " image type: " << colorImg.type() << endl;
+	return false;
 }
 
 void ImageHandelingComponent::drawGridBins()
 {
-	Point firstTile = colorSearchSingle(imgScreen.imgColor, Vec3b(0, 255, 0));
+	Point firstTile;
+	if (!colorSearchSingle(imgScreen.imgColor, Vec3b(0, 255, 0), firstTile))
+		return;
+
 	Point2f estimatedBin = Point2f(firstTile.x / binWidth, firstTile.y / binHeight);
-	vector<Point>* expectedPoints = getGameGrid();
 
 	int expectedBin = estimatedBin.y * (maxBinsX + 1) + estimatedBin.x;
-	int xOffset = (int)(expectedPoints->at(expectedBin).x - firstTile.x);
-	int yOffset = (int)(expectedPoints->at(expectedBin).y - firstTile.y);
-	Point start = expectedPoints->at(expectedBin) + Point(xOffset, yOffset);
+	int xOffset = -(int)(expectedPoints.at(expectedBin).x - firstTile.x);
+	int yOffset = -2-(int)(expectedPoints.at(expectedBin).y - firstTile.y);
+	Point start = expectedPoints.at(expectedBin) + Point(xOffset, yOffset);
 	int endX = (int)(start.x + blockWidth);
 	int endY = (int)(start.y + blockHeight);
 	Point end = Point(endX, endY);
 
-	for (Point iter : *expectedPoints)
+
+	for (Point iter : expectedPoints)
 	{
-		rectangle(imgScreen.imgColor, iter, Point(iter.x + blockWidth, iter.y + blockHeight), cv::Scalar(255, 100, 0));
+		rectangle(imgScreen.imgColor, Point(iter.x + xOffset, iter.y + yOffset), Point(iter.x + blockWidth + xOffset, iter.y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
 	}
+	rectangle(imgScreen.imgColor, start, end, cv::Scalar(255, 100, 255), 5);
 }
 
 bool ImageHandelingComponent::cropToGameWindow()
 {
-	if (singleTemplateMatchingGreyExact(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, gameLogoPos))
+	
+	vector<vector<Vec3b>> cVecOutput;
+	imageTo2dCollorVec(imageResources.imgGameLogo.imgColor, cVecOutput, Point(2, 2));
+
+	if (singleColorMatchingFast(imgScreen.imgColor, cVecOutput, gameLogoPos))
 		return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 	else {
-		if (singleTemplateMatchingGrey(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, 0.9, gameLogoPos))
+		if (singleTemplateMatchingGrey(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, gameLogoPos))
 		{
-			imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
-			return true;
+			return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 		}
 		else
 			return false;
+	}
+	/*
+	if (singleTemplateMatchingGreyExact(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, gameLogoPos))
+		return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
+	else {
+		if (singleTemplateMatchingGrey(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, gameLogoPos))
+		{
+			return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
+		}
+		else
+			return false;
+	}*/
+	
+	/*250.0ms
+	if (singleTemplateMatchingGrey(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, gameLogoPos))
+	{
+		return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
+	}
+
+	/*
+	vector<vector<Vec3b>> cVecOutput;
+	imageTo2dCollorVec(imageResources.imgGameLogo.imgColor, cVecOutput, Point(2, 2));
+	if (singleColorMatching(imgScreen.imgColor, cVecOutput, gameLogoPos))
+	{
+		return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
+	}
+	*/
+
+	return false;
+}
+
+
+bool ImageHandelingComponent::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec3b>>& cTemplate, Point& searhPoint)
+{
+	if (((cTemplate.at(0).size() + searhPoint.x) >= colorImg.cols) || ((cTemplate.size() + searhPoint.y) >= colorImg.rows) || searhPoint.x < 0 || searhPoint.y < 0)
+	{
+		cout << "Fast color search point out of bounds" << endl;
+		return false;
+	}
+	for (int r = 0; r < cTemplate.size(); r++)
+		for (int c = 0; c < cTemplate.at(0).size(); c++)
+		{
+			int offset;
+			//4 channel image compare to 3 channel image
+			if (colorImg.type() == 24)
+			{
+				//cout << colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				offset = abs((colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y))[0] - (cTemplate.at(r).at(c)[0]))) +
+					abs((colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y))[1] - (cTemplate.at(r).at(c)[1]))) +
+					abs((colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y))[2] - (cTemplate.at(r).at(c)[2])));
+
+				if (offset > 10)
+				{
+					cout << "No Fast Color Find - offset: " << offset << " image type: " << colorImg.type() << endl;
+					return false;
+				}
+			}
+			//3 channel image compare to 3 channel image
+			else
+			{
+				//cout << colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				offset = abs((colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y))[0] - (cTemplate.at(r).at(c)[0]))) +
+					abs((colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y))[1] - (cTemplate.at(r).at(c)[1]))) +
+					abs((colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y))[2] - (cTemplate.at(r).at(c)[2])));
+				if (offset != 0)
+				{
+					cout << "No Fast Color Find - offset: " << offset << " image type: " << colorImg.type() << endl;
+					return false;
+				}
+			}
+		}
+	return true;
+}
+
+void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size)
+{
+	for (int r = 0; r < size.y; r++)
+	{
+		vector<Vec3b> line;
+		for (int c = 0; c < size.x; c++)
+		{
+			line.push_back(colorImgInput.at<Vec3b>(Point(c, r)));
+		}
+		cVecOutput.push_back(line);
 	}
 }
