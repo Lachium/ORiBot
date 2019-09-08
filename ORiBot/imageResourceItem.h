@@ -8,15 +8,11 @@ using namespace cv;
 class imageResourceItem
 {
 public:
-	Mat imgColor;
-	Mat imGray;
 	imageResourceItem(string imgPath) {
 		imgColor = imread(imgPath);
-		cvtColor(imgColor, imGray, COLOR_BGR2GRAY);
 	};
 	imageResourceItem(Mat img) {
-			imgColor = img;
-		cvtColor(imgColor, imGray, COLOR_BGR2GRAY);
+		imgColor = img;
 	};
 	imageResourceItem() {};
 
@@ -24,7 +20,8 @@ public:
 		if (!(boundry.x < 0 || boundry.y < 0 || imgColor.rows < (boundry.height + boundry.y) || imgColor.cols < (boundry.width + boundry.x)))
 		{
 			imgColor = imgColor(boundry);
-			imGray = imGray(boundry);
+			if (!imGray.empty())
+				imGray = imGray(boundry);
 			return true;
 		}
 		else
@@ -33,4 +30,19 @@ public:
 			return false;
 		}
 	};
+
+	Mat* getGray() {
+		if (imGray.empty())
+			cvtColor(imgColor, imGray, COLOR_BGR2GRAY);
+		return &imGray;
+	};
+
+	Mat* getColor() {
+		return &imgColor;
+	};
+
+private:
+	Mat imGray;
+	Mat imgColor;
+
 };

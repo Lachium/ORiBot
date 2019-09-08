@@ -2,7 +2,7 @@
 
 ImageHandelingComponent::ImageHandelingComponent()
 {
-	imageResources = ImageResources();
+	//imageResources = ImageResources();
 	getGameGrid(expectedPoints);
 }
 
@@ -10,16 +10,15 @@ void ImageHandelingComponent::camptureScreen()
 {
 	//Mat savedCapt = imread("../Content/img/screen.bmp"); // Fix mat.type
 	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
-	//imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
 	//Mat scCap = (hwnd2mat(GetDesktopWindow()));
 	//cv::cvtColor(scCap, scCap, COLOR_BGRA2BGR);
 	//cout << scCap.type();
-	imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
+	//imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
+	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type	
 	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
-	//imgScreen = imageResourceItem("../Content/img/screenshifted.bmp"); // Fix mat.type
 
-	
-	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
+	//imgScreen = imageResourceItem("../Content/img/screenshifted.bmp"); // Fix mat.type
+	imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
 }
 
 Mat ImageHandelingComponent::hwnd2mat(HWND hwnd) {
@@ -204,7 +203,7 @@ bool ImageHandelingComponent::colorSearchSingle(Mat& colorImg, Vec3b color, Poin
 void ImageHandelingComponent::drawGridBins()
 {
 	Point firstTile;
-	if (!colorSearchSingle(imgScreen.imgColor, Vec3b(0, 255, 0), firstTile))
+	if (!colorSearchSingle(*imgScreen.getColor(), Vec3b(0, 255, 0), firstTile))
 		return;
 
 	Point2f estimatedBin = Point2f(firstTile.x / binWidth, firstTile.y / binHeight);
@@ -220,57 +219,30 @@ void ImageHandelingComponent::drawGridBins()
 
 	for (Point iter : expectedPoints)
 	{
-		rectangle(imgScreen.imgColor, Point(iter.x + xOffset, iter.y + yOffset), Point(iter.x + blockWidth + xOffset, iter.y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
+		rectangle(*imgScreen.getColor(), Point(iter.x + xOffset, iter.y + yOffset), Point(iter.x + blockWidth + xOffset, iter.y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
 	}
-	rectangle(imgScreen.imgColor, start, end, cv::Scalar(255, 100, 255), 5);
+	rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
 }
 
 bool ImageHandelingComponent::cropToGameWindow()
 {
 	
 	vector<vector<Vec3b>> cVecOutput;
-	imageTo2dCollorVec(imageResources.imgGameLogo.imgColor, cVecOutput, Point(2, 2));
+	imageTo2dCollorVec(*imageResources.imgGameLogo.getColor(), cVecOutput, Point(2, 2));
 
-	if (singleColorMatchingFast(imgScreen.imgColor, cVecOutput, gameLogoPos))
+	if (singleColorMatchingFast(*imgScreen.getColor(), cVecOutput, gameLogoPos))
 		return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 	else {
-		if (singleTemplateMatchingGrey(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, gameLogoPos))
+		if (singleTemplateMatchingGrey(*imgScreen.getGray(), *imageResources.imgGameLogo.getGray(), 0.9, gameLogoPos))
 		{
-			return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
+			;//return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 		}
 		else
 			return false;
 	}
-	/*
-	if (singleTemplateMatchingGreyExact(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, gameLogoPos))
-		return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
-	else {
-		if (singleTemplateMatchingGrey(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, gameLogoPos))
-		{
-			return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
-		}
-		else
-			return false;
-	}*/
-	
-	/*250.0ms
-	if (singleTemplateMatchingGrey(imgScreen.imGray, imageResources.imgGameLogo.imGray, 0.9, gameLogoPos))
-	{
-		return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
-	}
-
-	/*
-	vector<vector<Vec3b>> cVecOutput;
-	imageTo2dCollorVec(imageResources.imgGameLogo.imgColor, cVecOutput, Point(2, 2));
-	if (singleColorMatching(imgScreen.imgColor, cVecOutput, gameLogoPos))
-	{
-		return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
-	}
-	*/
 
 	return false;
 }
-
 
 bool ImageHandelingComponent::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec3b>>& cTemplate, Point& searhPoint)
 {
