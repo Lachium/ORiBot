@@ -22,6 +22,7 @@ public:
 	ImageHandelingComponent();
 	bool cropToGameWindow();
 	void drawGridBins();
+	void getGridPixels();
 	void camptureScreen();
 	imageResourceItem imgScreen;
 
@@ -37,4 +38,6 @@ private:
 	bool colorSearchSingle(Mat& imgColor, Vec3b color, Point& matchPoint);
 	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint);
 	void imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size);
+	int xOffset = 0;
+	int yOffset = 0;
 };

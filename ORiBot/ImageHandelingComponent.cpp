@@ -17,8 +17,8 @@ void ImageHandelingComponent::camptureScreen()
 	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type	
 	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
 
-	//imgScreen = imageResourceItem("../Content/img/screenshifted.bmp"); // Fix mat.type
-	imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
+	imgScreen = imageResourceItem("../Content/img/screenshifted.bmp"); // Fix mat.type
+	//imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
 }
 
 Mat ImageHandelingComponent::hwnd2mat(HWND hwnd) {
@@ -209,8 +209,8 @@ void ImageHandelingComponent::drawGridBins()
 	Point2f estimatedBin = Point2f(firstTile.x / binWidth, firstTile.y / binHeight);
 
 	int expectedBin = estimatedBin.y * (maxBinsX + 1) + estimatedBin.x;
-	int xOffset = -(int)(expectedPoints.at(expectedBin).x - firstTile.x);
-	int yOffset = -2-(int)(expectedPoints.at(expectedBin).y - firstTile.y);
+	xOffset = -(int)(expectedPoints.at(expectedBin).x - firstTile.x);
+	yOffset = -2-(int)(expectedPoints.at(expectedBin).y - firstTile.y);
 	Point start = expectedPoints.at(expectedBin) + Point(xOffset, yOffset);
 	int endX = (int)(start.x + blockWidth);
 	int endY = (int)(start.y + blockHeight);
@@ -219,14 +219,14 @@ void ImageHandelingComponent::drawGridBins()
 
 	for (Point iter : expectedPoints)
 	{
-		rectangle(*imgScreen.getColor(), Point(iter.x + xOffset, iter.y + yOffset), Point(iter.x + blockWidth + xOffset, iter.y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
+		//rectangle(*imgScreen.getColor(), Point(iter.x + xOffset, iter.y + yOffset), Point(iter.x + blockWidth + xOffset, iter.y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
 	}
 	rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
 }
 
 bool ImageHandelingComponent::cropToGameWindow()
 {
-	
+
 	vector<vector<Vec3b>> cVecOutput;
 	imageTo2dCollorVec(*imageResources.imgGameLogo.getColor(), cVecOutput, Point(2, 2));
 
@@ -297,4 +297,26 @@ void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vect
 		}
 		cVecOutput.push_back(line);
 	}
+}
+
+void ImageHandelingComponent::getGridPixels()
+{
+	Mat look = Mat::zeros((int)maxBinsY * blockHeight, (int)maxBinsX * blockWidth, CV_8UC3);
+
+	for (int i = 0; i < expectedPoints.size(); i++)
+	{
+		for (int x = blockWidth / 2; x < blockWidth; x++)
+			for (int y = blockHeight / 2; y < blockHeight; y++)
+			{
+				int xpos = expectedPoints.at(i).x + x + xOffset;
+				int ypos = expectedPoints.at(i).y + y + yOffset;
+				if (!(xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols - 1 || ypos > imgScreen.getColor()->rows - 1))
+				{
+					//cout << iter.x << " , " << iter.y << ") = (" << xpos << "," << ypos << endl;
+					imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos)) = Vec3b::all(210);
+					look.at<Vec3b>(Point(x, y)) = imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos));
+				}
+			}
+	}
+	imshow("look", look);
 }
