@@ -17,8 +17,8 @@ void ImageHandelingComponent::camptureScreen()
 	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type	
 	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
 
-	imgScreen = imageResourceItem("../Content/img/screenshifted.bmp"); // Fix mat.type
-	//imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
+	//imgScreen = imageResourceItem("../Content/img/screenshifted.bmp"); // Fix mat.type
+	imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
 }
 
 Mat ImageHandelingComponent::hwnd2mat(HWND hwnd) {
@@ -141,9 +141,11 @@ bool ImageHandelingComponent::singleTemplateMatchingGreyExact(Mat& mInput, Mat& 
 	}
 }
 
-void ImageHandelingComponent::getGameGrid(vector<Point>& outputVec)
+void ImageHandelingComponent::getGameGrid(vector<vector<Point>>& outputVec)
 {
 	for (int r = 0; r < maxBinsY + 1; r++)
+	{
+		vector<Point> line;
 		for (int c = 0; c < maxBinsX + 1; c++)
 		{
 			double xShift = ((-(maxBinsX * 0.5) + c) * 0.8) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * 0.014;
@@ -156,14 +158,16 @@ void ImageHandelingComponent::getGameGrid(vector<Point>& outputVec)
 			int endY = (int)(start.y + blockHeight);
 			Point end = Point(endX, endY);
 
-			outputVec.push_back(Point(startX, startY));
+			line.push_back(Point(startX, startY));
 		}
+		outputVec.push_back(line);
+	}
 }
 
-bool ImageHandelingComponent::colorSearchSingle(Mat& colorImg, Vec3b color, Point & matchPoint)
+bool ImageHandelingComponent::colorSearchSingle(Mat& colorImg, Vec3b color, Point& matchPoint)
 {
 	int offset;
-	for (int r = 0; r < colorImg.rows -1; r++)
+	for (int r = 0; r < colorImg.rows - 1; r++)
 		for (int c = 0; c < colorImg.cols - 1; c++)
 		{
 			//4 channel image compare to 3 channel image
@@ -208,19 +212,20 @@ void ImageHandelingComponent::drawGridBins()
 
 	Point2f estimatedBin = Point2f(firstTile.x / binWidth, firstTile.y / binHeight);
 
-	int expectedBin = estimatedBin.y * (maxBinsX + 1) + estimatedBin.x;
-	xOffset = -(int)(expectedPoints.at(expectedBin).x - firstTile.x);
-	yOffset = -2-(int)(expectedPoints.at(expectedBin).y - firstTile.y);
-	Point start = expectedPoints.at(expectedBin) + Point(xOffset, yOffset);
+	int exBinX = firstTile.x / binWidth;
+	int exBinY = firstTile.y / binHeight;
+	xOffset = -(int)(expectedPoints.at(exBinY).at(exBinX).x - firstTile.x);
+	yOffset = -2-(int)(expectedPoints.at(exBinY).at(exBinX).y - firstTile.y);
+	Point start = expectedPoints.at(exBinY).at(exBinX) + Point(xOffset, yOffset);
 	int endX = (int)(start.x + blockWidth);
 	int endY = (int)(start.y + blockHeight);
 	Point end = Point(endX, endY);
 
 
-	for (Point iter : expectedPoints)
-	{
-		//rectangle(*imgScreen.getColor(), Point(iter.x + xOffset, iter.y + yOffset), Point(iter.x + blockWidth + xOffset, iter.y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
-	}
+	//for (int r = 0; r < expectedPoints.size(); r++)
+	//	for (int c = 0; c < expectedPoints.front().size(); c++)
+	//		rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset, expectedPoints.at(r).at(c).y + yOffset), Point(expectedPoints.at(r).at(c).x + blockWidth + xOffset, expectedPoints.at(r).at(c).y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
+
 	rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
 }
 
@@ -301,20 +306,22 @@ void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vect
 
 void ImageHandelingComponent::getGridPixels()
 {
-	Mat look = Mat::zeros((int)maxBinsY * blockHeight, (int)maxBinsX * blockWidth, CV_8UC3);
+	Mat look = Mat::zeros((int)maxBinsY * blockHeight, (int)maxBinsX * blockWidth, CV_8UC4);
 
-	for (int i = 0; i < expectedPoints.size(); i++)
+	for (int r = 0; r < expectedPoints.size(); r++)
+		for (int c = 0; c < expectedPoints.front().size(); c++)
 	{
-		for (int x = blockWidth / 2; x < blockWidth; x++)
-			for (int y = blockHeight / 2; y < blockHeight; y++)
+		for (int x = 1; x < blockWidth-1; x++)
+			for (int y = 1; y < blockHeight-1; y++)
 			{
-				int xpos = expectedPoints.at(i).x + x + xOffset;
-				int ypos = expectedPoints.at(i).y + y + yOffset;
+				//cout << r << " , " << c << "    "<< expectedPoints.front().size() << " , " << expectedPoints.size() << endl;
+				int xpos = expectedPoints.at(r).at(c).x + x + xOffset;
+				int ypos = expectedPoints.at(r).at(c).y + y + yOffset;
 				if (!(xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols - 1 || ypos > imgScreen.getColor()->rows - 1))
 				{
 					//cout << iter.x << " , " << iter.y << ") = (" << xpos << "," << ypos << endl;
-					imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos)) = Vec3b::all(210);
-					look.at<Vec3b>(Point(x, y)) = imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos));
+					look.at<Vec4b>(Point(c+x, r+y)) = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos));
+					imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)) = Vec4b::all(210);
 				}
 			}
 	}
