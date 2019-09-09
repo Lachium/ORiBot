@@ -24,20 +24,25 @@ public:
 	void drawGridBins();
 	void getGridPixels();
 	void camptureScreen();
+	void getGameGrid(vector<vector<Point>>& outputVec);
 	imageResourceItem imgScreen;
+	int xOffset = 0;
+	int yOffset = 0;
+	int shiftA = 862;
+	int shiftB = 19;
+	int shiftC = 772;
+	int xOffsetConst = 552;
+	int yOffsetConst = 614;
+	vector<vector<Point>> expectedPoints;
 
 private:
 	ImageResources imageResources;
 	Point gameLogoPos = Point(-1,-1);
-	vector<vector<Point>> expectedPoints;
 	Mat hwnd2mat(HWND hwnd);
 	bool multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, vector<Point2f>& List_Matches);
 	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint);
 	bool singleTemplateMatchingGreyExact(Mat& mInput, Mat& mTemplate, float Threshold, Point& startPoint);
-	void getGameGrid(vector<vector<Point>>& outputVec);
 	bool colorSearchSingle(Mat& imgColor, Vec3b color, Point& matchPoint);
 	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint);
 	void imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size);
-	int xOffset = 0;
-	int yOffset = 0;
 };

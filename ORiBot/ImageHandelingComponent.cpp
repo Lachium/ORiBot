@@ -143,13 +143,14 @@ bool ImageHandelingComponent::singleTemplateMatchingGreyExact(Mat& mInput, Mat& 
 
 void ImageHandelingComponent::getGameGrid(vector<vector<Point>>& outputVec)
 {
+	outputVec.clear();
 	for (int r = 0; r < maxBinsY + 1; r++)
 	{
 		vector<Point> line;
 		for (int c = 0; c < maxBinsX + 1; c++)
 		{
-			double xShift = ((-(maxBinsX * 0.5) + c) * 0.8) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * 0.014;
-			double yShift = r * 0.82;
+			double xShift = ((-(maxBinsX * 0.5) + c) * shiftA/1000.0) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * (shiftB/1000.0);
+			double yShift = r * (shiftC/1000.0);
 
 			int startX = (int)(c * binWidth + 14 + xShift);
 			int startY = (int)(r * binHeight + 10 + yShift);
@@ -214,8 +215,8 @@ void ImageHandelingComponent::drawGridBins()
 
 	int exBinX = firstTile.x / binWidth;
 	int exBinY = firstTile.y / binHeight;
-	xOffset = -(int)(expectedPoints.at(exBinY).at(exBinX).x - firstTile.x);
-	yOffset = -2-(int)(expectedPoints.at(exBinY).at(exBinX).y - firstTile.y);
+	xOffset = (int)((5- xOffsetConst/100.0)-(expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
+	yOffset = (int)((5 - yOffsetConst / 100.0) -(expectedPoints.at(exBinY).at(exBinX).y - firstTile.y));
 	Point start = expectedPoints.at(exBinY).at(exBinX) + Point(xOffset, yOffset);
 	int endX = (int)(start.x + blockWidth);
 	int endY = (int)(start.y + blockHeight);
@@ -240,7 +241,7 @@ bool ImageHandelingComponent::cropToGameWindow()
 	else {
 		if (singleTemplateMatchingGrey(*imgScreen.getGray(), *imageResources.imgGameLogo.getGray(), 0.9, gameLogoPos))
 		{
-			;//return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
+			return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 		}
 		else
 			return false;
@@ -306,24 +307,23 @@ void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vect
 
 void ImageHandelingComponent::getGridPixels()
 {
-	Mat look = Mat::zeros((int)maxBinsY * blockHeight, (int)maxBinsX * blockWidth, CV_8UC4);
-
+	int rezize = -2;
+	Mat look;
+	imgScreen.getColor()->type() == 24 ? look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC4) : look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC3);
+	
 	for (int r = 0; r < expectedPoints.size(); r++)
 		for (int c = 0; c < expectedPoints.front().size(); c++)
-	{
-		for (int x = 1; x < blockWidth-1; x++)
-			for (int y = 1; y < blockHeight-1; y++)
+		for (int x = rezize; x < blockWidth- rezize; x++)
+			for (int y = rezize; y < blockHeight- rezize; y++)
 			{
-				//cout << r << " , " << c << "    "<< expectedPoints.front().size() << " , " << expectedPoints.size() << endl;
 				int xpos = expectedPoints.at(r).at(c).x + x + xOffset;
 				int ypos = expectedPoints.at(r).at(c).y + y + yOffset;
-				if (!(xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols - 1 || ypos > imgScreen.getColor()->rows - 1))
+				if (!((xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols - 1 || ypos > imgScreen.getColor()->rows - 1)) && (c * (blockWidth - rezize * 2) + x >= 0) && (c * (blockWidth - rezize * 2) + x < look.cols - 1) && (r * (blockHeight - rezize * 2) + y >= 0) && (r * (blockHeight - rezize * 2) + y < look.rows - 1))
 				{
-					//cout << iter.x << " , " << iter.y << ") = (" << xpos << "," << ypos << endl;
-					look.at<Vec4b>(Point(c+x, r+y)) = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos));
-					imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)) = Vec4b::all(210);
+					if (imgScreen.getColor()->type() == 24) look.at<Vec4b>(Point(c * (blockWidth - rezize * 2) + x, r * (blockHeight - rezize * 2) + y)) = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)); else look.at<Vec3b>(Point(c * (blockWidth - rezize * 2) + x, r * (blockHeight - rezize * 2) + y)) = imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos));
+					if (imgScreen.getColor()->type() == 24) imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)) = Vec4b::all(255); else imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos)) = Vec3b::all(255);
 				}
 			}
-	}
+	cv::resize(look, look, cv::Size(), 4, 4, INTER_NEAREST);
 	imshow("look", look);
 }
