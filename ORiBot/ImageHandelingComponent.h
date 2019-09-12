@@ -28,11 +28,11 @@ public:
 	imageResourceItem imgScreen;
 	int xOffset = 0;
 	int yOffset = 0;
-	int shiftA = 862;
-	int shiftB = 19;
-	int shiftC = 772;
-	int xOffsetConst = 552;
-	int yOffsetConst = 614;
+	int shiftA = 828;
+	int shiftB = 14;
+	int shiftC = 718;
+	int xOffsetConst = 710;
+	int yOffsetConst = 615;
 	vector<vector<Point>> expectedPoints;
 
 private:
@@ -43,6 +43,8 @@ private:
 	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint);
 	bool singleTemplateMatchingGreyExact(Mat& mInput, Mat& mTemplate, float Threshold, Point& startPoint);
 	bool colorSearchSingle(Mat& imgColor, Vec3b color, Point& matchPoint);
+	bool colorSearchSingleMap(Mat& imgColor, Vec3b color, Point& matchPoint);
 	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint);
 	void imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size);
+	Vec4b getMode(vector<Vec4b> colors);
 };

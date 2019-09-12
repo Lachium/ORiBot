@@ -1,7 +1,8 @@
 #pragma once
 #include "imageResourceItem.h"
 
-#define dir "../Content/img/"
+//#define dir "../Content/img/"
+#define dir "C:/ORiBot/Content/img/"
 
 class ImageResources
 {

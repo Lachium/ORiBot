@@ -181,6 +181,46 @@ bool ImageHandelingComponent::colorSearchSingle(Mat& colorImg, Vec3b color, Poin
 
 				if (offset < 1)
 				{
+					//cout << "offset: " << offset << endl;
+					matchPoint = Point(c, r);
+					return true;
+				}
+			}
+			//3 channel image compare to 3 channel image
+			else
+			{
+				//cout << colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				offset = abs((colorImg.at<Vec3b>(Point(c, r))[0] - color[0])) +
+					abs((colorImg.at<Vec3b>(Point(c, r))[1] - color[1])) +
+					abs((colorImg.at<Vec3b>(Point(c, r))[2] - color[2]));
+
+				if (offset == 0)
+				{
+					matchPoint = Point(c, r);
+					return true;
+				}
+			}
+		}
+	cout << "No Fast Color Find - offset: " << offset << " image type: " << colorImg.type() << endl;
+	return false;
+}
+
+bool ImageHandelingComponent::colorSearchSingleMap(Mat& colorImg, Vec3b color, Point& matchPoint)
+{
+	int offset;
+	for (int r = binHeight * 2; r < colorImg.rows - 1; r++)
+		for (int c = binWidth * 2; c < colorImg.cols - 1; c++)
+		{
+			//4 channel image compare to 3 channel image
+			if (colorImg.type() == 24)
+			{
+				//cout << colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				offset = abs((colorImg.at<Vec4b>(Point(c, r))[0] - color[0])) +
+					abs((colorImg.at<Vec4b>(Point(c, r))[1] - color[1])) +
+					abs((colorImg.at<Vec4b>(Point(c, r))[2] - color[2]));
+
+				if (offset < 1)
+				{
 					cout << "offset: " << offset << endl;
 					matchPoint = Point(c, r);
 					return true;
@@ -208,15 +248,15 @@ bool ImageHandelingComponent::colorSearchSingle(Mat& colorImg, Vec3b color, Poin
 void ImageHandelingComponent::drawGridBins()
 {
 	Point firstTile;
-	if (!colorSearchSingle(*imgScreen.getColor(), Vec3b(0, 255, 0), firstTile))
+	if (!colorSearchSingleMap(*imgScreen.getColor(), Vec3b(0, 255, 0), firstTile))
 		return;
 
 	Point2f estimatedBin = Point2f(firstTile.x / binWidth, firstTile.y / binHeight);
 
 	int exBinX = firstTile.x / binWidth;
 	int exBinY = firstTile.y / binHeight;
-	xOffset = (int)((5- xOffsetConst/100.0)-(expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
-	yOffset = (int)((5 - yOffsetConst / 100.0) -(expectedPoints.at(exBinY).at(exBinX).y - firstTile.y));
+	xOffset = (int)((5- xOffsetConst/100.0) - (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
+	yOffset = (int)((5 - yOffsetConst / 100.0) - (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y));
 	Point start = expectedPoints.at(exBinY).at(exBinX) + Point(xOffset, yOffset);
 	int endX = (int)(start.x + blockWidth);
 	int endY = (int)(start.y + blockHeight);
@@ -226,7 +266,7 @@ void ImageHandelingComponent::drawGridBins()
 	//for (int r = 0; r < expectedPoints.size(); r++)
 	//	for (int c = 0; c < expectedPoints.front().size(); c++)
 	//		rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset, expectedPoints.at(r).at(c).y + yOffset), Point(expectedPoints.at(r).at(c).x + blockWidth + xOffset, expectedPoints.at(r).at(c).y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
-
+	
 	rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
 }
 
@@ -307,23 +347,71 @@ void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vect
 
 void ImageHandelingComponent::getGridPixels()
 {
-	int rezize = -2;
+	int rezize = 0;
 	Mat look;
+	Mat flat;
 	imgScreen.getColor()->type() == 24 ? look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC4) : look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC3);
-	
-	for (int r = 0; r < expectedPoints.size(); r++)
-		for (int c = 0; c < expectedPoints.front().size(); c++)
-		for (int x = rezize; x < blockWidth- rezize; x++)
-			for (int y = rezize; y < blockHeight- rezize; y++)
-			{
-				int xpos = expectedPoints.at(r).at(c).x + x + xOffset;
-				int ypos = expectedPoints.at(r).at(c).y + y + yOffset;
-				if (!((xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols - 1 || ypos > imgScreen.getColor()->rows - 1)) && (c * (blockWidth - rezize * 2) + x >= 0) && (c * (blockWidth - rezize * 2) + x < look.cols - 1) && (r * (blockHeight - rezize * 2) + y >= 0) && (r * (blockHeight - rezize * 2) + y < look.rows - 1))
+	flat = Mat::zeros((int)maxBinsY, (int)maxBinsX, CV_8UC4);
+
+	vector<Mat> imgs;
+	for (int r = 0; r < expectedPoints.size()-1; r++)
+		for (int c = 0; c < expectedPoints.front().size()-1; c++)
+		{
+			vector<Vec4b> colors;
+			for (int x = rezize; x < blockWidth - rezize; x++)
+				for (int y = rezize; y < blockHeight - rezize; y++)
 				{
-					if (imgScreen.getColor()->type() == 24) look.at<Vec4b>(Point(c * (blockWidth - rezize * 2) + x, r * (blockHeight - rezize * 2) + y)) = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)); else look.at<Vec3b>(Point(c * (blockWidth - rezize * 2) + x, r * (blockHeight - rezize * 2) + y)) = imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos));
-					if (imgScreen.getColor()->type() == 24) imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)) = Vec4b::all(255); else imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos)) = Vec3b::all(255);
+					int xpos = expectedPoints.at(r).at(c).x + x + xOffset;
+					int ypos = expectedPoints.at(r).at(c).y + y + yOffset;
+					if (!((xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols - 1 || ypos > imgScreen.getColor()->rows - 1)))
+					{
+						Vec4b color = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos));
+						if (!(color[0] == color[1] && color[0] == color[2]))
+							if (abs(color[0] - color[1]) + abs(color[0] - color[2]) > 50)
+							colors.push_back(color);
+						if ((c * (blockWidth - rezize * 2) + x >= 0) && (c * (blockWidth - rezize * 2) + x < look.cols - 1) && (r * (blockHeight - rezize * 2) + y >= 0) && (r * (blockHeight - rezize * 2) + y < look.rows - 1))
+						{
+							if (imgScreen.getColor()->type() == 24) look.at<Vec4b>(Point(c * (blockWidth - rezize * 2) + x, r * (blockHeight - rezize * 2) + y)) = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)); else look.at<Vec3b>(Point(c * (blockWidth - rezize * 2) + x, r * (blockHeight - rezize * 2) + y)) = imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos));
+							if (imgScreen.getColor()->type() == 24) imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)) = Vec4b::all(255); else imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos)) = Vec3b::all(255);
+						}
+
+					}
 				}
-			}
+			if(!colors.empty())
+				flat.at<Vec4b>(Point(c, r)) = getMode(colors);
+		}
+	cv::resize(flat, flat, cv::Size(), 4, 4, INTER_NEAREST);
+	imshow("flat", flat);
 	cv::resize(look, look, cv::Size(), 4, 4, INTER_NEAREST);
 	imshow("look", look);
+}
+
+Vec4b ImageHandelingComponent::getMode(vector<Vec4b> colors)
+{
+	
+	Vec4b number = colors.front();
+	Vec4b mode = number;
+	int count = 1;
+	int countMode = 1;
+
+	for (int i = 1; i < colors.size(); i++)
+	{
+		if (colors.at(i) == number)
+		{ // count occurrences of the current number
+			++count;
+		}
+		else
+		{ // now this is a different number
+			if (count > countMode)
+			{
+				countMode = count; // mode is the biggest ocurrences
+				mode = number;
+			}
+			count = 1; // reset count for the new number
+			number = colors.at(i);
+		}
+	}
+
+	//cout << "mode : " << mode << endl;
+	return mode;
 }
