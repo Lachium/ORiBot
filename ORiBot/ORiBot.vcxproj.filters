@@ -32,5 +32,11 @@
     <ClInclude Include="ImageHandelingComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mob.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thought.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

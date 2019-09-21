@@ -2,23 +2,23 @@
 
 ImageHandelingComponent::ImageHandelingComponent()
 {
-	//imageResources = ImageResources();
 	getGameGrid(expectedPoints);
 }
 
-void ImageHandelingComponent::camptureScreen()
+bool ImageHandelingComponent::camptureScreen(Mat& world)
 {
-	//Mat savedCapt = imread("../Content/img/screen.bmp"); // Fix mat.type
-	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
-	//Mat scCap = (hwnd2mat(GetDesktopWindow()));
-	//cv::cvtColor(scCap, scCap, COLOR_BGRA2BGR);
-	//cout << scCap.type();
-	//imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
-	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type	
-	//imgScreen = imageResourceItem("../Content/img/screen.bmp"); // Fix mat.type
+	imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow()));
 
-	//imgScreen = imageResourceItem("../Content/img/screenshifted.bmp"); // Fix mat.type
-	imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow())); // Fix mat.type
+	if (cropToGameWindow())
+	{
+		drawGridBins();
+		world = getGridPixels();
+		return !world.empty();
+	}
+	else
+		cout << "Could not Crop\n";
+
+	return false;
 }
 
 Mat ImageHandelingComponent::hwnd2mat(HWND hwnd) {
@@ -255,19 +255,19 @@ void ImageHandelingComponent::drawGridBins()
 
 	int exBinX = firstTile.x / binWidth;
 	int exBinY = firstTile.y / binHeight;
-	xOffset = (int)((5- xOffsetConst/100.0) - (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
+	xOffset = (int)((5 - xOffsetConst / 100.0) - (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
 	yOffset = (int)((5 - yOffsetConst / 100.0) - (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y));
-	Point start = expectedPoints.at(exBinY).at(exBinX) + Point(xOffset, yOffset);
-	int endX = (int)(start.x + blockWidth);
-	int endY = (int)(start.y + blockHeight);
-	Point end = Point(endX, endY);
+	//Point start = expectedPoints.at(exBinY).at(exBinX) + Point(xOffset, yOffset);
+	//int endX = (int)(start.x + blockWidth);
+	//int endY = (int)(start.y + blockHeight);
+	//Point end = Point(endX, endY);
 
 
 	//for (int r = 0; r < expectedPoints.size(); r++)
 	//	for (int c = 0; c < expectedPoints.front().size(); c++)
 	//		rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset, expectedPoints.at(r).at(c).y + yOffset), Point(expectedPoints.at(r).at(c).x + blockWidth + xOffset, expectedPoints.at(r).at(c).y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
 	
-	rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
+	//rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
 }
 
 bool ImageHandelingComponent::cropToGameWindow()
@@ -345,12 +345,12 @@ void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vect
 	}
 }
 
-void ImageHandelingComponent::getGridPixels()
+Mat ImageHandelingComponent::getGridPixels()
 {
-	int rezize = 0;
-	Mat look;
+	int rezize = 2;
+	//Mat look;
 	Mat flat;
-	imgScreen.getColor()->type() == 24 ? look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC4) : look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC3);
+	//imgScreen.getColor()->type() == 24 ? look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC4) : look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC3);
 	flat = Mat::zeros((int)maxBinsY, (int)maxBinsX, CV_8UC4);
 
 	vector<Mat> imgs;
@@ -366,29 +366,28 @@ void ImageHandelingComponent::getGridPixels()
 					if (!((xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols - 1 || ypos > imgScreen.getColor()->rows - 1)))
 					{
 						Vec4b color = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos));
-						if (!(color[0] == color[1] && color[0] == color[2]))
-							if (abs(color[0] - color[1]) + abs(color[0] - color[2]) > 50)
+						if (!(color[0] == color[1] && color[1] == color[2]))
 							colors.push_back(color);
-						if ((c * (blockWidth - rezize * 2) + x >= 0) && (c * (blockWidth - rezize * 2) + x < look.cols - 1) && (r * (blockHeight - rezize * 2) + y >= 0) && (r * (blockHeight - rezize * 2) + y < look.rows - 1))
+						/*if ((c * (blockWidth - rezize * 2) + x >= 0) && (c * (blockWidth - rezize * 2) + x < look.cols - 1) && (r * (blockHeight - rezize * 2) + y >= 0) && (r * (blockHeight - rezize * 2) + y < look.rows - 1))
 						{
 							if (imgScreen.getColor()->type() == 24) look.at<Vec4b>(Point(c * (blockWidth - rezize * 2) + x, r * (blockHeight - rezize * 2) + y)) = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)); else look.at<Vec3b>(Point(c * (blockWidth - rezize * 2) + x, r * (blockHeight - rezize * 2) + y)) = imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos));
 							if (imgScreen.getColor()->type() == 24) imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos)) = Vec4b::all(255); else imgScreen.getColor()->at<Vec3b>(Point(xpos, ypos)) = Vec3b::all(255);
-						}
+						}*/
 
 					}
 				}
 			if(!colors.empty())
 				flat.at<Vec4b>(Point(c, r)) = getMode(colors);
 		}
-	cv::resize(flat, flat, cv::Size(), 4, 4, INTER_NEAREST);
+	/*cv::resize(flat, flat, cv::Size(), 4, 4, INTER_NEAREST);
 	imshow("flat", flat);
 	cv::resize(look, look, cv::Size(), 4, 4, INTER_NEAREST);
-	imshow("look", look);
+	imshow("look", look);*/
+	return flat;
 }
 
 Vec4b ImageHandelingComponent::getMode(vector<Vec4b> colors)
-{
-	
+{	
 	Vec4b number = colors.front();
 	Vec4b mode = number;
 	int count = 1;
@@ -397,21 +396,17 @@ Vec4b ImageHandelingComponent::getMode(vector<Vec4b> colors)
 	for (int i = 1; i < colors.size(); i++)
 	{
 		if (colors.at(i) == number)
-		{ // count occurrences of the current number
 			++count;
-		}
 		else
-		{ // now this is a different number
+		{
 			if (count > countMode)
 			{
-				countMode = count; // mode is the biggest ocurrences
+				countMode = count;
 				mode = number;
 			}
-			count = 1; // reset count for the new number
+			count = 1;
 			number = colors.at(i);
 		}
 	}
-
-	//cout << "mode : " << mode << endl;
 	return mode;
 }

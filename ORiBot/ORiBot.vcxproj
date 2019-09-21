@@ -161,6 +161,8 @@
     <ClCompile Include="ORiBot.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="thought.h" />
+    <ClInclude Include="mob.h" />
     <ClInclude Include="ImageHandelingComponent.h" />
     <ClInclude Include="imageResourceItem.h" />
     <ClInclude Include="ImageResources.h" />

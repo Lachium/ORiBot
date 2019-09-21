@@ -22,8 +22,8 @@ public:
 	ImageHandelingComponent();
 	bool cropToGameWindow();
 	void drawGridBins();
-	void getGridPixels();
-	void camptureScreen();
+	Mat getGridPixels();
+	bool camptureScreen(Mat & world);
 	void getGameGrid(vector<vector<Point>>& outputVec);
 	imageResourceItem imgScreen;
 	int xOffset = 0;
