@@ -52,6 +52,8 @@ public:
 	void appendToMap(vector<vector<MapElement>> mapPiece)
 	{
 		vector<vector<MapElement>> cutMpPiece;
+		bool matchFound = false;
+		const int border = 3;
 
 		if (gridMap.size() == 0)
 		{
@@ -61,32 +63,33 @@ public:
 		else
 		{
 			//Cut Piece Corners
-			const int boarder = 3;
-			for (int rowPiece = boarder; rowPiece < mapPiece.size() - boarder; rowPiece++)
+			for (int rowPiece = border; rowPiece < mapPiece.size() - border; rowPiece++)
 			{
 				vector<MapElement> cutMpPieceLine;
-				for (int colPiece = boarder; colPiece < mapPiece.front().size() - boarder; colPiece++)
+				for (int colPiece = border; colPiece < mapPiece.front().size() - border; colPiece++)
 					cutMpPieceLine.push_back(mapPiece.at(rowPiece).at(colPiece));
 				cutMpPiece.push_back(cutMpPieceLine);
 			}
 
-			mapPiece = cutMpPiece;
+			cutMpPiece;
 
 
 			//Look for match
 			int matches = 0;
-			for (int foundRow = 0; foundRow < gridMap.size() - mapPiece.size(); foundRow++)
-				for (int foundCol = 0; foundCol < gridMap.front().size() - mapPiece.front().size(); foundCol++)
-					if (gridMap.at(foundRow).at(foundCol).name == mapPiece.front().front().name)
+			for (int foundRow = 0; foundRow < gridMap.size() - cutMpPiece.size(); foundRow++)
+				for (int foundCol = 0; foundCol < gridMap.front().size() - cutMpPiece.front().size(); foundCol++)
+					if (gridMap.at(foundRow).at(foundCol).name == cutMpPiece.front().front().name)
 					{
 						matches = 1;
-						for (int row = 1; ((row + foundRow) < gridMap.size() && row < mapPiece.size()); row++)
-							for (int col = 1; ((col + foundCol) < gridMap.front().size() && col < mapPiece.front().size()); col++)
-								if (gridMap.at((row + foundRow)).at((col + foundCol)).name == mapPiece.at(row).at(col).name ||
-									(gridMap.at((row + foundRow)).at((col + foundCol)).name == "WalkableA" && mapPiece.at(row).at(col).name == "WalkableB") ||
-									(gridMap.at((row + foundRow)).at((col + foundCol)).name == "WalkableB" && mapPiece.at(row).at(col).name == "WalkableA") ||
+						for (int row = 1; ((row + foundRow) < gridMap.size() && row < cutMpPiece.size()); row++)
+						{
+							for (int col = 1; ((col + foundCol) < gridMap.front().size() && col < cutMpPiece.front().size()); col++)
+							{
+								if (gridMap.at((row + foundRow)).at((col + foundCol)).name == cutMpPiece.at(row).at(col).name ||
+									(gridMap.at((row + foundRow)).at((col + foundCol)).name == "WalkableA" && cutMpPiece.at(row).at(col).name == "WalkableB") ||
+									(gridMap.at((row + foundRow)).at((col + foundCol)).name == "WalkableB" && cutMpPiece.at(row).at(col).name == "WalkableA") ||
 									gridMap.at((row + foundRow)).at((col + foundCol)).type == 1 ||
-									mapPiece.at(row).at(col).type == 1)
+									cutMpPiece.at(row).at(col).type == 1)
 								{
 									matches++;
 									//cout << matches << endl;
@@ -101,13 +104,64 @@ public:
 									//cout << "nextGrid" << endl;
 									goto nextGrid;
 								}
-						cout << "Complete Match: (" << matches << ") from: (" << foundRow << "," << foundCol << ")" << endl;
-					nextGrid:;
+							}
+						}
+						matchFound = true;
+					nextGrid:
+						//Append to Grid Map
+						if (matchFound)
+						{
+							foundRow -= border;
+							foundCol -= border;
+							cout << "Complete Match: (" << matches << ") from: (" << foundRow << "," << foundCol << ")" << endl;
+
+							cout << "Merge Point: " << "(" << foundRow << "," << foundCol << ")" << endl;
+
+							vector<vector<MapElement>> newGridMap;
+							for (int row = 0; row < foundRow + mapPiece.size(); row++)
+							{
+								vector<MapElement> newGridMapLine;
+								for (int col = 0; col < foundCol + mapPiece.front().size(); col++)
+								{
+									//cout << "now: (" << row << "," << col << ")" << endl;
+									if (row < gridMap.size() && col < gridMap.front().size())
+									{
+										//cout << "App Grid" << endl;
+										newGridMapLine.push_back(gridMap.at(row).at(col));
+									}
+									else if (row >= foundRow && col >= foundCol)
+									{
+										//cout << "App mapP" << endl;
+										//cout << "now: (" << row << "," << col << ")" << endl;
+										//cout << "Fnow: (" << foundRow << "," << foundCol << ")" << endl;
+										newGridMapLine.push_back(mapPiece.at(row - foundRow).at(col - foundCol));
+									}
+									else  if (row >= gridMap.size() && col < foundCol)
+									{
+										//cout << "App WH" << endl;
+										newGridMapLine.push_back(MapElement("Unknown", Vec3b(255, 255, 255), 1));
+									}
+									else if (row < foundRow && col >= gridMap.front().size())
+									{
+										//cout << "App WH" << endl;
+										newGridMapLine.push_back(MapElement("Unknown", Vec3b(255, 255, 255), 1));
+									}
+									else
+									{
+										//cout << "What now?" << endl;
+										newGridMapLine.push_back(MapElement("Unknown", Vec3b(255, 255, 255), 1));
+									}
+								}
+								newGridMap.push_back(newGridMapLine);
+							}
+							gridMap = newGridMap;
+							drawMap(gridMap, "grid");
+							return;
+						}
 						//cout << matches << endl;
 					}
 		}
-
-
+		drawMap(gridMap, "grid");
 	};
 
 	void drawMap(vector<vector<MapElement>>& map, string windowName)
