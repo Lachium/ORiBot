@@ -221,7 +221,7 @@ bool ImageHandelingComponent::colorSearchSingleMap(Mat& colorImg, Vec3b color, P
 
 				if (offset < 1)
 				{
-					cout << "offset: " << offset << endl;
+					//cout << "offset: " << offset << endl;
 					matchPoint = Point(c, r);
 					return true;
 				}
