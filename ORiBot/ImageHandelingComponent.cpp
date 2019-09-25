@@ -14,6 +14,7 @@ bool ImageHandelingComponent::camptureScreen(Mat& world)
 		drawGridBins();
 		world = getGridPixels();
 		return !world.empty();
+		//return true;
 	}
 	else
 		cout << "Could not Crop\n";
@@ -141,25 +142,17 @@ bool ImageHandelingComponent::singleTemplateMatchingGreyExact(Mat& mInput, Mat& 
 	}
 }
 
-void ImageHandelingComponent::getGameGrid(vector<vector<Point>>& outputVec)
+void ImageHandelingComponent::getGameGrid(vector<vector<Point2f>>& outputVec)
 {
 	outputVec.clear();
-	for (int r = 0; r < maxBinsY + 1; r++)
+	for (int r = 0; r < maxBinsY; r++)
 	{
-		vector<Point> line;
-		for (int c = 0; c < maxBinsX + 1; c++)
+		vector<Point2f> line;
+		for (int c = 0; c < maxBinsX; c++)
 		{
-			double xShift = ((-(maxBinsX * 0.5) + c) * shiftA/1000.0) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * (shiftB/1000.0);
-			double yShift = r * (shiftC/1000.0);
-
-			int startX = (int)(c * binWidth + 14 + xShift);
-			int startY = (int)(r * binHeight + 10 + yShift);
-			Point start = Point(startX, startY);
-			int endX = (int)(start.x + blockWidth);
-			int endY = (int)(start.y + blockHeight);
-			Point end = Point(endX, endY);
-
-			line.push_back(Point(startX, startY));
+			double xShift = ((-(maxBinsX * 0.5) + c) * (0.5-shiftA/1000.0)) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * (shiftB/10000.0);
+			double yShift = r * (1 - shiftC/1000.0);
+			line.push_back(Point2f((c * binWidth + xShift), (r * binHeight + yShift)));
 		}
 		outputVec.push_back(line);
 	}
@@ -208,8 +201,8 @@ bool ImageHandelingComponent::colorSearchSingle(Mat& colorImg, Vec3b color, Poin
 bool ImageHandelingComponent::colorSearchSingleMap(Mat& colorImg, Vec3b color, Point& matchPoint)
 {
 	int offset;
-	for (int r = binHeight * 2; r < colorImg.rows - 1; r++)
-		for (int c = binWidth * 2; c < colorImg.cols - 1; c++)
+	for (int r = binHeight * 2; r < colorImg.rows - 1 - binHeight * 0; r++)
+		for (int c = binWidth * 2; c < colorImg.cols - 1 - binWidth * 0; c++)
 		{
 			//4 channel image compare to 3 channel image
 			if (colorImg.type() == 24)
@@ -253,21 +246,36 @@ void ImageHandelingComponent::drawGridBins()
 
 	Point2f estimatedBin = Point2f(firstTile.x / binWidth, firstTile.y / binHeight);
 
-	int exBinX = firstTile.x / binWidth;
-	int exBinY = firstTile.y / binHeight;
-	xOffset = (int)((5 - xOffsetConst / 100.0) - (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
-	yOffset = (int)((5 - yOffsetConst / 100.0) - (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y));
-	//Point start = expectedPoints.at(exBinY).at(exBinX) + Point(xOffset, yOffset);
-	//int endX = (int)(start.x + blockWidth);
-	//int endY = (int)(start.y + blockHeight);
-	//Point end = Point(endX, endY);
+	int exBinX = (int)(firstTile.x / (binWidth + (firstTile.x/1280.0)*0.567));
+	int exBinY = (int)(firstTile.y / binHeight);
+	xOffset = ((40 - xOffsetConst / 10.0) - (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
+	yOffset = ((20 - yOffsetConst / 10.0) - (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y));
+	//cout << "(" << firstTile.x << "," << firstTile.y << ") ->" <<
+	//	"(" << (firstTile.x / (binWidth + firstTile.x*((binWithShift / 100)))) << "," << (firstTile.y / binHeight) << ") ->" <<
+	//	"(" << exBinX << "," << exBinY << ") ->"  << 
+	//	"(" << (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x) << "," << (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y) << ")" << endl;
 
 
-	//for (int r = 0; r < expectedPoints.size(); r++)
-	//	for (int c = 0; c < expectedPoints.front().size(); c++)
-	//		rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset, expectedPoints.at(r).at(c).y + yOffset), Point(expectedPoints.at(r).at(c).x + blockWidth + xOffset, expectedPoints.at(r).at(c).y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
-	
-	//rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
+	for (int r = 0; r < expectedPoints.size(); r++)
+	{
+		int binWidthThis = (binWidth + (firstTile.x / 1280.0) * 0.567);
+		for (int c = 0; c < expectedPoints.front().size(); c++)
+		{
+			rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset, expectedPoints.at(r).at(c).y + yOffset), Point(expectedPoints.at(r).at(c).x + blockWidth + xOffset, expectedPoints.at(r).at(c).y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
+	//		rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset - binWidthThis / 2, expectedPoints.at(r).at(c).y + yOffset - binHeight / 2), Point(expectedPoints.at(r).at(c).x + xOffset + binWidthThis / 2, expectedPoints.at(r).at(c).y + yOffset + binHeight / 2), cv::Scalar(255, 255, 100), 0);
+		}
+	}
+
+
+	Point start = Point(expectedPoints.at(exBinY).at(exBinX).x + xOffset , +expectedPoints.at(exBinY).at(exBinX).y + yOffset);
+	Point end = Point(start.x + blockWidth, start.y + blockHeight);
+	rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
+
+
+	Point startF = Point(firstTile.x,firstTile.y);
+	Point endF = Point(startF.x + 3, startF.y + 3);
+	rectangle(*imgScreen.getColor(), startF, endF, cv::Scalar(100, 255, 255), 5);
+
 }
 
 bool ImageHandelingComponent::cropToGameWindow()
@@ -354,8 +362,8 @@ Mat ImageHandelingComponent::getGridPixels()
 	flat = Mat::zeros((int)maxBinsY, (int)maxBinsX, CV_8UC4);
 
 	vector<Mat> imgs;
-	for (int r = 0; r < expectedPoints.size()-1; r++)
-		for (int c = 0; c < expectedPoints.front().size()-1; c++)
+	for (int r = 0; r < expectedPoints.size()- 1; r++)
+		for (int c = 0; c < expectedPoints.front().size()- 1; c++)
 		{
 			vector<Vec4b> colors;
 			for (int x = rezize; x < blockWidth - rezize; x++)
@@ -363,7 +371,7 @@ Mat ImageHandelingComponent::getGridPixels()
 				{
 					int xpos = expectedPoints.at(r).at(c).x + x + xOffset;
 					int ypos = expectedPoints.at(r).at(c).y + y + yOffset;
-					if (!((xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols - 1 || ypos > imgScreen.getColor()->rows - 1)))
+					if (!((xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols || ypos > imgScreen.getColor()->rows)))
 					{
 						Vec4b color = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos));
 						if (!(color[0] == color[1] && color[1] == color[2]))

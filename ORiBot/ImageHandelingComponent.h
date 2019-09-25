@@ -4,12 +4,10 @@
 //#include <opencv2/opencv.hpp>
 #include "ImageResources.h"
 
-#define maxBinsX 49
+#define maxBinsX 47
 #define maxBinsY 27
 #define gameWindownHeight 720
 #define gameWindownWidth 1280
-#define binWidth (gameWindownWidth/(maxBinsX-1))
-#define binHeight (gameWindownHeight/maxBinsY)
 #define blockWidth 6
 #define blockHeight 6
 
@@ -24,16 +22,20 @@ public:
 	void drawGridBins();
 	Mat getGridPixels();
 	bool camptureScreen(Mat & world);
-	void getGameGrid(vector<vector<Point>>& outputVec);
+	void getGameGrid(vector<vector<Point2f>>& outputVec);
 	imageResourceItem imgScreen;
-	int xOffset = 0;
-	int yOffset = 0;
-	int shiftA = 828;
-	int shiftB = 14;
-	int shiftC = 718;
-	int xOffsetConst = 710;
-	int yOffsetConst = 615;
-	vector<vector<Point>> expectedPoints;
+
+	double xOffset = 0.0;
+	double yOffset = 0.0;
+	int shiftA = 331;
+	int shiftB = 140;
+	int shiftC = 904;
+	int xOffsetConst = 412;
+	int yOffsetConst = 221;
+	const double binWidth = 26.667;
+	const double binHeight = 26.667;
+	int binWithShift = 280;
+	vector<vector<Point2f>> expectedPoints;
 
 private:
 	ImageResources imageResources;
