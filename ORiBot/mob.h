@@ -59,9 +59,9 @@ public:
 	{
 		addElement(Vec3bKey(0, 255, 255), MapElement("Unseen", Vec3b(0, 255, 255), 2));
 		addElement(Vec3bKey(255, 255, 255), MapElement("Unknown", Vec3b(255, 255, 255), 1));
-		addElement(Vec3bKey(0, 0, 0), MapElement("Black", Vec3b(0, 0, 0), 0));
-		addElement(Vec3bKey(255, 0, 0), MapElement("BlockedA", Vec3b(255, 0, 0), 0));
-		addElement(Vec3bKey(255, 0, 255), MapElement("BlockedB", Vec3b(255, 0, 255), 0));
+		addElement(Vec3bKey(0, 0, 0), MapElement("Black", Vec3b(0, 0, 0), 1));
+		addElement(Vec3bKey(79, 0, 0), MapElement("BlockedA", Vec3b(79, 0, 0), 0));
+		addElement(Vec3bKey(0, 0, 79), MapElement("BlockedB", Vec3b(0, 0, 79), 0));
 		addElement(Vec3bKey(0, 255, 0), MapElement("WalkableA", Vec3b(0, 255, 0), 0));
 		addElement(Vec3bKey(0, 239, 0), MapElement("WalkableB", Vec3b(0, 239, 0), 0));
 		addElement(Vec3bKey(0, 74, 255), MapElement("WalkableC", Vec3b(0, 74, 255), 0));
