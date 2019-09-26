@@ -72,8 +72,8 @@ public:
 		addElement(Vec3bKey(24, 0, 0), MapElement("poporing", Vec3b(24, 0, 0), 1));
 		addElement(Vec3bKey(41, 0, 0), MapElement("smokie", Vec3b(41, 0, 0), 1));
 		addElement(Vec3bKey(57, 0, 0), MapElement("bigfoot", Vec3b(57, 0, 0), 1));//
-		addElement(Vec3bKey(71, 0, 0), MapElement("caramel", Vec3b(71, 0, 0), 1));
 		addElement(Vec3bKey(90, 0, 0), MapElement("dustiness", Vec3b(90, 0, 0), 1));//
+		addElement(Vec3bKey(107, 0, 0), MapElement("caramel", Vec3b(107, 0, 0), 1));
 	};
 
 	void addElement(Vec3bKey color, MapElement mapElement)

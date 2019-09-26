@@ -256,7 +256,7 @@ void ImageHandelingComponent::drawGridBins()
 	//	"(" << (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x) << "," << (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y) << ")" << endl;
 
 
-	for (int r = 0; r < expectedPoints.size(); r++)
+	/*for (int r = 0; r < expectedPoints.size(); r++)
 	{
 		int binWidthThis = (binWidth + (firstTile.x / 1280.0) * 0.567);
 		for (int c = 0; c < expectedPoints.front().size(); c++)
@@ -264,7 +264,7 @@ void ImageHandelingComponent::drawGridBins()
 			rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset, expectedPoints.at(r).at(c).y + yOffset), Point(expectedPoints.at(r).at(c).x + blockWidth + xOffset, expectedPoints.at(r).at(c).y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
 	//		rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset - binWidthThis / 2, expectedPoints.at(r).at(c).y + yOffset - binHeight / 2), Point(expectedPoints.at(r).at(c).x + xOffset + binWidthThis / 2, expectedPoints.at(r).at(c).y + yOffset + binHeight / 2), cv::Scalar(255, 255, 100), 0);
 		}
-	}
+	}*/
 
 
 	Point start = Point(expectedPoints.at(exBinY).at(exBinX).x + xOffset , +expectedPoints.at(exBinY).at(exBinX).y + yOffset);
@@ -355,15 +355,16 @@ void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vect
 
 Mat ImageHandelingComponent::getGridPixels()
 {
+	const int boarder = 1;
 	int rezize = 2;
 	//Mat look;
 	Mat flat;
 	//imgScreen.getColor()->type() == 24 ? look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC4) : look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC3);
-	flat = Mat::zeros((int)maxBinsY, (int)maxBinsX, CV_8UC4);
+	flat = Mat::zeros((int)maxBinsY - boarder*2, (int)maxBinsX - boarder*2, CV_8UC4);
 
 	vector<Mat> imgs;
-	for (int r = 0; r < expectedPoints.size()- 1; r++)
-		for (int c = 0; c < expectedPoints.front().size()- 1; c++)
+	for (int r = boarder; r < expectedPoints.size() - boarder; r++)
+		for (int c = boarder; c < expectedPoints.front().size() - boarder; c++)
 		{
 			vector<Vec4b> colors;
 			for (int x = rezize; x < blockWidth - rezize; x++)
@@ -371,7 +372,7 @@ Mat ImageHandelingComponent::getGridPixels()
 				{
 					int xpos = expectedPoints.at(r).at(c).x + x + xOffset;
 					int ypos = expectedPoints.at(r).at(c).y + y + yOffset;
-					if (!((xpos< 0 || ypos < 0 || xpos > imgScreen.getColor()->cols || ypos > imgScreen.getColor()->rows)))
+					if (!((xpos< 0 || ypos < 0 || xpos >= imgScreen.getColor()->cols || ypos >= imgScreen.getColor()->rows)))
 					{
 						Vec4b color = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos));
 						if (!(color[0] == color[1] && color[1] == color[2]))
@@ -385,7 +386,7 @@ Mat ImageHandelingComponent::getGridPixels()
 					}
 				}
 			if(!colors.empty())
-				flat.at<Vec4b>(Point(c, r)) = getMode(colors);
+				flat.at<Vec4b>(Point(c- boarder, r- boarder)) = getMode(colors);
 		}
 	/*cv::resize(flat, flat, cv::Size(), 4, 4, INTER_NEAREST);
 	imshow("flat", flat);

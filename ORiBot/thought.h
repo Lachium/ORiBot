@@ -17,20 +17,20 @@ public:
 	Thought() {};
 	void printMapConents(Mat& world)
 	{
-		Mat eyes = Mat::zeros(world.rows, world.cols, CV_8UC4);
+		//Mat eyes = Mat::zeros(world.rows, world.cols, CV_8UC4);
 
 
 		//Mapping
 		vector<vector<MapElement>> mapPiece;
-		for (int row = 0; row < world.rows - 1; row++)
+		for (int row = 0; row < world.rows; row++)
 		{
 			vector<MapElement> mapRow;
-			for (int col = 0; col < world.cols - 1; col++)
+			for (int col = 0; col < world.cols; col++)
 			{
 				Vec4b worldColorPoint = (world.at<Vec4b>(Point(col, row)));
 				mapRow.push_back(mapElementCollection.searchMapElementByColor(Vec3b(worldColorPoint[0], worldColorPoint[1], worldColorPoint[2])));
 				Vec3b color = mapRow.back().color;
-				eyes.at<Vec4b>(Point(col, row)) = Vec4b(color[0], color[1], color[2], 255);
+				//eyes.at<Vec4b>(Point(col, row)) = Vec4b(color[0], color[1], color[2], 255);
 			}
 			mapPiece.push_back(mapRow);
 		}
@@ -38,13 +38,13 @@ public:
 		//drawMap(mapPiece, "piece");
 		//drawMap(gridMap, "grid");
 
-		//for (const auto& key : mapElementCollection.mapElements)
-		//	cout << key.second.name << " " << key.second.mapCount << endl;
+		for (const auto& key : mapElementCollection.mapElements)
+			cout << key.second.name << " " << key.second.mapCount << endl;
 
 		mapElementCollection.clearCounts();
 
-		cv::resize(eyes, eyes, cv::Size(), 10, 10, INTER_NEAREST);
-		imshow("Eyes", eyes);
+		//cv::resize(eyes, eyes, cv::Size(), 6, 6, INTER_NEAREST);
+		//imshow("Eyes", eyes);
 
 
 	};
@@ -229,10 +229,10 @@ public:
 									vector<MapElement> newGridMapLine;
 									for (int col = 0; col < colSize; col++)
 									{
-										const bool pPartCod = (row >= foundRow && col >= foundCol && row < foundRow + mapPiece.size() && col < mapPiece.front().size());
+										const bool pPartCod = (row >= foundRow && col >= foundCol && row < foundRow + mapPiece.size() && col < foundCol + mapPiece.front().size());
 										const int pPartRow = row - foundRow;
 										const int pPartCol = col - foundCol;
-										const bool gPartCod = (!(row >= foundRow && col >= foundCol && row < foundRow + mapPiece.size() && col < mapPiece.front().size()));
+										const bool gPartCod = (true);
 										const int gPartRow = row;
 										const int gPartCol = col;
 										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
@@ -351,17 +351,35 @@ public:
 	{
 		if (pPartCod && gPartCod) //CC
 		{
-			if (mapPiece.at(pPartRow).at(pPartRow).type != 0 && gridMap.at(gPartRow).at(gPartCol).type == 0)
-				return (gridMap.at(gPartRow).at(gPartCol));
-			else
+			if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
 				return (mapPiece.at(pPartRow).at(pPartCol));
-		}
-		else if (pPartCod) //P
-			return (mapPiece.at(pPartRow).at(pPartCol));
-		else if (gPartCod) //G
-			return(gridMap.at(gPartRow).at(gPartCol));
-		else
+
+			if (gridMap.at(gPartRow).at(gPartCol).type == 0)
+				return (gridMap.at(gPartRow).at(gPartCol));
+
+
 			return(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+		}
+
+		if (pPartCod) //P
+		{
+			if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+				return (mapPiece.at(pPartRow).at(pPartCol));
+
+
+			return(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+		}
+
+		if (gPartCod) //G
+		{
+			if (gridMap.at(gPartRow).at(gPartCol).type == 0)
+				return(gridMap.at(gPartRow).at(gPartCol));
+
+
+			return(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+		}
+
+		return(MapElement("Unseen", Vec3b(0, 255, 255), 2));
 	};
 
 	void drawMap(vector<vector<MapElement>>& map, string windowName)
@@ -372,7 +390,7 @@ public:
 			{
 				mapImg.at<Vec3b>(Point(col, row)) = map.at(row).at(col).color;
 			}
-		cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
+		//cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
 		imshow(windowName, mapImg);
 	};
 
