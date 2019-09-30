@@ -34,7 +34,7 @@ int main(int argv, char** argc)
 		if (imageHandelingComponent.camptureScreen(world))
 		{
 			//imshow("window", *imageHandelingComponent.imgScreen.getColor());
-			thought.printMapConents(world);
+			thought.lookAtMapConents(world);
 		}
 		end = clock();
 

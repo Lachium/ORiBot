@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="ImageHandelingComponent.cpp" />
     <ClCompile Include="ORiBot.cpp" />
+    <ClCompile Include="thought.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="thought.h" />
