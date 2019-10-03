@@ -11,12 +11,14 @@ class Thought
 {
 	MapElementCollection mapElementCollection;
 public:
-	vector<vector<MapElement>> gridMap;
+	deque<deque<MapElement>> gridMap;
+	Point lastGridPos = Point(-1,-1);
 
 	Thought() {};
 	void lookAtMapConents(Mat& world);
-	void appendToMap(vector<vector<MapElement>> & mapPiece);
-	MapElement innerConditions(const bool pPartCod, const bool gPartCod, const int pPartRow, const int pPartCol, const int gPartRow, const int gPartCol, vector<vector<MapElement>>& mapPiece, vector<vector<MapElement>>& gridMap);
-	void drawMap(vector<vector<MapElement>>& map, string windowName);
+	void appendToMap(deque<deque<MapElement>> & mapPiece);
+	MapElement innerConditions(const bool pPartCod, const bool gPartCod, const int pPartRow, const int pPartCol, const int gPartRow, const int gPartCol, deque<deque<MapElement>>& mapPiece, deque<deque<MapElement>>& gridMap);
+	void drawMap(deque<deque<MapElement>>& map, string windowName);
+	void pushToMap(int pushRow, int pushCol, int& foundRow, int& foundCol, MapElement mapElement);
 };
 

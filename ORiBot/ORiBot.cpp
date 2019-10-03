@@ -16,7 +16,6 @@ static void on_trackbar(int, void*)
 
 int main(int argv, char** argc)
 {
-	clock_t start, end;
 	//namedWindow("sliders", WINDOW_AUTOSIZE); // Create Window   
 
 	//createTrackbar("ShiftA", "sliders", &imageHandelingComponent.shiftA, 4000, on_trackbar);
@@ -28,7 +27,7 @@ int main(int argv, char** argc)
 	int key = 0;
 	while (true)
 	{
-		start = clock();
+		clock_t start = clock();
 
 		Mat world;
 		if (imageHandelingComponent.camptureScreen(world))
@@ -36,14 +35,14 @@ int main(int argv, char** argc)
 			//imshow("window", *imageHandelingComponent.imgScreen.getColor());
 			thought.lookAtMapConents(world);
 		}
-		end = clock();
 
-		double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
-		cout << fixed << time_taken * 1000 << setprecision(0); cout << "ms  "; cout << fixed << 1/time_taken << setprecision(1); cout << "FPS" << endl;
+		double time_taken = double((clock() - start) / double(CLOCKS_PER_SEC));
+		cout << endl << fixed << time_taken * 1000 << setprecision(0); cout << "ms  "; 
+		cout << fixed << 1 / time_taken << setprecision(1); cout << "FPS ";// << endl;
 
 
 		//imshow("Gray Img", imgScreenGray);
-		key = waitKey(10);
+		key = waitKey(5);
 		//cout << "\x1B[2J\x1B[H";
 	}
 	waitKey(0);
