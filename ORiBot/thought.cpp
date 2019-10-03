@@ -93,7 +93,7 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 							else
 							{
 								negativeMatch++;
-								if (negativeMatch > 5)
+								if (negativeMatch > 10)
 									goto nextGrid;
 							}
 						}
@@ -118,7 +118,7 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 						//1A
 						if (foundRow < 0 && foundCol < 0)
 						{
-							//cout << " 1A" << endl;
+							cout << " 1A ";
 							const int rowSize = -foundRow + gridMap.size();
 							const int colSize = -foundCol + gridMap.front().size();
 							deque<deque<MapElement>> newGridMapBlock;
@@ -134,6 +134,9 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 									const int pPartCol = col;
 									const int gPartCol = col + foundCol;
 									const bool gPartCod = (row >= -foundRow && col >= -foundCol);
+
+									if (gPartCod && !pPartCod) continue;
+
 									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
 										(gridMap.size() > gPartRow && foundRow >= 0))
 									{
@@ -174,11 +177,11 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 						else if (foundRow < 0 && foundCol >= 0 &&
 							foundCol + mapPiece.front().size() <= gridMap.front().size())
 						{
-							//cout << " 1B" << endl;
+							cout << " 1B ";
 							const int rowSize = -foundRow + gridMap.size();
 							const int colSize = gridMap.front().size();
 							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < rowSize; row++)
+							for (int row = 0; row < mapPiece.size(); row++)
 							{
 								deque<MapElement> newGridMapLine;
 								const int pPartRow = row;
@@ -190,6 +193,9 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 									const int pPartCol = col - foundCol;
 									const int gPartCol = col;
 									const bool gPartCod = (row >= -foundRow);
+
+									if (gPartCod && !pPartCod) continue;
+
 									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
 										(gridMap.size() > gPartRow && foundRow >= 0))
 									{
@@ -230,7 +236,7 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 						else if (foundRow < 0 && foundCol > 0 &&
 							foundCol + mapPiece.front().size() >= gridMap.front().size())
 						{
-							//cout << " 1C" << endl;
+							cout << " 1C ";
 							const int rowSize = -foundRow + gridMap.size();
 							const int colSize = foundCol + mapPiece.front().size();
 							deque<deque<MapElement>> newGridMapBlock;
@@ -246,6 +252,9 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 									const int pPartCol = col - foundCol;
 									const int gPartCol = col;
 									const bool gPartCod = (row >= -foundRow && col < gridMap.at(gPartRow).size());
+
+									if (gPartCod && !pPartCod) continue;
+
 									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
 										(gridMap.size() > gPartRow && foundRow >= 0))
 									{
@@ -286,9 +295,9 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 						else if (foundRow >= 0 && foundCol < 0 &&
 							foundRow + mapPiece.size() <= gridMap.size())
 						{
-							//cout << " 2A" << endl;
+							cout << " 2A ";
 							const int rowSize = gridMap.size();
-							const int colSize = -foundCol + gridMap.front().size();
+							const int colSize = mapPiece.front().size();//-foundCol + gridMap.front().size();
 							deque<deque<MapElement>> newGridMapBlock;
 							for (int row = 0; row < rowSize; row++)
 							{
@@ -302,6 +311,9 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 									const int pPartCol = col;
 									const int gPartCol = col + foundCol;
 									const bool gPartCod = (col >= -foundCol);
+
+									if (gPartCod && !pPartCod) continue;
+
 									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
 										(gridMap.size() > gPartRow && foundRow >= 0))
 									{
@@ -343,22 +355,25 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 							foundRow + mapPiece.size() <= gridMap.size() &&
 							foundCol + mapPiece.front().size() <= gridMap.front().size())
 						{
-							//cout << " 2B" << endl;
+							cout << " 2B ";
 							const int rowSize = gridMap.size();
 							const int colSize = gridMap.front().size();
 							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < rowSize; row++)
+							for (int row = foundRow + 1; row < foundRow + mapPiece.size(); row++)
 							{
 								deque<MapElement> newGridMapLine;
 								const int pPartRow = row - foundRow;
 								const int gPartRow = row;
-								for (int col = 0; col < colSize; col++)
+								for (int col = foundCol + 1; col < foundCol + mapPiece.front().size(); col++)
 								{
 									gridSearchLoopCount++;
 									const bool pPartCod = (row >= foundRow && col >= foundCol && row < foundRow + mapPiece.size() && col < foundCol + mapPiece.front().size());
 									const int pPartCol = col - foundCol;
 									const int gPartCol = col;
 									const bool gPartCod = (true);
+
+									if (gPartCod && !pPartCod) continue;
+
 									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
 										(gridMap.size() > gPartRow && foundRow >= 0))
 									{
@@ -400,7 +415,7 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 							foundRow + mapPiece.size() <= gridMap.size() &&
 							foundCol + mapPiece.front().size() > gridMap.front().size())
 						{
-							//cout << " 2C" << endl;
+							cout << " 2C ";
 							const int rowSize = gridMap.size();
 							const int colSize = foundCol + mapPiece.front().size();
 							deque<deque<MapElement>> newGridMapBlock;
@@ -409,13 +424,16 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 								const int pPartRow = row - foundRow;
 								const int gPartRow = row;
 								deque<MapElement> newGridMapLine;
-								for (int col = 0; col < colSize; col++)
+								for (int col = foundCol + 1; col < colSize; col++)
 								{
 									gridSearchLoopCount++;
 									const bool pPartCod = (row >= foundRow && col >= foundCol && row < foundRow + mapPiece.size());
 									const int pPartCol = col - foundCol;
 									const int gPartCol = col;
 									const bool gPartCod = (col < gridMap.at(gPartRow).size());
+
+									if (gPartCod && !pPartCod) continue;
+
 									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
 										(gridMap.size() > gPartRow && foundRow >= 0))
 									{
@@ -456,7 +474,7 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 						else if (foundRow > 0 && foundCol < 0 &&
 							foundRow + mapPiece.size() > gridMap.size())
 						{
-							//cout << " 3A" << endl;
+							cout << " 3A ";
 							const int rowSize = foundRow + mapPiece.size();
 							const int colSize = -foundCol + gridMap.front().size();
 							deque<deque<MapElement>> newGridMapBlock;
@@ -472,6 +490,9 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 									const int pPartCol = col;
 									const int gPartCol = col + foundCol;
 									const bool gPartCod = (row < gridMap.size() && col >= -foundCol);
+
+									if (gPartCod && !pPartCod) continue;
+
 									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
 										(gridMap.size() > gPartRow && foundRow >= 0))
 									{
@@ -513,11 +534,11 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 							foundCol + mapPiece.front().size() <= gridMap.front().size() &&
 							foundRow + mapPiece.size() > gridMap.size())
 						{
-							//cout << " 3B " << endl;
+							cout << " 3B ";
 							const int rowSize = foundRow + mapPiece.size();
 							const int colSize = gridMap.front().size();
 							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < rowSize; row++)
+							for (int row = foundRow + 1; row < rowSize; row++)
 							{
 								deque<MapElement> newGridMapLine;
 								const int pPartRow = row - foundRow;
@@ -529,6 +550,9 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 									const int pPartCol = col - foundCol;
 									const int gPartCol = col;
 									const bool gPartCod = (row < gridMap.size());
+
+									if (gPartCod && !pPartCod) continue;
+
 									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
 										(gridMap.size() > gPartRow && foundRow >= 0))
 									{
@@ -570,7 +594,7 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 							foundCol + mapPiece.front().size() > gridMap.front().size() &&
 							foundRow + mapPiece.size() > gridMap.size())
 						{
-							//cout << " 3C " << endl;
+							cout << " 3C " << endl;
 							const int rowSize = foundRow + mapPiece.size();
 							const int colSize = foundCol + mapPiece.front().size();
 							deque<deque<MapElement>> newGridMapBlock;
@@ -586,6 +610,9 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 									const int pPartCol = col - foundCol;
 									const bool gPartCod = (row < gridMap.size() && col < gridMap.at(gPartRow).size());
 									const int gPartCol = col;
+
+									if (gPartCod && !pPartCod) continue;
+
 									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
 										(gridMap.size() > gPartRow && foundRow >= 0))
 									{
