@@ -110,68 +110,103 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 						cout << "Found (" << foundRow << "," << foundCol << ") ";// << endl;
 						foundRow -= border;
 						foundCol -= border;
-						//cout << "Merge Point: " << "(" << foundRow << "," << foundCol << ")";
+						cout << " Merge Point: " << "(" << foundRow << "," << foundCol << ") ";
 
-						deque<deque<MapElement>> newGridMap;
+						//						deque<deque<MapElement>> newGridMap;
 
 
-						//1A
+												//1A
 						if (foundRow < 0 && foundCol < 0)
 						{
 							cout << " 1A ";
-							const int rowSize = -foundRow + gridMap.size();
-							const int colSize = -foundCol + gridMap.front().size();
-							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < rowSize; row++)
+							//CC
+							const int C_rowStart = -foundRow;
+							const int C_colStart = -foundCol;
+							const int C_rowSize = mapPiece.size();
+							const int C_colSize = mapPiece.front().size();
+							for (int row = C_rowStart; row < C_rowSize; row++)
 							{
 								const int pPartRow = row;
 								const int gPartRow = row + foundRow;
-								deque<MapElement> newGridMapLine;
-								for (int col = 0; col < colSize; col++)
+								for (int col = C_colStart; col < C_colSize; col++)
 								{
-									gridSearchLoopCount++;
-									const bool pPartCod = (row < mapPiece.size() && col < mapPiece.front().size());
 									const int pPartCol = col;
 									const int gPartCol = col + foundCol;
-									const bool gPartCod = (row >= -foundRow && col >= -foundCol);
+									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
+								}
+							}
+							//B1
+							const int B1_rowStart = -foundRow;
+							const int B1_colStart = 0;
+							const int B1_rowSize = -foundRow + gridMap.size();
+							const int B1_colSize = -foundCol;
+							for (int row = B1_rowStart; row < B1_rowSize; row++)
+							{
+								const int pPartRow = row;
+								const int gPartRow = row + foundRow;
+								for (int col = B1_colStart; col < B1_colSize; col++)
+								{
+									const int pPartCol = col;
+									const int gPartCol = col + foundCol;
+									const bool pPartCod = (row < mapPiece.size() && col < mapPiece.front().size());
 
-									if (gPartCod && !pPartCod) continue;
-
-									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
-										(gridMap.size() > gPartRow && foundRow >= 0))
+									MapElement* mapElementToAppend;
+									if (pPartCod)
 									{
-										if (gPartCod)
-										{
-											if (gridMap.at(gPartRow).at(gPartCol).type != 0)
-												gridMap.at(gPartRow).at(gPartCol) = (innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-										}
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapElementToAppend = &(mapPiece.at(pPartRow).at(pPartCol));
 										else
-											newGridMapLine.push_back((innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap)));
+											mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
 									}
 									else
-										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-								}
-								if ((gridMap.size() + newGridMapBlock.size() < rowSize && foundRow < 0) ||
-									(gridMap.size() <= gPartRow && foundRow >= 0))
-								{
+										mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+
 									if (foundRow < 0)
-										newGridMapBlock.push_front(newGridMapLine);
+										gridMap.at(gPartRow).push_front(*mapElementToAppend);
 									else
-										newGridMapBlock.push_back(newGridMapLine);
+										gridMap.at(gPartRow).push_back(*mapElementToAppend);
+									//delete mapElementToAppend;
 								}
-								else
-									if (foundCol < 0)
-										for (int i = newGridMapLine.size() - 1; i >= 0; i--)
-											gridMap.at(gPartRow).push_front(newGridMapLine.at(i));
-									else
-										for (int i = 0; i < newGridMapLine.size(); i++)
-											gridMap.at(gPartRow).push_back(newGridMapLine.at(i));
 							}
-							for (int i = 0; i < newGridMapBlock.size(); i++)
+
+							//B2
+							const int B2_rowStart = 0;
+							const int B2_colStart = 0;
+							const int B2_rowSize = -foundRow;
+							const int B2_colSize = gridMap.front().size();
+							deque<deque<MapElement>> B2_mapBlock;
+							for (int row = B2_rowStart; row < B2_rowSize; row++)
+							{
+								deque<MapElement> mapLine;
+								const int pPartRow = row;
+								const int gPartRow = row + foundRow;
+								for (int col = B2_colStart; col < B2_colSize; col++)
+								{
+									const int pPartCol = col;
+									const int gPartCol = col + foundCol;
+									const bool pPartCod = (row < mapPiece.size() && col < mapPiece.front().size());
+
+									if (pPartCod)
+									{
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapLine.push_back(mapPiece.at(pPartRow).at(pPartCol));
+										else
+											mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+									}
+									else
+										mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+								}
 								if (foundRow < 0)
-									gridMap.push_front(newGridMapBlock.at(i));
+									B2_mapBlock.push_front(mapLine);
 								else
-									gridMap.push_back(newGridMapBlock.at(i));
+									B2_mapBlock.push_back(mapLine);
+							}
+							for (int i = 0; i < B2_mapBlock.size(); i++)
+								if (foundRow < 0)
+									gridMap.push_front(B2_mapBlock.at(i));
+								else
+									gridMap.push_back(B2_mapBlock.at(i));
 						}
 						//1B
 						else if (foundRow < 0 && foundCol >= 0 &&
@@ -708,6 +743,6 @@ void Thought::drawMap(deque<deque<MapElement>>& map, string windowName)
 		{
 			mapImg.at<Vec3b>(Point(col, row)) = map.at(row).at(col).color;
 		}
-	//cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
+	cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
 	imshow(windowName, mapImg);
 };
