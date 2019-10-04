@@ -267,14 +267,14 @@ void ImageHandelingComponent::drawGridBins()
 	}*/
 
 
-	Point start = Point(expectedPoints.at(exBinY).at(exBinX).x + xOffset , +expectedPoints.at(exBinY).at(exBinX).y + yOffset);
-	Point end = Point(start.x + blockWidth, start.y + blockHeight);
-	rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
+	//Point start = Point(expectedPoints.at(exBinY).at(exBinX).x + xOffset , +expectedPoints.at(exBinY).at(exBinX).y + yOffset);
+	//Point end = Point(start.x + blockWidth, start.y + blockHeight);
+	//rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
 
 
-	Point startF = Point(firstTile.x,firstTile.y);
-	Point endF = Point(startF.x + 3, startF.y + 3);
-	rectangle(*imgScreen.getColor(), startF, endF, cv::Scalar(100, 255, 255), 5);
+	//Point startF = Point(firstTile.x,firstTile.y);
+	//Point endF = Point(startF.x + 3, startF.y + 3);
+	//rectangle(*imgScreen.getColor(), startF, endF, cv::Scalar(100, 255, 255), 5);
 
 }
 

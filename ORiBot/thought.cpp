@@ -93,7 +93,7 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 							else
 							{
 								negativeMatch++;
-								if (negativeMatch > 10)
+								if (negativeMatch > 4)
 									goto nextGrid;
 							}
 						}
@@ -112,10 +112,7 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 						foundCol -= border;
 						cout << " Merge Point: " << "(" << foundRow << "," << foundCol << ") ";
 
-						//						deque<deque<MapElement>> newGridMap;
-
-
-												//1A
+						//1A
 						if (foundRow < 0 && foundCol < 0)
 						{
 							cout << " 1A ";
@@ -130,23 +127,55 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 								const int gPartRow = row + foundRow;
 								for (int col = C_colStart; col < C_colSize; col++)
 								{
+									gridSearchLoopCount++;
 									const int pPartCol = col;
 									const int gPartCol = col + foundCol;
 									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
 										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
 								}
 							}
-							//B1
-							const int B1_rowStart = -foundRow;
-							const int B1_colStart = 0;
-							const int B1_rowSize = -foundRow + gridMap.size();
-							const int B1_colSize = -foundCol;
-							for (int row = B1_rowStart; row < B1_rowSize; row++)
+							
+							//Top
+							const int Top_rowStart = 0;
+							const int Top_colStart = 0;
+							const int Top_rowSize = -foundRow;
+							const int Top_colSize = gridMap.front().size() - foundCol;
+							deque<deque<MapElement>> Top_mapBlock;
+							for (int row = Top_rowStart; row < Top_rowSize; row++)
+							{
+								deque<MapElement> mapLine;
+								const int pPartRow = row;
+								for (int col = Top_colStart; col < Top_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col;
+									const bool pPartCod = (row < mapPiece.size() && col < mapPiece.front().size());
+
+									if (pPartCod)
+									{
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapLine.push_back(mapPiece.at(pPartRow).at(pPartCol));
+										else
+											mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+									}
+									else
+										mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+								}
+									Top_mapBlock.push_front(mapLine);
+							}
+
+							//Left
+							const int Left_rowStart = -foundRow;
+							const int Left_colStart = 0;
+							const int Left_rowSize = -foundRow + gridMap.size();
+							const int Left_colSize = -foundCol +1;
+							for (int row = Left_rowStart; row < Left_rowSize; row++)
 							{
 								const int pPartRow = row;
 								const int gPartRow = row + foundRow;
-								for (int col = B1_colStart; col < B1_colSize; col++)
+								for (int col = Left_colSize - 1; col > Left_colStart; col--)
 								{
+									gridSearchLoopCount++;
 									const int pPartCol = col;
 									const int gPartCol = col + foundCol;
 									const bool pPartCod = (row < mapPiece.size() && col < mapPiece.front().size());
@@ -162,30 +191,335 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 									else
 										mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
 
-									if (foundRow < 0)
 										gridMap.at(gPartRow).push_front(*mapElementToAppend);
-									else
-										gridMap.at(gPartRow).push_back(*mapElementToAppend);
-									//delete mapElementToAppend;
 								}
 							}
 
-							//B2
-							const int B2_rowStart = 0;
-							const int B2_colStart = 0;
-							const int B2_rowSize = -foundRow;
-							const int B2_colSize = gridMap.front().size();
-							deque<deque<MapElement>> B2_mapBlock;
-							for (int row = B2_rowStart; row < B2_rowSize; row++)
+							//Top +
+							for (int i = 0; i < Top_mapBlock.size(); i++)
+								gridMap.push_front(Top_mapBlock.at(i));
+						}
+						//1B
+						else if (foundRow < 0 && foundCol >= 0 &&
+							foundCol + mapPiece.front().size() <= gridMap.front().size())
+						{
+							cout << " 1B ";
+							//CC
+							const int C_rowStart = -foundRow;
+							const int C_colStart = foundCol;
+							const int C_rowSize = mapPiece.size();
+							const int C_colSize = foundCol + mapPiece.front().size();
+							for (int row = C_rowStart; row < C_rowSize; row++)
+							{
+								const int pPartRow = row;
+								const int gPartRow = row + foundRow;
+								for (int col = C_colStart; col < C_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const int gPartCol = col;
+									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
+								}
+							}
+
+							//Top
+							const int Top_rowStart = 0;
+							const int Top_colStart = 0;
+							const int Top_rowSize = -foundRow;
+							const int Top_colSize = gridMap.front().size();
+							deque<deque<MapElement>> Top_mapBlock;
+							for (int row = Top_rowStart; row < Top_rowSize; row++)
 							{
 								deque<MapElement> mapLine;
 								const int pPartRow = row;
 								const int gPartRow = row + foundRow;
-								for (int col = B2_colStart; col < B2_colSize; col++)
+								for (int col = Top_colStart; col < Top_colSize; col++)
 								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const int gPartCol = col;
+									const bool pPartCod = (row < -foundRow && col >= foundCol && col < foundCol + mapPiece.front().size());
+
+									if (pPartCod)
+									{
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapLine.push_back(mapPiece.at(pPartRow).at(pPartCol));
+										else
+											mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+									}
+									else
+										mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+								}
+									Top_mapBlock.push_front(mapLine);
+							}
+
+							//Top +
+							for (int i = 0; i < Top_mapBlock.size(); i++)
+								gridMap.push_front(Top_mapBlock.at(i));
+						}
+						//1C
+						else if (foundRow < 0 && foundCol > 0 &&
+							foundCol + mapPiece.front().size() >= gridMap.front().size())
+						{
+							cout << " 1C ";
+							//CC
+							const int C_rowStart = -foundRow;
+							const int C_colStart = foundCol;
+							const int C_rowSize = mapPiece.size();
+							const int C_colSize = gridMap.front().size();
+							for (int row = C_rowStart; row < C_rowSize; row++)
+							{
+								const int pPartRow = row;
+								const int gPartRow = row + foundRow;
+								for (int col = C_colStart; col < C_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const int gPartCol = col;
+									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
+								}
+							}
+							//Right
+							const int Right_rowStart = -foundRow;
+							const int Right_colStart = gridMap.front().size();
+							const int Right_rowSize = -foundRow + gridMap.size();
+							const int Right_colSize = foundCol + mapPiece.front().size();
+							for (int row = Right_rowStart; row < Right_rowSize; row++)
+							{
+								const int pPartRow = row;
+								const int gPartRow = row + foundRow;
+								for (int col = Right_colStart; col < Right_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const int gPartCol = col;
+									const bool pPartCod = (row < mapPiece.size() && col >= foundCol);
+
+									MapElement* mapElementToAppend;
+									if (pPartCod)
+									{
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapElementToAppend = &(mapPiece.at(pPartRow).at(pPartCol));
+										else
+											mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+									}
+									else
+										mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+
+										gridMap.at(gPartRow).push_back(*mapElementToAppend);
+								}
+							}
+
+							//Top
+							const int Top_rowStart = 0;
+							const int Top_colStart = 0;
+							const int Top_rowSize = -foundRow;
+							const int Top_colSize = mapPiece.front().size() + foundCol;
+							deque<deque<MapElement>> Top_mapBlock;
+							for (int row = Top_rowStart; row < Top_rowSize; row++)
+							{
+								deque<MapElement> mapLine;
+								const int pPartRow = row;
+								const int gPartRow = row + foundRow;
+								for (int col = Top_colStart; col < Top_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const int gPartCol = col;
+									const bool pPartCod = (row < mapPiece.size() && col >= foundCol);
+
+									if (pPartCod)
+									{
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapLine.push_back(mapPiece.at(pPartRow).at(pPartCol));
+										else
+											mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+									}
+									else
+										mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
+								}
+									Top_mapBlock.push_front(mapLine);
+							}
+
+							//Top +
+							for (int i = 0; i < Top_mapBlock.size(); i++)
+								gridMap.push_front(Top_mapBlock.at(i));							
+						}
+						//2A
+						else if (foundRow >= 0 && foundCol < 0 &&
+							foundRow + mapPiece.size() <= gridMap.size())
+						{
+							cout << " 2A ";
+							//CC
+							const int C_rowStart = foundRow;
+							const int C_colStart = -foundCol;
+							const int C_rowSize = foundRow + mapPiece.size();
+							const int C_colSize = mapPiece.front().size();
+							for (int row = C_rowStart; row < C_rowSize; row++)
+							{
+								const int pPartRow = row - foundRow;
+								const int gPartRow = row;
+								for (int col = C_colStart; col < C_colSize; col++)
+								{
+									gridSearchLoopCount++;
 									const int pPartCol = col;
 									const int gPartCol = col + foundCol;
-									const bool pPartCod = (row < mapPiece.size() && col < mapPiece.front().size());
+									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
+								}
+							}
+							//Left
+							const int Left_rowStart = 0;
+							const int Left_colStart = 0;
+							const int Left_rowSize = gridMap.size();
+							const int Left_colSize = -foundCol;
+							for (int row = Left_rowStart; row < Left_rowSize; row++)
+							{
+								const int pPartRow = row - foundRow;
+								const int gPartRow = row;
+								for (int col = Left_colSize - 1; col > Left_colStart; col--)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col;
+									const int gPartCol = col + foundCol;
+									const bool pPartCod = (row >= foundRow && col < mapPiece.front().size() && row < foundRow + mapPiece.size());
+
+									MapElement* mapElementToAppend;
+									if (pPartCod)
+									{
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapElementToAppend = &(mapPiece.at(pPartRow).at(pPartCol));
+										else
+											mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+									}
+									else
+										mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+
+										gridMap.at(gPartRow).push_front(*mapElementToAppend);
+								}
+							}
+						}
+						//2B
+						else if (foundRow >= 0 && foundCol >= 0 &&
+							foundRow + mapPiece.size() <= gridMap.size() &&
+							foundCol + mapPiece.front().size() <= gridMap.front().size())
+						{
+							cout << " 2B ";
+							//CC
+							const int C_rowStart = foundRow;
+							const int C_colStart = foundCol;
+							const int C_rowSize = foundRow + mapPiece.size();
+							const int C_colSize = foundCol + mapPiece.front().size();
+							for (int row = C_rowStart; row < C_rowSize; row++)
+							{
+								const int pPartRow = row - foundRow;
+								const int gPartRow = row;
+								for (int col = C_colStart; col < C_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const int gPartCol = col;
+									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
+								}
+							}
+						}
+						//2C
+						else if (foundRow >= 0, foundCol > 0 &&
+							foundRow + mapPiece.size() <= gridMap.size() &&
+							foundCol + mapPiece.front().size() > gridMap.front().size())
+						{
+							cout << " 2C ";
+							//CC
+							const int C_rowStart = foundRow;
+							const int C_colStart = foundCol;
+							const int C_rowSize = foundRow + mapPiece.size();
+							const int C_colSize = gridMap.front().size();
+							for (int row = C_rowStart; row < C_rowSize; row++)
+							{
+								const int pPartRow = row - foundRow;
+								const int gPartRow = row;
+								for (int col = C_colStart; col < C_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const int gPartCol = col;
+									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
+								}
+							}
+							//Right
+							const int Right_rowStart = 0;
+							const int Right_colStart = gridMap.front().size();
+							const int Right_rowSize = gridMap.size();
+							const int Right_colSize = foundCol + mapPiece.front().size();
+							for (int row = Right_rowStart; row < Right_rowSize; row++)
+							{
+								const int pPartRow = row - foundRow;
+								const int gPartRow = row;
+								for (int col = Right_colStart; col < Right_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const int gPartCol = col;
+									const bool pPartCod = (row >= foundRow && col >= foundCol && row < foundRow + mapPiece.size());
+
+									MapElement* mapElementToAppend;
+									if (pPartCod)
+									{
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapElementToAppend = &(mapPiece.at(pPartRow).at(pPartCol));
+										else
+											mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+									}
+									else
+										mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+
+										gridMap.at(gPartRow).push_back(*mapElementToAppend);
+								}
+							}
+						}
+						//3A
+						else if (foundRow > 0 && foundCol < 0 &&
+							foundRow + mapPiece.size() > gridMap.size())
+						{
+							cout << " 3A ";
+							//CC
+							const int C_rowStart = foundRow;
+							const int C_colStart = -foundCol;
+							const int C_rowSize = gridMap.size();
+							const int C_colSize = mapPiece.front().size();
+							for (int row = C_rowStart; row < C_rowSize; row++)
+							{
+								const int pPartRow = row - foundRow;
+								const int gPartRow = row;
+								for (int col = C_colStart; col < C_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col;
+									const int gPartCol = col + foundCol;
+									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
+								}
+							}
+
+							//Bottom
+							const int Bottom_rowStart = gridMap.size();
+							const int Bottom_colStart = 0;
+							const int Bottom_rowSize = foundRow + mapPiece.size();
+							const int Bottom_colSize = -foundCol + gridMap.front().size();
+							deque<deque<MapElement>> Bottom_mapBlock;
+							for (int row = Bottom_rowStart; row < Bottom_rowSize; row++)
+							{
+								deque<MapElement> mapLine;
+								const int pPartRow = row - foundRow;
+								for (int col = Bottom_colStart; col < Bottom_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col;
+									const bool pPartCod = (row >= foundRow && col < mapPiece.front().size());
 
 									if (pPartCod)
 									{
@@ -198,371 +532,45 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 										mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
 								}
 								if (foundRow < 0)
-									B2_mapBlock.push_front(mapLine);
+									Bottom_mapBlock.push_front(mapLine);
 								else
-									B2_mapBlock.push_back(mapLine);
+									Bottom_mapBlock.push_back(mapLine);
 							}
-							for (int i = 0; i < B2_mapBlock.size(); i++)
-								if (foundRow < 0)
-									gridMap.push_front(B2_mapBlock.at(i));
-								else
-									gridMap.push_back(B2_mapBlock.at(i));
-						}
-						//1B
-						else if (foundRow < 0 && foundCol >= 0 &&
-							foundCol + mapPiece.front().size() <= gridMap.front().size())
-						{
-							cout << " 1B ";
-							const int rowSize = -foundRow + gridMap.size();
-							const int colSize = gridMap.front().size();
-							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < mapPiece.size(); row++)
-							{
-								deque<MapElement> newGridMapLine;
-								const int pPartRow = row;
-								const int gPartRow = row + foundRow;
-								for (int col = 0; col < colSize; col++)
-								{
-									gridSearchLoopCount++;
-									const bool pPartCod = (row < -foundRow && col >= foundCol && col < foundCol + mapPiece.front().size());
-									const int pPartCol = col - foundCol;
-									const int gPartCol = col;
-									const bool gPartCod = (row >= -foundRow);
 
-									if (gPartCod && !pPartCod) continue;
-
-									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
-										(gridMap.size() > gPartRow && foundRow >= 0))
-									{
-										if (gPartCod)
-										{
-											if (gridMap.at(gPartRow).at(gPartCol).type != 0)
-												gridMap.at(gPartRow).at(gPartCol) = (innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-										}
-										else
-											newGridMapLine.push_back((innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap)));
-									}
-									else
-										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-								}
-								if ((gridMap.size() + newGridMapBlock.size() < rowSize && foundRow < 0) ||
-									(gridMap.size() <= gPartRow && foundRow >= 0))
-								{
-									if (foundRow < 0)
-										newGridMapBlock.push_front(newGridMapLine);
-									else
-										newGridMapBlock.push_back(newGridMapLine);
-								}
-								else
-									if (foundCol < 0)
-										for (int i = newGridMapLine.size() - 1; i >= 0; i--)
-											gridMap.at(gPartRow).push_front(newGridMapLine.at(i));
-									else
-										for (int i = 0; i < newGridMapLine.size(); i++)
-											gridMap.at(gPartRow).push_back(newGridMapLine.at(i));
-							}
-							for (int i = 0; i < newGridMapBlock.size(); i++)
-								if (foundRow < 0)
-									gridMap.push_front(newGridMapBlock.at(i));
-								else
-									gridMap.push_back(newGridMapBlock.at(i));
-						}
-						//1C
-						else if (foundRow < 0 && foundCol > 0 &&
-							foundCol + mapPiece.front().size() >= gridMap.front().size())
-						{
-							cout << " 1C ";
-							const int rowSize = -foundRow + gridMap.size();
-							const int colSize = foundCol + mapPiece.front().size();
-							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < rowSize; row++)
-							{
-								deque<MapElement> newGridMapLine;
-								const int pPartRow = row;
-								const int gPartRow = row + foundRow;
-								for (int col = 0; col < colSize; col++)
-								{
-									gridSearchLoopCount++;
-									const bool pPartCod = (row < mapPiece.size() && col >= foundCol);
-									const int pPartCol = col - foundCol;
-									const int gPartCol = col;
-									const bool gPartCod = (row >= -foundRow && col < gridMap.at(gPartRow).size());
-
-									if (gPartCod && !pPartCod) continue;
-
-									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
-										(gridMap.size() > gPartRow && foundRow >= 0))
-									{
-										if (gPartCod)
-										{
-											if (gridMap.at(gPartRow).at(gPartCol).type != 0)
-												gridMap.at(gPartRow).at(gPartCol) = (innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-										}
-										else
-											newGridMapLine.push_back((innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap)));
-									}
-									else
-										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-								}
-								if ((gridMap.size() + newGridMapBlock.size() < rowSize && foundRow < 0) ||
-									(gridMap.size() <= gPartRow && foundRow >= 0))
-								{
-									if (foundRow < 0)
-										newGridMapBlock.push_front(newGridMapLine);
-									else
-										newGridMapBlock.push_back(newGridMapLine);
-								}
-								else
-									if (foundCol < 0)
-										for (int i = newGridMapLine.size() - 1; i >= 0; i--)
-											gridMap.at(gPartRow).push_front(newGridMapLine.at(i));
-									else
-										for (int i = 0; i < newGridMapLine.size(); i++)
-											gridMap.at(gPartRow).push_back(newGridMapLine.at(i));
-							}
-							for (int i = 0; i < newGridMapBlock.size(); i++)
-								if (foundRow < 0)
-									gridMap.push_front(newGridMapBlock.at(i));
-								else
-									gridMap.push_back(newGridMapBlock.at(i));
-						}
-						//2A
-						else if (foundRow >= 0 && foundCol < 0 &&
-							foundRow + mapPiece.size() <= gridMap.size())
-						{
-							cout << " 2A ";
-							const int rowSize = gridMap.size();
-							const int colSize = mapPiece.front().size();//-foundCol + gridMap.front().size();
-							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < rowSize; row++)
+							//Left
+							const int Left_rowStart = 0;
+							const int Left_colStart = 0;
+							const int Left_rowSize = gridMap.size();
+							const int Left_colSize = -foundCol + 1;
+							for (int row = Left_rowStart; row < Left_rowSize; row++)
 							{
 								const int pPartRow = row - foundRow;
 								const int gPartRow = row;
-								deque<MapElement> newGridMapLine;
-								for (int col = 0; col < colSize; col++)
+								for (int col = Left_colSize - 1; col > Left_colStart; col--)
 								{
 									gridSearchLoopCount++;
-									const bool pPartCod = (row >= foundRow && col < mapPiece.front().size() && row < foundRow + mapPiece.size());
 									const int pPartCol = col;
 									const int gPartCol = col + foundCol;
-									const bool gPartCod = (col >= -foundCol);
-
-									if (gPartCod && !pPartCod) continue;
-
-									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
-										(gridMap.size() > gPartRow && foundRow >= 0))
-									{
-										if (gPartCod)
-										{
-											if (gridMap.at(gPartRow).at(gPartCol).type != 0)
-												gridMap.at(gPartRow).at(gPartCol) = (innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-										}
-										else
-											newGridMapLine.push_back((innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap)));
-									}
-									else
-										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-								}
-								if ((gridMap.size() + newGridMapBlock.size() < rowSize && foundRow < 0) ||
-									(gridMap.size() <= gPartRow && foundRow >= 0))
-								{
-									if (foundRow < 0)
-										newGridMapBlock.push_front(newGridMapLine);
-									else
-										newGridMapBlock.push_back(newGridMapLine);
-								}
-								else
-									if (foundCol < 0)
-										for (int i = newGridMapLine.size() - 1; i >= 0; i--)
-											gridMap.at(gPartRow).push_front(newGridMapLine.at(i));
-									else
-										for (int i = 0; i < newGridMapLine.size(); i++)
-											gridMap.at(gPartRow).push_back(newGridMapLine.at(i));
-							}
-							for (int i = 0; i < newGridMapBlock.size(); i++)
-								if (foundRow < 0)
-									gridMap.push_front(newGridMapBlock.at(i));
-								else
-									gridMap.push_back(newGridMapBlock.at(i));
-						}
-						//2B
-						else if (foundRow >= 0 && foundCol >= 0 &&
-							foundRow + mapPiece.size() <= gridMap.size() &&
-							foundCol + mapPiece.front().size() <= gridMap.front().size())
-						{
-							cout << " 2B ";
-							const int rowSize = gridMap.size();
-							const int colSize = gridMap.front().size();
-							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = foundRow + 1; row < foundRow + mapPiece.size(); row++)
-							{
-								deque<MapElement> newGridMapLine;
-								const int pPartRow = row - foundRow;
-								const int gPartRow = row;
-								for (int col = foundCol + 1; col < foundCol + mapPiece.front().size(); col++)
-								{
-									gridSearchLoopCount++;
-									const bool pPartCod = (row >= foundRow && col >= foundCol && row < foundRow + mapPiece.size() && col < foundCol + mapPiece.front().size());
-									const int pPartCol = col - foundCol;
-									const int gPartCol = col;
-									const bool gPartCod = (true);
-
-									if (gPartCod && !pPartCod) continue;
-
-									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
-										(gridMap.size() > gPartRow && foundRow >= 0))
-									{
-										if (gPartCod)
-										{
-											if (gridMap.at(gPartRow).at(gPartCol).type != 0)
-												gridMap.at(gPartRow).at(gPartCol) = (innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-										}
-										else
-											newGridMapLine.push_back((innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap)));
-									}
-									else
-										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-								}
-								if ((gridMap.size() + newGridMapBlock.size() < rowSize && foundRow < 0) ||
-									(gridMap.size() <= gPartRow && foundRow >= 0))
-								{
-									if (foundRow < 0)
-										newGridMapBlock.push_front(newGridMapLine);
-									else
-										newGridMapBlock.push_back(newGridMapLine);
-								}
-								else
-									if (foundCol < 0)
-										for (int i = newGridMapLine.size() - 1; i >= 0; i--)
-											gridMap.at(gPartRow).push_front(newGridMapLine.at(i));
-									else
-										for (int i = 0; i < newGridMapLine.size(); i++)
-											gridMap.at(gPartRow).push_back(newGridMapLine.at(i));
-							}
-							for (int i = 0; i < newGridMapBlock.size(); i++)
-								if (foundRow < 0)
-									gridMap.push_front(newGridMapBlock.at(i));
-								else
-									gridMap.push_back(newGridMapBlock.at(i));
-						}
-						//2C
-						else if (foundRow >= 0, foundCol > 0 &&
-							foundRow + mapPiece.size() <= gridMap.size() &&
-							foundCol + mapPiece.front().size() > gridMap.front().size())
-						{
-							cout << " 2C ";
-							const int rowSize = gridMap.size();
-							const int colSize = foundCol + mapPiece.front().size();
-							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < rowSize; row++)
-							{
-								const int pPartRow = row - foundRow;
-								const int gPartRow = row;
-								deque<MapElement> newGridMapLine;
-								for (int col = foundCol + 1; col < colSize; col++)
-								{
-									gridSearchLoopCount++;
-									const bool pPartCod = (row >= foundRow && col >= foundCol && row < foundRow + mapPiece.size());
-									const int pPartCol = col - foundCol;
-									const int gPartCol = col;
-									const bool gPartCod = (col < gridMap.at(gPartRow).size());
-
-									if (gPartCod && !pPartCod) continue;
-
-									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
-										(gridMap.size() > gPartRow && foundRow >= 0))
-									{
-										if (gPartCod)
-										{
-											if (gridMap.at(gPartRow).at(gPartCol).type != 0)
-												gridMap.at(gPartRow).at(gPartCol) = (innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-										}
-										else
-											newGridMapLine.push_back((innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap)));
-									}
-									else
-										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-								}
-								if ((gridMap.size() + newGridMapBlock.size() < rowSize && foundRow < 0) ||
-									(gridMap.size() <= gPartRow && foundRow >= 0))
-								{
-									if (foundRow < 0)
-										newGridMapBlock.push_front(newGridMapLine);
-									else
-										newGridMapBlock.push_back(newGridMapLine);
-								}
-								else
-									if (foundCol < 0)
-										for (int i = newGridMapLine.size() - 1; i >= 0; i--)
-											gridMap.at(gPartRow).push_front(newGridMapLine.at(i));
-									else
-										for (int i = 0; i < newGridMapLine.size(); i++)
-											gridMap.at(gPartRow).push_back(newGridMapLine.at(i));
-							}
-							for (int i = 0; i < newGridMapBlock.size(); i++)
-								if (foundRow < 0)
-									gridMap.push_front(newGridMapBlock.at(i));
-								else
-									gridMap.push_back(newGridMapBlock.at(i));
-						}
-						//3A
-						else if (foundRow > 0 && foundCol < 0 &&
-							foundRow + mapPiece.size() > gridMap.size())
-						{
-							cout << " 3A ";
-							const int rowSize = foundRow + mapPiece.size();
-							const int colSize = -foundCol + gridMap.front().size();
-							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < rowSize; row++)
-							{
-								deque<MapElement> newGridMapLine;
-								const int pPartRow = row - foundRow;
-								const int gPartRow = row;
-								for (int col = 0; col < colSize; col++)
-								{
-									gridSearchLoopCount++;
 									const bool pPartCod = (row >= foundRow && col < mapPiece.front().size());
-									const int pPartCol = col;
-									const int gPartCol = col + foundCol;
-									const bool gPartCod = (row < gridMap.size() && col >= -foundCol);
 
-									if (gPartCod && !pPartCod) continue;
-
-									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
-										(gridMap.size() > gPartRow && foundRow >= 0))
+									MapElement* mapElementToAppend;
+									if (pPartCod)
 									{
-										if (gPartCod)
-										{
-											if (gridMap.at(gPartRow).at(gPartCol).type != 0)
-												gridMap.at(gPartRow).at(gPartCol) = (innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-										}
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapElementToAppend = &(mapPiece.at(pPartRow).at(pPartCol));
 										else
-											newGridMapLine.push_back((innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap)));
+											mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
 									}
 									else
-										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
+										mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+
+										gridMap.at(gPartRow).push_front(*mapElementToAppend);
 								}
-								if ((gridMap.size() + newGridMapBlock.size() < rowSize && foundRow < 0) ||
-									(gridMap.size() <= gPartRow && foundRow >= 0))
-								{
-									if (foundRow < 0)
-										newGridMapBlock.push_front(newGridMapLine);
-									else
-										newGridMapBlock.push_back(newGridMapLine);
-								}
-								else
-									if (foundCol < 0)
-										for (int i = newGridMapLine.size() - 1; i >= 0; i--)
-											gridMap.at(gPartRow).push_front(newGridMapLine.at(i));
-									else
-										for (int i = 0; i < newGridMapLine.size(); i++)
-											gridMap.at(gPartRow).push_back(newGridMapLine.at(i));
 							}
-							for (int i = 0; i < newGridMapBlock.size(); i++)
-								if (foundRow < 0)
-									gridMap.push_front(newGridMapBlock.at(i));
-								else
-									gridMap.push_back(newGridMapBlock.at(i));
+
+							//Bottom +
+							for (int i = 0; i < Bottom_mapBlock.size(); i++)
+									gridMap.push_back(Bottom_mapBlock.at(i));
 						}
 						//3B
 						else if (foundRow > 0 && foundCol >= 0 &&
@@ -570,59 +578,59 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 							foundRow + mapPiece.size() > gridMap.size())
 						{
 							cout << " 3B ";
-							const int rowSize = foundRow + mapPiece.size();
-							const int colSize = gridMap.front().size();
-							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = foundRow + 1; row < rowSize; row++)
+							//CC
+							const int C_rowStart = foundRow;
+							const int C_colStart = foundCol;
+							const int C_rowSize = gridMap.size();
+							const int C_colSize = foundCol + mapPiece.front().size();
+							for (int row = C_rowStart; row < C_rowSize; row++)
 							{
-								deque<MapElement> newGridMapLine;
 								const int pPartRow = row - foundRow;
 								const int gPartRow = row;
-								for (int col = 0; col < colSize; col++)
+								for (int col = C_colStart; col < C_colSize; col++)
 								{
 									gridSearchLoopCount++;
-									const bool pPartCod = (row >= foundRow && col >= foundCol && col < foundCol + mapPiece.front().size());
 									const int pPartCol = col - foundCol;
 									const int gPartCol = col;
-									const bool gPartCod = (row < gridMap.size());
+									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
+								}
+							}
 
-									if (gPartCod && !pPartCod) continue;
+							//Bottom
+							const int Bottom_rowStart = gridMap.size();
+							const int Bottom_colStart = 0;
+							const int Bottom_rowSize = foundRow + mapPiece.size();
+							const int Bottom_colSize = gridMap.front().size();
+							deque<deque<MapElement>> Bottom_mapBlock;
+							for (int row = Bottom_rowStart; row < Bottom_rowSize; row++)
+							{
+								deque<MapElement> mapLine;
+								const int pPartRow = row - foundRow;
+								for (int col = Bottom_colStart; col < Bottom_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const bool pPartCod = (row >= foundRow && col >= foundCol && col < foundCol + mapPiece.front().size());
 
-									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
-										(gridMap.size() > gPartRow && foundRow >= 0))
+									if (pPartCod)
 									{
-										if (gPartCod)
-										{
-											if (gridMap.at(gPartRow).at(gPartCol).type != 0)
-												gridMap.at(gPartRow).at(gPartCol) = (innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-										}
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapLine.push_back(mapPiece.at(pPartRow).at(pPartCol));
 										else
-											newGridMapLine.push_back((innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap)));
+											mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
 									}
 									else
-										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
+										mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
 								}
-								if ((gridMap.size() + newGridMapBlock.size() < rowSize && foundRow < 0) ||
-									(gridMap.size() <= gPartRow && foundRow >= 0))
-								{
-									if (foundRow < 0)
-										newGridMapBlock.push_front(newGridMapLine);
-									else
-										newGridMapBlock.push_back(newGridMapLine);
-								}
-								else
-									if (foundCol < 0)
-										for (int i = newGridMapLine.size() - 1; i >= 0; i--)
-											gridMap.at(gPartRow).push_front(newGridMapLine.at(i));
-									else
-										for (int i = 0; i < newGridMapLine.size(); i++)
-											gridMap.at(gPartRow).push_back(newGridMapLine.at(i));
-							}
-							for (int i = 0; i < newGridMapBlock.size(); i++)
 								if (foundRow < 0)
-									gridMap.push_front(newGridMapBlock.at(i));
+									Bottom_mapBlock.push_front(mapLine);
 								else
-									gridMap.push_back(newGridMapBlock.at(i));
+									Bottom_mapBlock.push_back(mapLine);
+							}
+							//Bottom +
+							for (int i = 0; i < Bottom_mapBlock.size(); i++)
+								gridMap.push_back(Bottom_mapBlock.at(i));
 						}
 						//3C
 						else if (foundRow > 0 && foundCol > 0 &&
@@ -630,59 +638,90 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 							foundRow + mapPiece.size() > gridMap.size())
 						{
 							cout << " 3C " << endl;
-							const int rowSize = foundRow + mapPiece.size();
-							const int colSize = foundCol + mapPiece.front().size();
-							deque<deque<MapElement>> newGridMapBlock;
-							for (int row = 0; row < rowSize; row++)
+							//CC
+							const int C_rowStart = foundRow;
+							const int C_colStart = foundCol;
+							const int C_rowSize = gridMap.size();
+							const int C_colSize = gridMap.front().size();
+							for (int row = C_rowStart; row < C_rowSize; row++)
 							{
-								deque<MapElement> newGridMapLine;
 								const int pPartRow = row - foundRow;
 								const int gPartRow = row;
-								for (int col = 0; col < colSize; col++)
+								for (int col = C_colStart; col < C_colSize; col++)
 								{
 									gridSearchLoopCount++;
-									const bool pPartCod = (row >= foundRow && col >= foundCol);
 									const int pPartCol = col - foundCol;
-									const bool gPartCod = (row < gridMap.size() && col < gridMap.at(gPartRow).size());
 									const int gPartCol = col;
+									if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+										gridMap.at(gPartRow).at(gPartCol) = (mapPiece.at(pPartRow).at(pPartCol));
+								}
+							}
 
-									if (gPartCod && !pPartCod) continue;
+							//Bottom
+							const int Bottom_rowStart = gridMap.size();
+							const int Bottom_colStart = 0;
+							const int Bottom_rowSize = foundRow + mapPiece.size();
+							const int Bottom_colSize = foundCol + mapPiece.front().size();
+							deque<deque<MapElement>> Bottom_mapBlock;
+							for (int row = Bottom_rowStart; row < Bottom_rowSize; row++)
+							{
+								deque<MapElement> mapLine;
+								const int pPartRow = row - foundRow;
+								for (int col = Bottom_colStart; col < Bottom_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const bool pPartCod = (row >= foundRow && col >= foundCol);
 
-									if ((gridMap.size() + newGridMapBlock.size() == rowSize && foundRow < 0) ||
-										(gridMap.size() > gPartRow && foundRow >= 0))
+									if (pPartCod)
 									{
-										if (gPartCod)
-										{
-											if (gridMap.at(gPartRow).at(gPartCol).type != 0)
-												gridMap.at(gPartRow).at(gPartCol) = (innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
-										}
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapLine.push_back(mapPiece.at(pPartRow).at(pPartCol));
 										else
-											newGridMapLine.push_back((innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap)));
+											mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
 									}
 									else
-										newGridMapLine.push_back(innerConditions(pPartCod, gPartCod, pPartRow, pPartCol, gPartRow, gPartCol, mapPiece, gridMap));
+										mapLine.push_back(MapElement("Unseen", Vec3b(0, 255, 255), 2));
 								}
-								if ((gridMap.size() + newGridMapBlock.size() < rowSize && foundRow < 0) ||
-									(gridMap.size() <= gPartRow && foundRow >= 0))
-								{
-									if (foundRow < 0)
-										newGridMapBlock.push_front(newGridMapLine);
-									else
-										newGridMapBlock.push_back(newGridMapLine);
-								}
-								else
-									if (foundCol < 0)
-										for (int i = newGridMapLine.size() - 1; i >= 0; i--)
-											gridMap.at(gPartRow).push_front(newGridMapLine.at(i));
-									else
-										for (int i = 0; i < newGridMapLine.size(); i++)
-											gridMap.at(gPartRow).push_back(newGridMapLine.at(i));
-							}
-							for (int i = 0; i < newGridMapBlock.size(); i++)
 								if (foundRow < 0)
-									gridMap.push_front(newGridMapBlock.at(i));
+									Bottom_mapBlock.push_front(mapLine);
 								else
-									gridMap.push_back(newGridMapBlock.at(i));
+									Bottom_mapBlock.push_back(mapLine);
+							}
+
+							//Right
+							const int Right_rowStart = 0;
+							const int Right_colStart = gridMap.front().size();
+							const int Right_rowSize = gridMap.size();
+							const int Right_colSize = foundCol + mapPiece.front().size();
+							for (int row = Right_rowStart; row < Right_rowSize; row++)
+							{
+								const int pPartRow = row - foundRow;
+								const int gPartRow = row;
+								for (int col = Right_colStart; col < Right_colSize; col++)
+								{
+									gridSearchLoopCount++;
+									const int pPartCol = col - foundCol;
+									const int gPartCol = col;
+									const bool pPartCod = (row >= foundRow && col >= foundCol);
+
+									MapElement* mapElementToAppend;
+									if (pPartCod)
+									{
+										if (mapPiece.at(pPartRow).at(pPartCol).type == 0)
+											mapElementToAppend = &(mapPiece.at(pPartRow).at(pPartCol));
+										else
+											mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+									}
+									else
+										mapElementToAppend = (new MapElement("Unseen", Vec3b(0, 255, 255), 2));
+
+									gridMap.at(gPartRow).push_back(*mapElementToAppend);
+								}
+							}
+							//Bottom +
+							for (int i = 0; i < Bottom_mapBlock.size(); i++)
+								gridMap.push_back(Bottom_mapBlock.at(i));
 						}
 						drawMap(gridMap, "grid");
 						cout << "Grid Search Loops: " << gridSearchLoopCount << " @ " << fixed << double((clock() - startGridLook) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
@@ -743,6 +782,6 @@ void Thought::drawMap(deque<deque<MapElement>>& map, string windowName)
 		{
 			mapImg.at<Vec3b>(Point(col, row)) = map.at(row).at(col).color;
 		}
-	cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
+	//cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
 	imshow(windowName, mapImg);
 };

@@ -42,7 +42,7 @@ int main(int argv, char** argc)
 
 
 		//imshow("Gray Img", imgScreenGray);
-		key = waitKey(5);
+		key = waitKey(1);
 		//cout << "\x1B[2J\x1B[H";
 	}
 	waitKey(0);
