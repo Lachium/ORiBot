@@ -3,8 +3,6 @@
 
 void Thought::lookAtMapConents(Mat& world)
 {
-	//Mat eyes = Mat::zeros(world.rows, world.cols, CV_8UC4);
-
 	//Mapping
 	deque<deque<MapElement>> viewedMapContents;
 	for (int row = 0; row < world.rows; row++)
@@ -15,27 +13,23 @@ void Thought::lookAtMapConents(Mat& world)
 			Vec4b worldColorPoint = (world.at<Vec4b>(Point(col, row)));
 			viewedMapContentsCol.push_back(mapElementCollection.searchMapElementByColor(Vec3b(worldColorPoint[0], worldColorPoint[1], worldColorPoint[2])));
 			Vec3b color = viewedMapContentsCol.back().color;
-			//eyes.at<Vec4b>(Point(col, row)) = Vec4b(color[0], color[1], color[2], 255);
 		}
 		viewedMapContents.push_back(viewedMapContentsCol);
 	}
 	appendToMap(viewedMapContents);
-	//drawMap(mapPiece, "piece");
-	//drawMap(gridMap, "grid");
 
 	//for (const auto& key : mapElementCollection.mapElements)
 	//	cout << key.second.name << " " << key.second.mapCount << endl;
 
 	mapElementCollection.clearCounts();
 
-	//cv::resize(eyes, eyes, cv::Size(), 6, 6, INTER_NEAREST);
-	//imshow("Eyes", eyes);
-
 
 };
 
 void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 {
+	//drawMap(mapPiece, "piece");
+
 	const int border = 3;
 
 	if (gridMap.size() == 0)
@@ -47,18 +41,19 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 	{
 		//Look for match
 		clock_t startMatch = clock();
-		int matchSearchLoopCount = 0;
+		int matchLoopOuterCount = 0;
+		int matchLoopInnerCount = 0;
 		int negativeMatch = 0;
-		int searches = 1;
 
 		int xStart, yStart, xEnd, yEnd;
 
 		if (lastGridPos.x != -1 || lastGridPos.y != -1)
 		{
-			xStart = lastGridPos.x; if (xStart - searches >= 0) xStart -= searches;
-			yStart = lastGridPos.y; if (yStart - searches >= 0) yStart -= searches;
-			xEnd = xStart + searches;
-			yEnd = yStart + searches;
+			xStart = lastGridPos.x; xStart -= (border + 1); if (xStart < 0) xStart = 0;
+			yStart = lastGridPos.y;  yStart -= (border + 1); if (yStart < 0) yStart = 0;
+			xEnd = lastGridPos.x + border + 1;
+			yEnd = lastGridPos.y + border + 1;
+			lastGridPos = Point(-1, -1);
 		}
 		else
 		{
@@ -70,9 +65,10 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 
 		cout << "Start" << "(" << xStart << "," << yStart << ") ";
 		cout << "End" << "(" << xEnd << "," << yEnd << ") ";
-		for (int foundRow = xStart; foundRow < gridMap.size() - (mapPiece.size() - border * 2) && foundRow < xEnd; foundRow++)
-			for (int foundCol = yStart; foundCol < gridMap.front().size() - (mapPiece.front().size() - border * 2) && foundCol < yEnd; foundCol++)
+		for (int foundRow = xStart; foundRow < gridMap.size() - mapPiece.size() + border * 2 + 1&& foundRow < xEnd; foundRow++)
+			for (int foundCol = yStart; foundCol < gridMap.front().size() - mapPiece.front().size() + border * 2 + 1 && foundCol < yEnd; foundCol++)
 			{
+				matchLoopOuterCount++;
 				if (gridMap.at(foundRow).at(foundCol).name == mapPiece.at(border).at(border).name || gridMap.at(foundRow).at(foundCol).type == 1 || mapPiece.at(border).at(border).type == 1)
 				{
 					negativeMatch = 0;
@@ -80,7 +76,7 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 					{
 						for (int col = 1; ((col + foundCol) < gridMap.front().size() && col < (mapPiece.front().size() - border * 2)); col++)
 						{
-							matchSearchLoopCount++;
+							matchLoopInnerCount++;
 							if (!(gridMap.at((row + foundRow)).at((col + foundCol)).name == mapPiece.at(row + border).at(col + border).name ||
 								(gridMap.at((row + foundRow)).at((col + foundCol)).name == "WalkableA" && mapPiece.at(row + border).at(col + border).name == "WalkableB") ||
 								(gridMap.at((row + foundRow)).at((col + foundCol)).name == "WalkableB" && mapPiece.at(row + border).at(col + border).name == "WalkableA") ||
@@ -88,10 +84,8 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 								mapPiece.at(row + border).at(col + border).type == 1))
 							{
 								negativeMatch++;
-								if (negativeMatch > 4)
+								if (negativeMatch > 0)
 								{
-									cout << "Not Found ";
-									searches++;
 									goto nextGrid;
 								}
 
@@ -99,29 +93,27 @@ void Thought::appendToMap(deque<deque<MapElement>>& mapPiece)
 						}
 					}
 					//Append to Grid Map
-					cout << "Match Search Loops: " << matchSearchLoopCount << " @ " << fixed << double((clock() - startMatch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
-					StitchMap(foundRow - border, foundCol - border, mapPiece);
+					cout << "Match Search Loops: " << matchLoopOuterCount << " + " << matchLoopInnerCount << " @ " << fixed << double((clock() - startMatch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
+					lastGridPos = StitchMap(foundRow - border, foundCol - border, mapPiece);
+					lastGridPos += Point(border, border);
+					return;
 				}
-				else
-					searches++;
 
 			nextGrid:;
-
-				if (searches > border)
-				{
-					lastGridPos = Point(-1, -1);
-				}
 			}
+		cout << "No Matches: " << matchLoopOuterCount << " + " << matchLoopInnerCount << " @ " << fixed << double((clock() - startMatch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
 	}
 };
 
-void Thought::StitchMap(int foundRow, int foundCol, deque<deque<MapElement>> & mapPiece)
+Point Thought::StitchMap(int foundRow, int foundCol, deque<deque<MapElement>> & mapPiece)
 {
 	int gridSearchLoopCount = 0;
+
+	const int GridSartRows = gridMap.size();
+	const int GridSartCols = gridMap.front().size();
+
 	clock_t startGridLook = clock();
-	lastGridPos = Point(foundRow, foundCol);
-	cout << "Found (" << foundRow << "," << foundCol << ") ";// << endl;
-	cout << " Merge Point: " << "(" << foundRow << "," << foundCol << ") ";
+	cout << "Found (" << foundRow << "," << foundCol << ") ";
 
 	//1A
 	if (foundRow < 0 && foundCol < 0)
@@ -247,7 +239,7 @@ void Thought::StitchMap(int foundRow, int foundCol, deque<deque<MapElement>> & m
 		const int Left_rowStart = 0;
 		const int Left_colStart = 0;
 		const int Left_rowSize = gridMap.size();
-		const int Left_colSize = -foundCol;
+		const int Left_colSize = -foundCol + 1;
 		addToLeft(gridMap, mapPiece, foundRow, foundCol, Left_rowStart, Left_colStart, Left_rowSize, Left_colSize, pPartRow, pPartCol, gPartRow, pPartCod, gridSearchLoopCount);
 	}
 	//2B
@@ -367,7 +359,7 @@ void Thought::StitchMap(int foundRow, int foundCol, deque<deque<MapElement>> & m
 		foundCol + mapPiece.front().size() > gridMap.front().size() &&
 		foundRow + mapPiece.size() > gridMap.size())
 	{
-		cout << " 3C " << endl;
+		cout << " 3C ";
 		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
 		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
 		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
@@ -401,6 +393,13 @@ void Thought::StitchMap(int foundRow, int foundCol, deque<deque<MapElement>> & m
 	}
 	drawMap(gridMap, "grid");
 	cout << "Grid Search Loops: " << gridSearchLoopCount << " @ " << fixed << double((clock() - startGridLook) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
+	
+	int R = gridMap.size() - GridSartRows;
+	int C = gridMap.front().size() - GridSartCols;
+
+	if (foundRow >= 0) R = 0;
+	if (foundCol >= 0) C = 0;
+	return Point(foundRow + R, foundCol + C);
 }
 
 void Thought::drawMap(deque<deque<MapElement>>& map, string windowName)
