@@ -18,15 +18,14 @@ class ImageHandelingComponent
 {
 public:
 	ImageHandelingComponent();
-	bool cropToGameWindow();
-	void drawGridBins();
-	Mat getGridPixels();
+	Point2f getGridBinOffset(imageResourceItem & img);
+	Mat getGridPixels(imageResourceItem & img, Point2f binOffsets);
 	bool camptureScreen(Mat & world);
 	void getGameGrid(vector<vector<Point2f>>& outputVec);
-	imageResourceItem imgScreen;
+	//imageResourceItem imgScreen;
 
-	double xOffset = 0.0;
-	double yOffset = 0.0;
+	//double xOffset = 0.0;
+	//double yOffset = 0.0;
 	int shiftA = 331;
 	int shiftB = 140;
 	int shiftC = 904;
@@ -41,6 +40,7 @@ private:
 	ImageResources imageResources;
 	Point gameLogoPos = Point(-1,-1);
 	Mat hwnd2mat(HWND hwnd);
+	bool cropToGameWindow(imageResourceItem& img);
 	bool multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, vector<Point2f>& List_Matches);
 	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint);
 	bool singleTemplateMatchingGreyExact(Mat& mInput, Mat& mTemplate, float Threshold, Point& startPoint);

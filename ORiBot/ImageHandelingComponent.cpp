@@ -7,12 +7,12 @@ ImageHandelingComponent::ImageHandelingComponent()
 
 bool ImageHandelingComponent::camptureScreen(Mat& world)
 {
-	imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow()));
+	imageResourceItem imgScreen = imageResourceItem(hwnd2mat(GetDesktopWindow()));
 
-	if (cropToGameWindow())
+	if (cropToGameWindow(imgScreen))
 	{
-		drawGridBins();
-		world = getGridPixels();
+		Point2f offset = getGridBinOffset(imgScreen);
+		world = getGridPixels(imgScreen, offset);
 		return !world.empty();
 	}
 	else
@@ -237,18 +237,18 @@ bool ImageHandelingComponent::colorSearchSingleMap(Mat& colorImg, Vec3b color, P
 	return false;
 }
 
-void ImageHandelingComponent::drawGridBins()
+Point2f ImageHandelingComponent::getGridBinOffset(imageResourceItem& img)
 {
 	Point firstTile;
-	if (!colorSearchSingleMap(*imgScreen.getColor(), Vec3b(0, 255, 0), firstTile))
-		return;
+	if (!colorSearchSingleMap(*img.getColor(), Vec3b(0, 255, 0), firstTile))
+		return Point2f(0, 0);
 
 	Point2f estimatedBin = Point2f(firstTile.x / binWidth, firstTile.y / binHeight);
 
 	int exBinX = (int)(firstTile.x / (binWidth + (firstTile.x/1280.0)*0.567));
 	int exBinY = (int)(firstTile.y / binHeight);
-	xOffset = ((40 - xOffsetConst / 10.0) - (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
-	yOffset = ((20 - yOffsetConst / 10.0) - (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y));
+	int xOffset = ((40 - xOffsetConst / 10.0) - (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
+	int yOffset = ((20 - yOffsetConst / 10.0) - (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y));
 	//cout << "(" << firstTile.x << "," << firstTile.y << ") ->" <<
 	//	"(" << (firstTile.x / (binWidth + firstTile.x*((binWithShift / 100)))) << "," << (firstTile.y / binHeight) << ") ->" <<
 	//	"(" << exBinX << "," << exBinY << ") ->"  << 
@@ -260,35 +260,35 @@ void ImageHandelingComponent::drawGridBins()
 		int binWidthThis = (binWidth + (firstTile.x / 1280.0) * 0.567);
 		for (int c = 0; c < expectedPoints.front().size(); c++)
 		{
-			rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset, expectedPoints.at(r).at(c).y + yOffset), Point(expectedPoints.at(r).at(c).x + blockWidth + xOffset, expectedPoints.at(r).at(c).y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
-	//		rectangle(*imgScreen.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset - binWidthThis / 2, expectedPoints.at(r).at(c).y + yOffset - binHeight / 2), Point(expectedPoints.at(r).at(c).x + xOffset + binWidthThis / 2, expectedPoints.at(r).at(c).y + yOffset + binHeight / 2), cv::Scalar(255, 255, 100), 0);
+			rectangle(*img.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset, expectedPoints.at(r).at(c).y + yOffset), Point(expectedPoints.at(r).at(c).x + blockWidth + xOffset, expectedPoints.at(r).at(c).y + blockHeight + yOffset), cv::Scalar(255, 100, 0));
+	//		rectangle(*img.getColor(), Point(expectedPoints.at(r).at(c).x + xOffset - binWidthThis / 2, expectedPoints.at(r).at(c).y + yOffset - binHeight / 2), Point(expectedPoints.at(r).at(c).x + xOffset + binWidthThis / 2, expectedPoints.at(r).at(c).y + yOffset + binHeight / 2), cv::Scalar(255, 255, 100), 0);
 		}
 	}*/
 
 
 	//Point start = Point(expectedPoints.at(exBinY).at(exBinX).x + xOffset , +expectedPoints.at(exBinY).at(exBinX).y + yOffset);
 	//Point end = Point(start.x + blockWidth, start.y + blockHeight);
-	//rectangle(*imgScreen.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
+	//rectangle(*img.getColor(), start, end, cv::Scalar(255, 100, 255), 5);
 
 
 	//Point startF = Point(firstTile.x,firstTile.y);
 	//Point endF = Point(startF.x + 3, startF.y + 3);
-	//rectangle(*imgScreen.getColor(), startF, endF, cv::Scalar(100, 255, 255), 5);
-
+	//rectangle(*img.getColor(), startF, endF, cv::Scalar(100, 255, 255), 5);
+	return Point2f(xOffset, yOffset);
 }
 
-bool ImageHandelingComponent::cropToGameWindow()
+bool ImageHandelingComponent::cropToGameWindow(imageResourceItem& img)
 {
 
 	vector<vector<Vec3b>> cVecOutput;
 	imageTo2dCollorVec(*imageResources.imgGameLogo.getColor(), cVecOutput, Point(2, 2));
 
-	if (singleColorMatchingFast(*imgScreen.getColor(), cVecOutput, gameLogoPos))
-		return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
+	if (singleColorMatchingFast(*img.getColor(), cVecOutput, gameLogoPos))
+		return img.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 	else {
-		if (singleTemplateMatchingGrey(*imgScreen.getGray(), *imageResources.imgGameLogo.getGray(), 0.9, gameLogoPos))
+		if (singleTemplateMatchingGrey(*img.getGray(), *imageResources.imgGameLogo.getGray(), 0.9, gameLogoPos))
 		{
-			return imgScreen.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
+			return img.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 		}
 		else
 			return false;
@@ -352,7 +352,7 @@ void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vect
 	}
 }
 
-Mat ImageHandelingComponent::getGridPixels()
+Mat ImageHandelingComponent::getGridPixels(imageResourceItem& img, Point2f binOffsets)
 {
 	const int boarder = 1;
 	int rezize = 2;
@@ -369,11 +369,11 @@ Mat ImageHandelingComponent::getGridPixels()
 			for (int x = rezize; x < blockWidth - rezize; x++)
 				for (int y = rezize; y < blockHeight - rezize; y++)
 				{
-					int xpos = expectedPoints.at(r).at(c).x + x + xOffset;
-					int ypos = expectedPoints.at(r).at(c).y + y + yOffset;
-					if (!((xpos< 0 || ypos < 0 || xpos >= imgScreen.getColor()->cols || ypos >= imgScreen.getColor()->rows)))
+					int xpos = expectedPoints.at(r).at(c).x + x + binOffsets.x;
+					int ypos = expectedPoints.at(r).at(c).y + y + binOffsets.y;
+					if (!((xpos< 0 || ypos < 0 || xpos >= img.getColor()->cols || ypos >= img.getColor()->rows)))
 					{
-						Vec4b color = imgScreen.getColor()->at<Vec4b>(Point(xpos, ypos));
+						Vec4b color = img.getColor()->at<Vec4b>(Point(xpos, ypos));
 						if (!(color[0] == color[1] && color[1] == color[2]))
 							colors.push_back(color);
 						/*if ((c * (blockWidth - rezize * 2) + x >= 0) && (c * (blockWidth - rezize * 2) + x < look.cols - 1) && (r * (blockHeight - rezize * 2) + y >= 0) && (r * (blockHeight - rezize * 2) + y < look.rows - 1))
