@@ -14,10 +14,9 @@ bool ImageHandelingComponent::camptureScreen(Mat& world)
 		drawGridBins();
 		world = getGridPixels();
 		return !world.empty();
-		//return true;
 	}
 	else
-		cout << "Could not Crop\n";
+		cout << "Could not Crop ";
 
 	return false;
 }
@@ -107,7 +106,7 @@ bool ImageHandelingComponent::singleTemplateMatchingGrey(Mat& mInput, Mat& mTemp
 	}
 	else
 	{
-		cout << "No Match Found\n";
+		cout << "No Match Found ";
 		return false;
 	}
 }
@@ -117,7 +116,7 @@ bool ImageHandelingComponent::singleTemplateMatchingGreyExact(Mat& mInput, Mat& 
 	Rect boundry(startPoint.x, startPoint.y, mTemplate.cols, mTemplate.rows);
 	if (boundry.x < 0 || boundry.y < 0)
 	{
-		cout << "Invalid ExactPos: " << startPoint << "\n";
+		cout << "Invalid ExactPos: " << startPoint << " ";
 		return false;
 	}
 	Mat imgCropped = mInput(boundry);
@@ -132,12 +131,12 @@ bool ImageHandelingComponent::singleTemplateMatchingGreyExact(Mat& mInput, Mat& 
 
 	if (maxval >= Threshold)
 	{
-		cout << "Fast Matched\n";
+		cout << "Fast Matched ";
 		return true;
 	}
 	else
 	{
-		cout << "No Exact Match Found\n";
+		cout << "No Exact Match Found ";
 		return false;
 	}
 }
@@ -167,7 +166,7 @@ bool ImageHandelingComponent::colorSearchSingle(Mat& colorImg, Vec3b color, Poin
 			//4 channel image compare to 3 channel image
 			if (colorImg.type() == 24)
 			{
-				//cout << colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				//cout << colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << " ";
 				offset = abs((colorImg.at<Vec4b>(Point(c, r))[0] - color[0])) +
 					abs((colorImg.at<Vec4b>(Point(c, r))[1] - color[1])) +
 					abs((colorImg.at<Vec4b>(Point(c, r))[2] - color[2]));
@@ -182,7 +181,7 @@ bool ImageHandelingComponent::colorSearchSingle(Mat& colorImg, Vec3b color, Poin
 			//3 channel image compare to 3 channel image
 			else
 			{
-				//cout << colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				//cout << colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << " ";
 				offset = abs((colorImg.at<Vec3b>(Point(c, r))[0] - color[0])) +
 					abs((colorImg.at<Vec3b>(Point(c, r))[1] - color[1])) +
 					abs((colorImg.at<Vec3b>(Point(c, r))[2] - color[2]));
@@ -207,7 +206,7 @@ bool ImageHandelingComponent::colorSearchSingleMap(Mat& colorImg, Vec3b color, P
 			//4 channel image compare to 3 channel image
 			if (colorImg.type() == 24)
 			{
-				//cout << colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				//cout << colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << " ";
 				offset = abs((colorImg.at<Vec4b>(Point(c, r))[0] - color[0])) +
 					abs((colorImg.at<Vec4b>(Point(c, r))[1] - color[1])) +
 					abs((colorImg.at<Vec4b>(Point(c, r))[2] - color[2]));
@@ -222,7 +221,7 @@ bool ImageHandelingComponent::colorSearchSingleMap(Mat& colorImg, Vec3b color, P
 			//3 channel image compare to 3 channel image
 			else
 			{
-				//cout << colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				//cout << colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << " ";
 				offset = abs((colorImg.at<Vec3b>(Point(c, r))[0] - color[0])) +
 					abs((colorImg.at<Vec3b>(Point(c, r))[1] - color[1])) +
 					abs((colorImg.at<Vec3b>(Point(c, r))[2] - color[2]));
@@ -253,7 +252,7 @@ void ImageHandelingComponent::drawGridBins()
 	//cout << "(" << firstTile.x << "," << firstTile.y << ") ->" <<
 	//	"(" << (firstTile.x / (binWidth + firstTile.x*((binWithShift / 100)))) << "," << (firstTile.y / binHeight) << ") ->" <<
 	//	"(" << exBinX << "," << exBinY << ") ->"  << 
-	//	"(" << (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x) << "," << (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y) << ")" << endl;
+	//	"(" << (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x) << "," << (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y) << ") ";
 
 
 	/*for (int r = 0; r < expectedPoints.size(); r++)
@@ -312,7 +311,7 @@ bool ImageHandelingComponent::singleColorMatchingFast(Mat& colorImg, vector<vect
 			//4 channel image compare to 3 channel image
 			if (colorImg.type() == 24)
 			{
-				//cout << colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				//cout << colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << " ";
 				offset = abs((colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y))[0] - (cTemplate.at(r).at(c)[0]))) +
 					abs((colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y))[1] - (cTemplate.at(r).at(c)[1]))) +
 					abs((colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y))[2] - (cTemplate.at(r).at(c)[2])));
@@ -326,7 +325,7 @@ bool ImageHandelingComponent::singleColorMatchingFast(Mat& colorImg, vector<vect
 			//3 channel image compare to 3 channel image
 			else
 			{
-				//cout << colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << endl;
+				//cout << colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y)) << " - " << (cTemplate.at(r).at(c)) << "    -    " << Point(c + searhPoint.x, r + searhPoint.y) << " - " << Point(c, r) << " ";
 				offset = abs((colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y))[0] - (cTemplate.at(r).at(c)[0]))) +
 					abs((colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y))[1] - (cTemplate.at(r).at(c)[1]))) +
 					abs((colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y))[2] - (cTemplate.at(r).at(c)[2])));
