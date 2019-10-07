@@ -5,7 +5,7 @@ ImageHandelingComponent::ImageHandelingComponent()
 	getGameGrid(expectedPoints);
 }
 
-bool ImageHandelingComponent::screenToMapElements(Mat& world)
+bool ImageHandelingComponent::screenToMapElements(vector<vector<MapElement*>> & world)
 {
 	ScreenCapture screenCapture = ScreenCapture();
 		
@@ -305,17 +305,19 @@ void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vect
 	}
 }
 
-Mat ImageHandelingComponent::getGridPixels(imageResourceItem& img, Point2f binOffsets)
+vector<vector<MapElement*>> ImageHandelingComponent::getGridPixels(imageResourceItem& img, Point2f binOffsets)
 {
 	const int boarder = 1;
 	int rezize = 2;
 	//Mat look;
-	Mat flat;
+	vector<vector<MapElement*>> map;
 	//imgScreen.getColor()->type() == 24 ? look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC4) : look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC3);
-	flat = Mat::zeros((int)maxBinsY - boarder*2, (int)maxBinsX - boarder*2, CV_8UC4);
+	//flat = Mat::zeros((int)maxBinsY - boarder*2, (int)maxBinsX - boarder*2, CV_8UC4);
 
-	vector<Mat> imgs;
+	//vector<Mat> imgs;
 	for (int r = boarder; r < expectedPoints.size() - boarder; r++)
+	{
+		vector<MapElement*> mapLine;
 		for (int c = boarder; c < expectedPoints.front().size() - boarder; c++)
 		{
 			vector<Vec4b> colors;
@@ -324,7 +326,7 @@ Mat ImageHandelingComponent::getGridPixels(imageResourceItem& img, Point2f binOf
 				{
 					int xpos = expectedPoints.at(r).at(c).x + x + binOffsets.x;
 					int ypos = expectedPoints.at(r).at(c).y + y + binOffsets.y;
-					if (!((xpos< 0 || ypos < 0 || xpos >= img.getColor()->cols || ypos >= img.getColor()->rows)))
+					if (!((xpos < 0 || ypos < 0 || xpos >= img.getColor()->cols || ypos >= img.getColor()->rows)))
 					{
 						Vec4b color = img.getColor()->at<Vec4b>(Point(xpos, ypos));
 						if (!(color[0] == color[1] && color[1] == color[2]))
@@ -337,17 +339,21 @@ Mat ImageHandelingComponent::getGridPixels(imageResourceItem& img, Point2f binOf
 
 					}
 				}
-			if(!colors.empty())
-				flat.at<Vec4b>(Point(c- boarder, r- boarder)) = getMode(colors);
+			if (!colors.empty())
+				mapLine.push_back(getMode(colors));
+			else
+				mapLine.push_back(mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255)));
 		}
+		map.push_back(mapLine);
+	}
 	/*cv::resize(flat, flat, cv::Size(), 4, 4, INTER_NEAREST);
 	imshow("flat", flat);
 	cv::resize(look, look, cv::Size(), 4, 4, INTER_NEAREST);
 	imshow("look", look);*/
-	return flat;
+	return map;
 }
 
-Vec4b ImageHandelingComponent::getMode(vector<Vec4b> colors)
+MapElement * ImageHandelingComponent::getMode(vector<Vec4b> colors)
 {	
 	Vec4b number = colors.front();
 	Vec4b mode = number;
@@ -369,5 +375,5 @@ Vec4b ImageHandelingComponent::getMode(vector<Vec4b> colors)
 			number = colors.at(i);
 		}
 	}
-	return mode;
+	return mapElementCollection.searchMapElementByColor((Vec3b(mode[0], mode[1], mode[2])));
 }

@@ -1,21 +1,9 @@
 #include "thought.h"
 
 
-void Thought::lookAtMapConents(Mat& world)
+void Thought::lookAtMapConents(vector<vector<MapElement*>>& mapPiece)
 {
-	//Mapping
-	deque<deque<MapElement*>> viewedMapContents;
-	for (int row = 0; row < world.rows; row++)
-	{
-		deque<MapElement*> viewedMapContentsCol;
-		for (int col = 0; col < world.cols; col++)
-		{
-			Vec4b worldColorPoint = (world.at<Vec4b>(Point(col, row)));
-			viewedMapContentsCol.push_back(mapElementCollection.searchMapElementByColor(Vec3b(worldColorPoint[0], worldColorPoint[1], worldColorPoint[2])));
-		}
-		viewedMapContents.push_back(viewedMapContentsCol);
-	}
-	appendToMap(viewedMapContents);
+	appendToMap(mapPiece);
 
 	//for (const auto& key : mapElementCollection.mapElements)
 	//	cout << key.second.name << " " << key.second.mapCount << endl;
@@ -25,7 +13,7 @@ void Thought::lookAtMapConents(Mat& world)
 
 };
 
-void Thought::appendToMap(deque<deque<MapElement*>>& mapPiece)
+void Thought::appendToMap(vector<vector<MapElement*>>& mapPiece)
 {
 	//drawMap(mapPiece, "piece");
 
@@ -33,7 +21,13 @@ void Thought::appendToMap(deque<deque<MapElement*>>& mapPiece)
 
 	if (gridMap.size() == 0)
 	{
-		gridMap = mapPiece;
+		for (vector<MapElement*> mapPieceLine : mapPiece)
+		{
+			deque<MapElement*>gridLine;
+			for (MapElement* mapElement : mapPieceLine)
+				gridLine.push_back(mapElement);
+			gridMap.push_back(gridLine);
+		}
 		return;
 	}
 	else
@@ -64,7 +58,7 @@ void Thought::appendToMap(deque<deque<MapElement*>>& mapPiece)
 
 		cout << "Start" << "(" << xStart << "," << yStart << ") ";
 		cout << "End" << "(" << xEnd << "," << yEnd << ") ";
-		for (int foundRow = xStart; foundRow < gridMap.size() - mapPiece.size() + border * 2 + 1&& foundRow < xEnd; foundRow++)
+		for (int foundRow = xStart; foundRow < gridMap.size() - mapPiece.size() + border * 2 + 1 && foundRow < xEnd; foundRow++)
 			for (int foundCol = yStart; foundCol < gridMap.front().size() - mapPiece.front().size() + border * 2 + 1 && foundCol < yEnd; foundCol++)
 			{
 				matchLoopOuterCount++;
@@ -83,7 +77,7 @@ void Thought::appendToMap(deque<deque<MapElement*>>& mapPiece)
 								mapPiece.at(row + border).at(col + border)->type == 1))
 							{
 								negativeMatch++;
-								if (negativeMatch > 0)
+								if (negativeMatch > 1)
 								{
 									goto nextGrid;
 								}
@@ -104,7 +98,7 @@ void Thought::appendToMap(deque<deque<MapElement*>>& mapPiece)
 	}
 };
 
-Point Thought::StitchMap(int foundRow, int foundCol, deque<deque<MapElement*>> & mapPiece)
+Point Thought::StitchMap(int foundRow, int foundCol, vector<vector<MapElement*>>& mapPiece)
 {
 	int gridSearchLoopCount = 0;
 
@@ -392,7 +386,7 @@ Point Thought::StitchMap(int foundRow, int foundCol, deque<deque<MapElement*>> &
 	}
 	drawMap(gridMap, "grid");
 	cout << "Grid Search Loops: " << gridSearchLoopCount << " @ " << fixed << double((clock() - startGridLook) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
-	
+
 	int R = gridMap.size() - GridSartRows;
 	int C = gridMap.front().size() - GridSartCols;
 
@@ -413,7 +407,7 @@ void Thought::drawMap(deque<deque<MapElement*>>& map, string windowName)
 	imshow(windowName, mapImg);
 };
 
-void Thought::compareCenter(deque<deque<MapElement*>>& gridMap, deque<deque<MapElement*>>& mapPiece, int foundRow, int foundCol, const int C_rowStart, const int C_colStart, const int C_rowSize, const int C_colSize, const function<int(int, int)>& pPartRow_CC, const function<int(int, int)>& pPartCol_CC, const function<int(int, int)>& gPartRow_CC, const function<int(int, int)>& gPartCol_CC, int& gridSearchLoopCount)
+void Thought::compareCenter(deque<deque<MapElement*>>& gridMap, vector<vector<MapElement*>>& mapPiece, int foundRow, int foundCol, const int C_rowStart, const int C_colStart, const int C_rowSize, const int C_colSize, const function<int(int, int)>& pPartRow_CC, const function<int(int, int)>& pPartCol_CC, const function<int(int, int)>& gPartRow_CC, const function<int(int, int)>& gPartCol_CC, int& gridSearchLoopCount)
 {
 	for (int row = C_rowStart; row < C_rowSize; row++)
 	{
@@ -426,7 +420,7 @@ void Thought::compareCenter(deque<deque<MapElement*>>& gridMap, deque<deque<MapE
 	}
 }
 
-deque<deque<MapElement*>> Thought::addToTop(deque<deque<MapElement*>>& gridMap, deque<deque<MapElement*>>& mapPiece, int foundRow, int foundCol, const int Top_rowStart, const int Top_colStart, const int Top_rowSize, const int Top_colSize, const function<int(int, int)>& pPartRow_Top, const function<int(int, int)>& pPartCol_Top, const function<int(int, int)>& gPartRow_Top, const function<int(int, int)>& gPartCol_Top, const function<bool(int, int, int, int, const int, const int)>& pPartCod_Top, int& gridSearchLoopCount)
+deque<deque<MapElement*>> Thought::addToTop(deque<deque<MapElement*>>& gridMap, vector<vector<MapElement*>>& mapPiece, int foundRow, int foundCol, const int Top_rowStart, const int Top_colStart, const int Top_rowSize, const int Top_colSize, const function<int(int, int)>& pPartRow_Top, const function<int(int, int)>& pPartCol_Top, const function<int(int, int)>& gPartRow_Top, const function<int(int, int)>& gPartCol_Top, const function<bool(int, int, int, int, const int, const int)>& pPartCod_Top, int& gridSearchLoopCount)
 {
 	deque<deque<MapElement*>> Top_mapBlock;
 	for (int row = Top_rowStart; row < Top_rowSize; row++)
@@ -452,7 +446,7 @@ deque<deque<MapElement*>> Thought::addToTop(deque<deque<MapElement*>>& gridMap, 
 	return Top_mapBlock;
 }
 
-deque<deque<MapElement*>> Thought::addToBottom(deque<deque<MapElement*>>& gridMap, deque<deque<MapElement*>>& mapPiece, int foundRow, int foundCol, const int Bottom_rowStart, const int Bottom_colStart, const int Bottom_rowSize, const int Bottom_colSize, const function<int(int, int)>& pPartRow_Bottom, const function<int(int, int)>& pPartCol_Bottom, const function<int(int, int)>& gPartRow_Bottom, const function<int(int, int)>& gPartCol_Bottom, const function<bool(int, int, int, int, const int, const int)>& pPartCod_Bottom, int& gridSearchLoopCount)
+deque<deque<MapElement*>> Thought::addToBottom(deque<deque<MapElement*>>& gridMap, vector<vector<MapElement*>>& mapPiece, int foundRow, int foundCol, const int Bottom_rowStart, const int Bottom_colStart, const int Bottom_rowSize, const int Bottom_colSize, const function<int(int, int)>& pPartRow_Bottom, const function<int(int, int)>& pPartCol_Bottom, const function<int(int, int)>& gPartRow_Bottom, const function<int(int, int)>& gPartCol_Bottom, const function<bool(int, int, int, int, const int, const int)>& pPartCod_Bottom, int& gridSearchLoopCount)
 {
 	deque<deque<MapElement*>> Bottom_mapBlock;
 	for (int row = Bottom_rowStart; row < Bottom_rowSize; row++)
@@ -481,7 +475,7 @@ deque<deque<MapElement*>> Thought::addToBottom(deque<deque<MapElement*>>& gridMa
 	return Bottom_mapBlock;
 }
 
-void Thought::addToLeft(deque<deque<MapElement*>>& gridMap, deque<deque<MapElement*>>& mapPiece, int foundRow, int foundCol, const int Left_rowStart, const int Left_colStart, const int Left_rowSize, const int Left_colSize, const function<int(int, int)>& pPartRow_Left, const function<int(int, int)>& pPartCol_Left, const function<int(int, int)>& gPartRow_Left, const function<bool(int, int, int, int, const int, const int)>& pPartCod_Left, int& gridSearchLoopCount)
+void Thought::addToLeft(deque<deque<MapElement*>>& gridMap, vector<vector<MapElement*>>& mapPiece, int foundRow, int foundCol, const int Left_rowStart, const int Left_colStart, const int Left_rowSize, const int Left_colSize, const function<int(int, int)>& pPartRow_Left, const function<int(int, int)>& pPartCol_Left, const function<int(int, int)>& gPartRow_Left, const function<bool(int, int, int, int, const int, const int)>& pPartCod_Left, int& gridSearchLoopCount)
 {
 	for (int row = Left_rowStart; row < Left_rowSize; row++)
 	{
@@ -504,7 +498,7 @@ void Thought::addToLeft(deque<deque<MapElement*>>& gridMap, deque<deque<MapEleme
 	}
 }
 
-void Thought::addToRight(deque<deque<MapElement*>>& gridMap, deque<deque<MapElement*>>& mapPiece, int foundRow, int foundCol, const int Right_rowStart, const int Right_colStart, const int Right_rowSize, const int Right_colSize, const function<int(int, int)>& pPartRow_Right, const function<int(int, int)>& pPartCol_Right, const function<int(int, int)>& gPartRow_Right, const function<bool(int, int, int, int, const int, const int)>& pPartCod_Right, int& gridSearchLoopCount)
+void Thought::addToRight(deque<deque<MapElement*>>& gridMap, vector<vector<MapElement*>>& mapPiece, int foundRow, int foundCol, const int Right_rowStart, const int Right_colStart, const int Right_rowSize, const int Right_colSize, const function<int(int, int)>& pPartRow_Right, const function<int(int, int)>& pPartCol_Right, const function<int(int, int)>& gPartRow_Right, const function<bool(int, int, int, int, const int, const int)>& pPartCod_Right, int& gridSearchLoopCount)
 {
 	for (int row = Right_rowStart; row < Right_rowSize; row++)
 	{

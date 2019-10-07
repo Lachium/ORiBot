@@ -15,12 +15,12 @@ using namespace cv;
 class ImageHandelingComponent
 {
 public:
+	MapElementCollection mapElementCollection;
 	ImageHandelingComponent();
 	Point2f getGridBinOffset(imageResourceItem & img);
-	Mat getGridPixels(imageResourceItem & img, Point2f binOffsets);
-	bool screenToMapElements(Mat & world);
+	vector<vector<MapElement*>> getGridPixels(imageResourceItem & img, Point2f binOffsets);
+	bool screenToMapElements(vector<vector<MapElement*>>& world);
 	void getGameGrid(vector<vector<Point2f>>& outputVec);
-	//imageResourceItem imgScreen;
 
 
 private:
@@ -43,5 +43,5 @@ private:
 	bool colorSearchSingleMap(Mat& imgColor, Vec3b color, Point& matchPoint);
 	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint);
 	void imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size);
-	Vec4b getMode(vector<Vec4b> colors);
+	MapElement * getMode(vector<Vec4b> colors);
 };

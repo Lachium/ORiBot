@@ -1,6 +1,7 @@
 #include<opencv2/opencv.hpp>
 #include "ImageHandelingComponent.h"
 #include "thought.h"
+#include "mapElement.h"
 
 
 using namespace std;
@@ -30,7 +31,7 @@ int main(int argv, char** argc)
 	{
 		clock_t start = clock();
 
-		Mat world;
+		vector<vector<MapElement*>> world;
 		if (imageHandelingComponent.screenToMapElements(world))
 		{
 			thought.lookAtMapConents(world);
