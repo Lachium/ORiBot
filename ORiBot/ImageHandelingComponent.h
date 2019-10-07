@@ -1,8 +1,6 @@
 #pragma once
-#include <Windows.h>
-//#include <iostream>
-//#include <opencv2/opencv.hpp>
 #include "ImageResources.h"
+#include "mapElement.h"
 
 #define maxBinsX 47
 #define maxBinsY 27
@@ -20,26 +18,23 @@ public:
 	ImageHandelingComponent();
 	Point2f getGridBinOffset(imageResourceItem & img);
 	Mat getGridPixels(imageResourceItem & img, Point2f binOffsets);
-	bool camptureScreen(Mat & world);
+	bool screenToMapElements(Mat & world);
 	void getGameGrid(vector<vector<Point2f>>& outputVec);
 	//imageResourceItem imgScreen;
 
-	//double xOffset = 0.0;
-	//double yOffset = 0.0;
+
+private:
 	int shiftA = 331;
 	int shiftB = 140;
 	int shiftC = 904;
 	int xOffsetConst = 412;
 	int yOffsetConst = 221;
-	const double binWidth = 26.667;
-	const double binHeight = 26.667;
 	int binWithShift = 280;
 	vector<vector<Point2f>> expectedPoints;
-
-private:
+	const double binWidth = 26.667;
+	const double binHeight = 26.667;
 	ImageResources imageResources;
 	Point gameLogoPos = Point(-1,-1);
-	Mat hwnd2mat(HWND hwnd);
 	bool cropToGameWindow(imageResourceItem& img);
 	bool multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, vector<Point2f>& List_Matches);
 	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint);

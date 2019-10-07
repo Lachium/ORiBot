@@ -35,10 +35,13 @@
     <ClInclude Include="ImageHandelingComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mob.h">
+    <ClInclude Include="thought.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="thought.h">
+    <ClInclude Include="screenCapture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapElement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

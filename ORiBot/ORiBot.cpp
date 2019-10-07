@@ -7,12 +7,13 @@ using namespace std;
 using namespace cv;
 
 ImageHandelingComponent imageHandelingComponent = ImageHandelingComponent();
+
 Thought thought = Thought();
 
-static void on_trackbar(int, void*)
-{
-	imageHandelingComponent.getGameGrid(imageHandelingComponent.expectedPoints);
-}
+//static void on_trackbar(int, void*)
+//{
+//	imageHandelingComponent.getGameGrid(imageHandelingComponent.expectedPoints);
+//}
 
 int main(int argv, char** argc)
 {
@@ -30,9 +31,8 @@ int main(int argv, char** argc)
 		clock_t start = clock();
 
 		Mat world;
-		if (imageHandelingComponent.camptureScreen(world))
+		if (imageHandelingComponent.screenToMapElements(world))
 		{
-			//imshow("window", *imageHandelingComponent.imgScreen.getColor());
 			thought.lookAtMapConents(world);
 		}
 
