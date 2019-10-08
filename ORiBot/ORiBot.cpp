@@ -31,7 +31,7 @@ int main(int argv, char** argc)
 	{
 		clock_t start = clock();
 
-		vector<vector<MapElement*>> world;
+		vector<vector<const MapElement*>> world;
 		if (imageHandelingComponent.screenToMapElements(world))
 		{
 			thought.lookAtMapConents(world);

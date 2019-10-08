@@ -13,9 +13,8 @@ class MapElement
 public:
 	string name;
 	Vec3b color;
-	int mapCount = 0;
 	int type; 
-	MapElement(string qName, Vec3b qColor, int pType)
+	MapElement(const string qName, const Vec3b qColor, const int pType)
 	{
 		name = qName;
 		color = qColor;
@@ -53,7 +52,7 @@ struct Vec3bKey {
 class MapElementCollection
 {
 public:
-	map<Vec3bKey, MapElement*> mapElements;
+	map<Vec3bKey, const MapElement*> mapElements;
 
 	MapElementCollection()
 	{
@@ -80,11 +79,10 @@ public:
 	{
 		mapElements.insert({ color, mapElement });
 	};
-	MapElement * searchMapElementByColor(Vec3b color)
+	const MapElement * searchMapElementByColor(Vec3b color)
 	{
 		if (mapElements.count(Vec3bKey(color)))
 		{
-			mapElements.at(color)->mapCount++;
 			return mapElements.at(Vec3bKey(color));
 		}
 		
@@ -95,17 +93,9 @@ public:
 	{
 		if (mapElements.count(color))
 		{
-			mapElements.at(color)->mapCount++;
 			return mapElements.at(color)->name;
 		}
 		return "Unknown";
 	};
-	
-	void clearCounts()
-	{
-		for (auto& key : mapElements)
-			key.second->mapCount = 0;
-
-	}
 private:
 };

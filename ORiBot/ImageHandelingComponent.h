@@ -18,18 +18,18 @@ public:
 	MapElementCollection mapElementCollection;
 	ImageHandelingComponent();
 	Point2f getGridBinOffset(imageResourceItem & img);
-	vector<vector<MapElement*>> getGridPixels(imageResourceItem & img, Point2f binOffsets);
-	bool screenToMapElements(vector<vector<MapElement*>>& world);
+	vector<vector<const MapElement*>> getGridPixels(imageResourceItem & img, Point2f binOffsets);
+	bool screenToMapElements(vector<vector<const MapElement*>>& world);
 	void getGameGrid(vector<vector<Point2f>>& outputVec);
 
 
 private:
-	int shiftA = 331;
-	int shiftB = 140;
-	int shiftC = 904;
-	int xOffsetConst = 412;
-	int yOffsetConst = 221;
-	int binWithShift = 280;
+	const int shiftA = 331;
+	const int shiftB = 140;
+	const int shiftC = 904;
+	const int xOffsetConst = 412;
+	const int yOffsetConst = 221;
+	const int binWithShift = 280;
 	vector<vector<Point2f>> expectedPoints;
 	const double binWidth = 26.667;
 	const double binHeight = 26.667;
@@ -43,5 +43,5 @@ private:
 	bool colorSearchSingleMap(Mat& imgColor, Vec3b color, Point& matchPoint);
 	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint);
 	void imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size);
-	MapElement * getMode(vector<Vec4b> colors);
+	const MapElement * getMode(vector<Vec4b> colors);
 };

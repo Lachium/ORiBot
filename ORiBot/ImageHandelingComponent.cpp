@@ -5,7 +5,7 @@ ImageHandelingComponent::ImageHandelingComponent()
 	getGameGrid(expectedPoints);
 }
 
-bool ImageHandelingComponent::screenToMapElements(vector<vector<MapElement*>> & world)
+bool ImageHandelingComponent::screenToMapElements(vector<vector<const MapElement*>> & world)
 {
 	ScreenCapture screenCapture = ScreenCapture();
 		
@@ -239,7 +239,7 @@ bool ImageHandelingComponent::cropToGameWindow(imageResourceItem& img)
 	if (singleColorMatchingFast(*img.getColor(), cVecOutput, gameLogoPos))
 		return img.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 	else {
-		if (singleTemplateMatchingGrey(*img.getGray(), *imageResources.imgGameLogo.getGray(), 0.9, gameLogoPos))
+		if (singleTemplateMatchingGrey(*img.getGray(), *imageResources.imgGameLogo.getGray(), 0.9f, gameLogoPos))
 		{
 			return img.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 		}
@@ -305,19 +305,19 @@ void ImageHandelingComponent::imageTo2dCollorVec(Mat& colorImgInput, vector<vect
 	}
 }
 
-vector<vector<MapElement*>> ImageHandelingComponent::getGridPixels(imageResourceItem& img, Point2f binOffsets)
+vector<vector<const MapElement*>> ImageHandelingComponent::getGridPixels(imageResourceItem& img, Point2f binOffsets)
 {
 	const int boarder = 1;
 	int rezize = 2;
 	//Mat look;
-	vector<vector<MapElement*>> map;
+	vector<vector<const MapElement*>> map;
 	//imgScreen.getColor()->type() == 24 ? look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC4) : look = Mat::zeros((int)maxBinsY * (blockWidth - rezize * 2), (int)maxBinsX * (blockHeight - rezize * 2), CV_8UC3);
 	//flat = Mat::zeros((int)maxBinsY - boarder*2, (int)maxBinsX - boarder*2, CV_8UC4);
 
 	//vector<Mat> imgs;
 	for (int r = boarder; r < expectedPoints.size() - boarder; r++)
 	{
-		vector<MapElement*> mapLine;
+		vector<const MapElement*> mapLine;
 		for (int c = boarder; c < expectedPoints.front().size() - boarder; c++)
 		{
 			vector<Vec4b> colors;
@@ -353,7 +353,7 @@ vector<vector<MapElement*>> ImageHandelingComponent::getGridPixels(imageResource
 	return map;
 }
 
-MapElement * ImageHandelingComponent::getMode(vector<Vec4b> colors)
+const MapElement * ImageHandelingComponent::getMode(vector<Vec4b> colors)
 {	
 	Vec4b number = colors.front();
 	Vec4b mode = number;
