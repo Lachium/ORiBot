@@ -1,21 +1,7 @@
 #include "mapStitcher.h"
 
-
-void MapStitcher::lookAtMapConents(vector<vector<const MapElement*>>& mapPiece)
-{
-	appendToMap(mapPiece);
-
-	//for (const auto& key : mapElementCollection.mapElements)
-	//	cout << key.second.name << " " << key.second.mapCount << endl;
-
-
-
-};
-
 void MapStitcher::appendToMap(vector<vector<const MapElement*>>& mapPiece)
 {
-	//drawMap(mapPiece, "piece");
-
 	const int border = 3;
 
 	if (gridMap.size() == 0)
@@ -253,7 +239,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
 	}
 	//2C
-	else if (foundRow >= 0, foundCol > 0 &&
+	else if (foundRow >= 0 && foundCol > 0 &&
 		foundRow + mapPiece.size() <= gridMap.size() &&
 		foundCol + mapPiece.front().size() > gridMap.front().size())
 	{

@@ -157,17 +157,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ImageHandelingComponent.cpp" />
+    <ClCompile Include="screenInterpreter.cpp" />
     <ClCompile Include="ORiBot.cpp" />
-    <ClCompile Include="thought.cpp" />
+    <ClCompile Include="mapStitcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="screenCapture.h" />
-    <ClInclude Include="thought.h" />
+    <ClInclude Include="mapStitcher.h" />
     <ClInclude Include="mapElement.h" />
-    <ClInclude Include="ImageHandelingComponent.h" />
-    <ClInclude Include="imageResourceItem.h" />
-    <ClInclude Include="ImageResources.h" />
+    <ClInclude Include="screenInterpreter.h" />
+    <ClInclude Include="imageResource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

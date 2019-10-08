@@ -18,30 +18,27 @@
     <ClCompile Include="ORiBot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ImageHandelingComponent.cpp">
+    <ClCompile Include="mapStitcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="thought.cpp">
+    <ClCompile Include="screenInterpreter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="imageResourceItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageResources.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageHandelingComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="thought.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="screenCapture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mapElement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapStitcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="screenInterpreter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imageResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

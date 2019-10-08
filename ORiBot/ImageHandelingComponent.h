@@ -17,8 +17,8 @@ class ImageHandelingComponent
 public:
 	MapElementCollection mapElementCollection;
 	ImageHandelingComponent();
-	Point2f getGridBinOffset(imageResourceItem & img);
-	vector<vector<const MapElement*>> getGridPixels(imageResourceItem & img, Point2f binOffsets);
+	Point2f getGridBinOffset(imageResourceItem& img);
+	vector<vector<const MapElement*>> getGridPixels(imageResourceItem& img, Point2f binOffsets);
 	bool screenToMapElements(vector<vector<const MapElement*>>& world);
 	void getGameGrid(vector<vector<Point2f>>& outputVec);
 
@@ -34,7 +34,7 @@ private:
 	const double binWidth = 26.667;
 	const double binHeight = 26.667;
 	ImageResources imageResources;
-	Point gameLogoPos = Point(-1,-1);
+	Point gameLogoPos = Point(-1, -1);
 	bool cropToGameWindow(imageResourceItem& img);
 	bool multipleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, vector<Point2f>& List_Matches);
 	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint);
@@ -43,5 +43,5 @@ private:
 	bool colorSearchSingleMap(Mat& imgColor, Vec3b color, Point& matchPoint);
 	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint);
 	void imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size);
-	const MapElement * getMode(vector<Vec4b> colors);
+	const MapElement* getMode(vector<Vec4b> colors);
 };

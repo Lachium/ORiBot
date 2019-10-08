@@ -15,13 +15,11 @@ public:
 	bool reading = false;
 	Mat img;
 
-	Mat readImage()
+	Mat * readImage()
 	{
-		reading = true;
 		img = Mat(hwnd2mat(GetDesktopWindow()));
-		reading = false;
-		return img;
-	}
+		return &img;
+	};
 
 private:
 	Mat hwnd2mat(HWND hwnd = GetDesktopWindow()) {

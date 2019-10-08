@@ -3,6 +3,8 @@
 #include<string>
 #include "screenCapture.h"
 
+#define dir "C:/ORiBot/Content/img/"
+
 using namespace std;
 using namespace cv;
 
@@ -15,7 +17,6 @@ public:
 	ImageResource(Mat img) {
 		imgColor = img;
 	};
-	ImageResource() {};
 
 	bool cropImage(Rect boundry) {
 		if (!(boundry.x < 0 || boundry.y < 0 || imgColor.rows < (boundry.height + boundry.y) || imgColor.cols < (boundry.width + boundry.x)))
@@ -27,7 +28,7 @@ public:
 		}
 		else
 		{
-			cout << "Invalid Boundry " << boundry << "\n";
+			cout << "Invalid Boundry " << boundry;
 			return false;
 		}
 	};
@@ -45,5 +46,11 @@ public:
 private:
 	Mat imGray;
 	Mat imgColor;
+};
 
+class ImageResourceCollection
+{
+public:
+	const String directory = dir;
+	ImageResource imgGameLogo = ImageResource(directory + "templates/gameLogo.bmp");
 };

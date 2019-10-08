@@ -5,10 +5,10 @@ ImageHandelingComponent::ImageHandelingComponent()
 	getGameGrid(expectedPoints);
 }
 
-bool ImageHandelingComponent::screenToMapElements(vector<vector<const MapElement*>> & world)
+bool ImageHandelingComponent::screenToMapElements(vector<vector<const MapElement*>>& world)
 {
 	ScreenCapture screenCapture = ScreenCapture();
-		
+
 	imageResourceItem imgScreen = imageResourceItem(screenCapture.readImage());
 
 	if (cropToGameWindow(imgScreen))
@@ -102,8 +102,8 @@ void ImageHandelingComponent::getGameGrid(vector<vector<Point2f>>& outputVec)
 		vector<Point2f> line;
 		for (int c = 0; c < maxBinsX; c++)
 		{
-			double xShift = ((-(maxBinsX * 0.5) + c) * (0.5-shiftA/1000.0)) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * (shiftB/10000.0);
-			double yShift = r * (1 - shiftC/1000.0);
+			double xShift = ((-(maxBinsX * 0.5) + c) * (0.5 - shiftA / 1000.0)) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * (shiftB / 10000.0);
+			double yShift = r * (1 - shiftC / 1000.0);
 			line.push_back(Point2f((c * binWidth + xShift), (r * binHeight + yShift)));
 		}
 		outputVec.push_back(line);
@@ -198,7 +198,7 @@ Point2f ImageHandelingComponent::getGridBinOffset(imageResourceItem& img)
 
 	Point2f estimatedBin = Point2f(firstTile.x / binWidth, firstTile.y / binHeight);
 
-	int exBinX = (int)(firstTile.x / (binWidth + (firstTile.x/1280.0)*0.567));
+	int exBinX = (int)(firstTile.x / (binWidth + (firstTile.x / 1280.0) * 0.567));
 	int exBinY = (int)(firstTile.y / binHeight);
 	int xOffset = ((40 - xOffsetConst / 10.0) - (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
 	int yOffset = ((20 - yOffsetConst / 10.0) - (expectedPoints.at(exBinY).at(exBinX).y - firstTile.y));
@@ -353,8 +353,8 @@ vector<vector<const MapElement*>> ImageHandelingComponent::getGridPixels(imageRe
 	return map;
 }
 
-const MapElement * ImageHandelingComponent::getMode(vector<Vec4b> colors)
-{	
+const MapElement* ImageHandelingComponent::getMode(vector<Vec4b> colors)
+{
 	Vec4b number = colors.front();
 	Vec4b mode = number;
 	int count = 1;
