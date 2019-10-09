@@ -144,7 +144,7 @@ bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec
 {
 	if (((cTemplate.at(0).size() + searhPoint.x) >= colorImg.cols) || ((cTemplate.size() + searhPoint.y) >= colorImg.rows) || searhPoint.x < 0 || searhPoint.y < 0)
 	{
-		cout << "Fast color search point out of bounds" << endl;
+		cout << "Fast color search point out of bounds ";
 		return false;
 	}
 	for (int r = 0; r < cTemplate.size(); r++)
@@ -160,7 +160,7 @@ bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec
 
 				if (offset > 10)
 				{
-					cout << "No Fast Color Find - offset: " << offset << " image type: " << colorImg.type() << endl;
+					cout << "No Fast Color Find - offset: " << offset << " image type: " << colorImg.type() << " ";
 					return false;
 				}
 			}
@@ -173,7 +173,7 @@ bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec
 					abs((colorImg.at<Vec3b>(Point(c + searhPoint.x, r + searhPoint.y))[2] - (cTemplate.at(r).at(c)[2])));
 				if (offset != 0)
 				{
-					cout << "No Fast Color Find - offset: " << offset << " image type: " << colorImg.type() << endl;
+					cout << "No Fast Color Find - offset: " << offset << " image type: " << colorImg.type() << " ";
 					return false;
 				}
 			}

@@ -38,7 +38,7 @@ struct Vec3bKey {
 	// We compare Test objects by their ids. 
 	bool operator<(const Vec3bKey& colorT) const
 	{ 
-		//cout << ((int)this->color[0] + (int)this->color[1] * 100 + (int)this->color[2] * 1000) << "  " << ((int)colorT.color[0] + (int)colorT.color[1] * 100 + (int)colorT.color[2] * 1000) << endl;
+		//cout << ((int)this->color[0] + (int)this->color[1] * 100 + (int)this->color[2] * 1000) << "  " << ((int)colorT.color[0] + (int)colorT.color[1] * 100 + (int)colorT.color[2] * 1000) <<  " ";
 		if (abs((int)this->color[0] - (int)colorT.color[0]) < 10
 			&& abs((int)this->color[1] - (int)colorT.color[1]) < 10
 			&& abs((int)this->color[2] - (int)colorT.color[2]) < 10)

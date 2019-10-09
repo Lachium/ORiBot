@@ -14,16 +14,13 @@ int main(int argv, char** argc)
 	MapStitcher mapStitcher = MapStitcher();
 	ScreenCapture screenCapture;
 	vector<vector<const MapElement*>> world;
-
-	clock_t start, start_Image_Capture;
-	clock_t start_Image_Capture_Stop;
-
+	
 	int key = 0;
 	while (true)
 	{
-		start = clock();
+		clock_t start = clock();
 
-		start_Image_Capture = clock();
+		clock_t start_Image_Capture = clock();
 		Mat * screen = screenCapture.readImage();
 		cout << "|Capt " << fixed << double((clock() - start_Image_Capture) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms|";
 
@@ -36,7 +33,7 @@ int main(int argv, char** argc)
 			cout << "|Stitch " << fixed << double((clock() - start_Stitch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms|";
 		}
 		double time_taken = double((clock() - start) / double(CLOCKS_PER_SEC));
-		cout << "|Total " << fixed << time_taken * 1000 << setprecision(0); cout << "ms";
+		cout << "|Total " << fixed << time_taken * 1000 << setprecision(0); cout << "ms ";
 		cout << fixed << 1 / time_taken << setprecision(1); cout << "FPS|";
 		cout << endl;
 		key = waitKey(1);
