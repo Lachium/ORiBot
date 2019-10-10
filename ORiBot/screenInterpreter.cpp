@@ -200,13 +200,16 @@ vector<vector<const MapElement*>> ScreenInterpreter::getGridPixels(ImageResource
 	const int rezize = 2;
 
 	vector<vector<const MapElement*>> map;
-
+	map.reserve(expectedPoints.size());
 	for (int r = boarder; r < expectedPoints.size() - boarder; r++)
 	{
 		vector<const MapElement*> mapLine;
+		mapLine.reserve(expectedPoints.front().size());
 		for (int c = boarder; c < expectedPoints.front().size() - boarder; c++)
 		{
 			vector<Vec4b> colors;
+			colors.reserve((blockWidth - rezize*2) * (blockHeight - rezize * 2));
+
 			for (int x = rezize; x < blockWidth - rezize; x++)
 				for (int y = rezize; y < blockHeight - rezize; y++)
 				{

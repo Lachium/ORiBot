@@ -41,8 +41,8 @@ void MapStitcher::appendToMap(vector<vector<const MapElement*>>& mapPiece)
 			yEnd = gridMap.front().size();
 		}
 
-		cout << "Start" << "(" << xStart << "," << yStart << ") ";
-		cout << "End" << "(" << xEnd << "," << yEnd << ") ";
+		//cout << "Start" << "(" << xStart << "," << yStart << ") ";
+		//cout << "End" << "(" << xEnd << "," << yEnd << ") ";
 		for (int foundRow = xStart; foundRow < gridMap.size() - mapPiece.size() + border * 2 + 1 && foundRow < xEnd; foundRow++)
 			for (int foundCol = yStart; foundCol < gridMap.front().size() - mapPiece.front().size() + border * 2 + 1 && foundCol < yEnd; foundCol++)
 			{
@@ -71,7 +71,7 @@ void MapStitcher::appendToMap(vector<vector<const MapElement*>>& mapPiece)
 						}
 					}
 					//Append to Grid Map
-					cout << "Match Search Loops: " << matchLoopOuterCount << " + " << matchLoopInnerCount << " @ " << fixed << double((clock() - startMatch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
+					//cout << "Match Search Loops: " << matchLoopOuterCount << " + " << matchLoopInnerCount << " @ " << fixed << double((clock() - startMatch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
 					lastGridPos = StitchMap(foundRow - border, foundCol - border, mapPiece);
 					lastGridPos += Point(border, border);
 					return;
@@ -79,7 +79,7 @@ void MapStitcher::appendToMap(vector<vector<const MapElement*>>& mapPiece)
 
 			nextGrid:;
 			}
-		cout << "No Matches: " << matchLoopOuterCount << " + " << matchLoopInnerCount << " @ " << fixed << double((clock() - startMatch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
+		//cout << "No Matches: " << matchLoopOuterCount << " + " << matchLoopInnerCount << " @ " << fixed << double((clock() - startMatch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
 	}
 };
 
@@ -91,12 +91,12 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 	const int GridSartCols = gridMap.front().size();
 
 	clock_t startGridLook = clock();
-	cout << "Found (" << foundRow << "," << foundCol << ") ";
+	//cout << "Found (" << foundRow << "," << foundCol << ") ";
 
 	//1A
 	if (foundRow < 0 && foundCol < 0)
 	{
-		cout << " 1A ";
+		//cout << " 1A ";
 		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row; };
 		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col; };
 		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row + foundRow; };
@@ -133,7 +133,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 	else if (foundRow < 0 && foundCol >= 0 &&
 		foundCol + mapPiece.front().size() <= gridMap.front().size())
 	{
-		cout << " 1B ";
+		//cout << " 1B ";
 		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row; };
 		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
 		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row + foundRow; };
@@ -162,7 +162,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 	else if (foundRow < 0 && foundCol > 0 &&
 		foundCol + mapPiece.front().size() >= gridMap.front().size())
 	{
-		cout << " 1C ";
+		//cout << " 1C ";
 		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row; };
 		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
 		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row + foundRow; };
@@ -199,7 +199,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 	else if (foundRow >= 0 && foundCol < 0 &&
 		foundRow + mapPiece.size() <= gridMap.size())
 	{
-		cout << " 2A ";
+		//cout << " 2A ";
 		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
 		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col; };
 		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
@@ -225,7 +225,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundRow + mapPiece.size() <= gridMap.size() &&
 		foundCol + mapPiece.front().size() <= gridMap.front().size())
 	{
-		cout << " 2B ";
+		//cout << " 2B ";
 		const function<const int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
 		const function<const int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
 		const function<const int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
@@ -243,7 +243,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundRow + mapPiece.size() <= gridMap.size() &&
 		foundCol + mapPiece.front().size() > gridMap.front().size())
 	{
-		cout << " 2C ";
+		//cout << " 2C ";
 		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
 		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
 		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
@@ -269,7 +269,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 	else if (foundRow > 0 && foundCol < 0 &&
 		foundRow + mapPiece.size() > gridMap.size())
 	{
-		cout << " 3A ";
+		//cout << " 3A ";
 		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
 		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col; };
 		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
@@ -307,7 +307,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundCol + mapPiece.front().size() <= gridMap.front().size() &&
 		foundRow + mapPiece.size() > gridMap.size())
 	{
-		cout << " 3B ";
+		//cout << " 3B ";
 		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
 		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
 		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
@@ -337,7 +337,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundCol + mapPiece.front().size() > gridMap.front().size() &&
 		foundRow + mapPiece.size() > gridMap.size())
 	{
-		cout << " 3C ";
+		//cout << " 3C ";
 		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
 		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
 		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
@@ -370,7 +370,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 			gridMap.push_back(Bottom_mapBlock.at(i));
 	}
 	drawMap(gridMap, "grid");
-	cout << "Grid Search Loops: " << gridSearchLoopCount << " @ " << fixed << double((clock() - startGridLook) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
+	//cout << "Grid Search Loops: " << gridSearchLoopCount << " @ " << fixed << double((clock() - startGridLook) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
 
 	int R = gridMap.size() - GridSartRows;
 	int C = gridMap.front().size() - GridSartCols;

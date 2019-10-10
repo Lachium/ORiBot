@@ -12,7 +12,7 @@ class ImageResource
 {
 public:
 	ImageResource(string imgPath) {
-		imgColor = imread(imgPath);
+		imgColor = imread(imgPath, IMREAD_COLOR);
 	};
 	ImageResource(Mat img) {
 		imgColor = img;
