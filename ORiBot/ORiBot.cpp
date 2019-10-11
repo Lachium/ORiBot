@@ -33,11 +33,11 @@ int main(int argv, char** argc)
 		lastScreen = *screen;
 		SetEvent(hEvent_ScreenCaptureThread);
 		
-		//double time_taken = double((clock() - start) / double(CLOCKS_PER_SEC));
-		//cout << "|Total " << fixed << time_taken * 1000 << setprecision(0); cout << "ms ";
-		//cout << fixed << 1 / time_taken << setprecision(1); cout << "FPS|";
-		//cout << endl;
-		key = waitKey(1);
+		double time_taken = double((clock() - start) / double(CLOCKS_PER_SEC));
+		cout << "|Capture " << fixed << time_taken * 1000 << setprecision(0); cout << "ms ";
+		cout << fixed << 1 / time_taken << setprecision(1); cout << "FPS|";
+		cout << endl;
+		//key = waitKey(1);
 	}
 	shouldScreenCaptureTerminate = true;
 	screenCaptureThread.join();
@@ -45,33 +45,8 @@ int main(int argv, char** argc)
 	return 0;
 }
 
-void StitchMapThread()
-{
-	MapStitcher mapStitcher = MapStitcher();
-	HANDLE hEvent_StitchMapThread = CreateEvent(NULL, true, false, L"FIRE_STITCH_MAP");
-
-	if (!hEvent_StitchMapThread)
-	{
-		assert(false);
-	}
-
-	int key = 0;
-	while (!shouldMappingTerminate)
-	{
-		WaitForSingleObject(hEvent_StitchMapThread, INFINITE);
-
-		clock_t start = clock();
-		mapStitcher.appendToMap(lastWorld);
-		//cout << "|World " << fixed << double((clock() - start) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms|" << endl;
-		ResetEvent(hEvent_StitchMapThread);
-		key = waitKey(1);
-	}
-	shouldGameTerminate = true;
-}
-
 void ScreenCaptureThread()
 {
-
 	ScreenInterpreter screenInterpreter = ScreenInterpreter();
 	HANDLE hEvent_ScreenCaptureThread = CreateEvent(NULL, true, false, L"FIRE_SCREEN_CAPTURE");
 
@@ -96,12 +71,36 @@ void ScreenCaptureThread()
 			SetEvent(hEvent_StitchMapThread);
 		}
 
-		cout << "|Map " << fixed << double((clock() - start) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms|"  << endl;
+		cout << "|World " << fixed << double((clock() - start) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms|" << endl;
 		ResetEvent(hEvent_ScreenCaptureThread);
-		key = waitKey(1);
+		//key = waitKey(1);
 	}
 	shouldMappingTerminate = true;
 	stictMapThread.join();
 
+	shouldGameTerminate = true;
+}
+
+void StitchMapThread()
+{
+	MapStitcher mapStitcher = MapStitcher();
+	HANDLE hEvent_StitchMapThread = CreateEvent(NULL, true, false, L"FIRE_STITCH_MAP");
+
+	if (!hEvent_StitchMapThread)
+	{
+		assert(false);
+	}
+
+	int key = 0;
+	while (!shouldMappingTerminate)
+	{
+		WaitForSingleObject(hEvent_StitchMapThread, INFINITE);
+
+		clock_t start = clock();
+		mapStitcher.appendToMap(lastWorld);
+		cout << "|Map " << fixed << double((clock() - start) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms|" << endl;
+		ResetEvent(hEvent_StitchMapThread);
+		key = waitKey(1);
+	}
 	shouldGameTerminate = true;
 }

@@ -23,7 +23,7 @@ bool ScreenInterpreter::screenToMapElements(Mat& screenImg, vector<vector<const 
 	if (cropToGameWindow(imgScreen))
 	{
 		Point2f offset = getGridBinOffset(imgScreen);
-		world = getGridPixels(imgScreen, offset);
+		world = calculateGridPixels(imgScreen, offset);
 		return !world.empty();
 	}
 	else
@@ -32,7 +32,7 @@ bool ScreenInterpreter::screenToMapElements(Mat& screenImg, vector<vector<const 
 	return false;
 }
 
-bool ScreenInterpreter::singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint)
+bool ScreenInterpreter::singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint) const
 {
 	Mat mResult;
 	matchTemplate(mInput, mTemplate, mResult, TM_CCOEFF_NORMED);
@@ -54,7 +54,7 @@ bool ScreenInterpreter::singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, 
 	}
 }
 
-bool ScreenInterpreter::colorSearchSingleMap(Mat& colorImg, Vec3b color, Point& matchPoint)
+bool ScreenInterpreter::colorSearchSingleMap(Mat& colorImg, Vec3b color, Point& matchPoint) const
 {
 	for (int r = binHeight * 2; r < colorImg.rows - 1 - binHeight * 0; r++)
 		for (int c = binWidth * 2; c < colorImg.cols - 1 - binWidth * 0; c++)
@@ -122,25 +122,18 @@ Point2f ScreenInterpreter::getGridBinOffset(ImageResource& img)
 
 bool ScreenInterpreter::cropToGameWindow(ImageResource& img)
 {
-
-	vector<vector<Vec3b>> cVecOutput;
-	imageTo2dCollorVec(*imageResourceCollection.imgGameLogo.getColor(), cVecOutput, Point(2, 2));
-
-	if (singleColorMatchingFast(*img.getColor(), cVecOutput, gameLogoPos))
+	bool couldFindFast = singleColorMatchingFast(*img.getColor(), *imageResourceCollection.imgGameLogo.getVec2D(), gameLogoPos);
+	if (couldFindFast)
 		return img.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
-	else {
-		if (singleTemplateMatchingGrey(*img.getGray(), *imageResourceCollection.imgGameLogo.getGray(), 0.9f, gameLogoPos))
-		{
-			return img.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
-		}
-		else
-			return false;
-	}
+
+	bool couldFindSlow = singleTemplateMatchingGrey(*img.getGray(), *imageResourceCollection.imgGameLogo.getGray(), 0.9f, gameLogoPos);
+	if (couldFindSlow)
+		return img.cropImage(Rect(gameLogoPos.x - 6, gameLogoPos.y + 18, gameWindownWidth, gameWindownHeight));
 
 	return false;
 }
 
-bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec3b>>& cTemplate, Point& searhPoint)
+bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec3b>>& cTemplate, Point& searhPoint) const
 {
 	if (((cTemplate.at(0).size() + searhPoint.x) >= colorImg.cols) || ((cTemplate.size() + searhPoint.y) >= colorImg.rows) || searhPoint.x < 0 || searhPoint.y < 0)
 	{
@@ -181,20 +174,7 @@ bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec
 	return true;
 }
 
-void ScreenInterpreter::imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size)
-{
-	for (int r = 0; r < size.y; r++)
-	{
-		vector<Vec3b> line;
-		for (int c = 0; c < size.x; c++)
-		{
-			line.push_back(colorImgInput.at<Vec3b>(Point(c, r)));
-		}
-		cVecOutput.push_back(line);
-	}
-}
-
-vector<vector<const MapElement*>> ScreenInterpreter::getGridPixels(ImageResource& img, Point2f binOffsets)
+vector<vector<const MapElement*>> ScreenInterpreter::calculateGridPixels(ImageResource& img, Point2f binOffsets)
 {
 	const int boarder = 1;
 	const int rezize = 2;
@@ -207,8 +187,8 @@ vector<vector<const MapElement*>> ScreenInterpreter::getGridPixels(ImageResource
 		mapLine.reserve(expectedPoints.front().size());
 		for (int c = boarder; c < expectedPoints.front().size() - boarder; c++)
 		{
-			vector<Vec4b> colors;
-			colors.reserve((blockWidth - rezize*2) * (blockHeight - rezize * 2));
+			vector<Vec3b> colors;
+			colors.reserve((blockWidth - rezize * 2) * (blockHeight - rezize * 2));
 
 			for (int x = rezize; x < blockWidth - rezize; x++)
 				for (int y = rezize; y < blockHeight - rezize; y++)
@@ -217,7 +197,8 @@ vector<vector<const MapElement*>> ScreenInterpreter::getGridPixels(ImageResource
 					const int ypos = expectedPoints.at(r).at(c).y + y + binOffsets.y;
 					if (!((xpos < 0 || ypos < 0 || xpos >= img.getColor()->cols || ypos >= img.getColor()->rows)))
 					{
-						const Vec4b color = img.getColor()->at<Vec4b>(Point(xpos, ypos));
+						const Vec4b color4b = img.getColor()->at<Vec4b>(Point(xpos, ypos));
+						const Vec3b color = Vec3b((int)color4b[0], (int)color4b[1], (int)color4b[2]);
 						if (!(color[0] == color[1] && color[1] == color[2]))
 							colors.push_back(color);
 					}
@@ -225,23 +206,23 @@ vector<vector<const MapElement*>> ScreenInterpreter::getGridPixels(ImageResource
 			if (!colors.empty())
 				mapLine.push_back(getMode(colors));
 			else
-				mapLine.push_back(mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255)));
+				mapLine.push_back(mapElementCollection.searchMapElementByColor(0, 255, 255));
 		}
 		map.push_back(mapLine);
 	}
 	return map;
 }
 
-const MapElement* ScreenInterpreter::getMode(vector<Vec4b> colors)
+const MapElement* ScreenInterpreter::getMode(vector<Vec3b>& colors)
 {
-	Vec4b* number = &colors.front();
-	Vec4b* mode = number;
+	Vec3b& number = colors.front();
+	Vec3b& mode = number;
 	int count = 1;
 	int countMode = 1;
 
 	for (int i = 1; i < colors.size(); i++)
 	{
-		if (colors.at(i) == *number)
+		if (colors.at(i) == number)
 			++count;
 		else
 		{
@@ -251,8 +232,8 @@ const MapElement* ScreenInterpreter::getMode(vector<Vec4b> colors)
 				mode = number;
 			}
 			count = 1;
-			number = &colors.at(i);
+			number = colors.at(i);
 		}
 	}
-	return mapElementCollection.searchMapElementByColor((Vec3b((*mode)[0], (*mode)[1], (*mode)[2])));
+	return mapElementCollection.searchMapElementByColor(mode);
 }

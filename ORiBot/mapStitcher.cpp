@@ -18,7 +18,6 @@ void MapStitcher::appendToMap(vector<vector<const MapElement*>>& mapPiece)
 	else
 	{
 		//Look for match
-		clock_t startMatch = clock();
 		int matchLoopOuterCount = 0;
 		int matchLoopInnerCount = 0;
 		int negativeMatch = 0;
@@ -55,23 +54,18 @@ void MapStitcher::appendToMap(vector<vector<const MapElement*>>& mapPiece)
 						for (int col = 1; ((col + foundCol) < gridMap.front().size() && col < (mapPiece.front().size() - border * 2)); col++)
 						{
 							matchLoopInnerCount++;
-							if (!(gridMap.at((row + foundRow)).at((col + foundCol))->name == mapPiece.at(row + border).at(col + border)->name ||
-								(gridMap.at((row + foundRow)).at((col + foundCol))->name == "WalkableA" && mapPiece.at(row + border).at(col + border)->name == "WalkableB") ||
-								(gridMap.at((row + foundRow)).at((col + foundCol))->name == "WalkableB" && mapPiece.at(row + border).at(col + border)->name == "WalkableA") ||
-								gridMap.at((row + foundRow)).at((col + foundCol))->type == 1 ||
-								mapPiece.at(row + border).at(col + border)->type == 1))
+							if (!(gridMap.at((row + foundRow)).at((col + foundCol))->color == mapPiece.at(row + border).at(col + border)->color ||
+								gridMap.at((row + foundRow)).at((col + foundCol))->type == 1 || mapPiece.at(row + border).at(col + border)->type == 1))
 							{
 								negativeMatch++;
 								if (negativeMatch > 1)
 								{
 									goto nextGrid;
 								}
-
 							}
 						}
 					}
 					//Append to Grid Map
-					//cout << "Match Search Loops: " << matchLoopOuterCount << " + " << matchLoopInnerCount << " @ " << fixed << double((clock() - startMatch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
 					lastGridPos = StitchMap(foundRow - border, foundCol - border, mapPiece);
 					lastGridPos += Point(border, border);
 					return;
@@ -79,7 +73,6 @@ void MapStitcher::appendToMap(vector<vector<const MapElement*>>& mapPiece)
 
 			nextGrid:;
 			}
-		//cout << "No Matches: " << matchLoopOuterCount << " + " << matchLoopInnerCount << " @ " << fixed << double((clock() - startMatch) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
 	}
 };
 
@@ -97,25 +90,19 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 	if (foundRow < 0 && foundCol < 0)
 	{
 		//cout << " 1A ";
-		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row; };
-		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col; };
-		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row + foundRow; };
-		const function<int(int, int)> gPartCol = [](int col, int foundCol) { return col + foundCol; };
-		const function<bool(int, int, int, int, const int, const int)> pPartCod = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row < mapPieceSize && col < mapPieceFrontSize); };
-
 		//CC
 		const int C_rowStart = -foundRow;
 		const int C_colStart = -foundCol;
 		const int C_rowSize = mapPiece.size();
 		const int C_colSize = mapPiece.front().size();
-		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
+		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_1A, pPartCol_1A, gPartRow_1A, gPartCol_1A, gridSearchLoopCount);
 
 		//Top
 		const int Top_rowStart = 0;
 		const int Top_colStart = 0;
 		const int Top_rowSize = -foundRow;
 		const int Top_colSize = gridMap.front().size() - foundCol;
-		deque<deque<const MapElement*>> Top_mapBlock = addToTop(gridMap, mapPiece, foundRow, foundCol, Top_rowStart, Top_colStart, Top_rowSize, Top_colSize, pPartRow, pPartCol, gPartRow, gPartCol, pPartCod, gridSearchLoopCount);
+		const deque<deque<const MapElement*>> Top_mapBlock = addToTop(gridMap, mapPiece, foundRow, foundCol, Top_rowStart, Top_colStart, Top_rowSize, Top_colSize, pPartRow_1A, pPartCol_1A, gPartRow_1A, gPartCol_1A, pPartCod_1A, gridSearchLoopCount);
 
 
 		//Left
@@ -123,7 +110,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		const int Left_colStart = 0;
 		const int Left_rowSize = -foundRow + gridMap.size();
 		const int Left_colSize = -foundCol + 1;
-		addToLeft(gridMap, mapPiece, foundRow, foundCol, Left_rowStart, Left_colStart, Left_rowSize, Left_colSize, pPartRow, pPartCol, gPartRow, pPartCod, gridSearchLoopCount);
+		addToLeft(gridMap, mapPiece, foundRow, foundCol, Left_rowStart, Left_colStart, Left_rowSize, Left_colSize, pPartRow_1A, pPartCol_1A, gPartRow_1A, pPartCod_1A, gridSearchLoopCount);
 
 		//Top +
 		for (int i = 0; i < Top_mapBlock.size(); i++)
@@ -134,25 +121,19 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundCol + mapPiece.front().size() <= gridMap.front().size())
 	{
 		//cout << " 1B ";
-		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row; };
-		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
-		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row + foundRow; };
-		const function<int(int, int)> gPartCol = [](int col, int foundCol) { return col; };
-		const function<bool(int, int, int, int, const int, const int)> pPartCod = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row < -foundRow && col >= foundCol && col < foundCol + mapPieceFrontSize); };
-
 		//CC
 		const int C_rowStart = -foundRow;
 		const int C_colStart = foundCol;
 		const int C_rowSize = mapPiece.size();
-		const int C_colSize = foundCol + mapPiece.front().size(); compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
-		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
+		const int C_colSize = foundCol + mapPiece.front().size(); compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_1B, pPartCol_1B, gPartRow_1B, gPartCol_1B, gridSearchLoopCount);
+		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_1B, pPartCol_1B, gPartRow_1B, gPartCol_1B, gridSearchLoopCount);
 
 		//Top
 		const int Top_rowStart = 0;
 		const int Top_colStart = 0;
 		const int Top_rowSize = -foundRow;
 		const int Top_colSize = gridMap.front().size();
-		deque<deque<const MapElement*>> Top_mapBlock = addToTop(gridMap, mapPiece, foundRow, foundCol, Top_rowStart, Top_colStart, Top_rowSize, Top_colSize, pPartRow, pPartCol, gPartRow, gPartCol, pPartCod, gridSearchLoopCount);
+		const deque<deque<const MapElement*>> Top_mapBlock = addToTop(gridMap, mapPiece, foundRow, foundCol, Top_rowStart, Top_colStart, Top_rowSize, Top_colSize, pPartRow_1B, pPartCol_1B, gPartRow_1B, gPartCol_1B, pPartCod_1B, gridSearchLoopCount);
 
 		//Top +
 		for (int i = 0; i < Top_mapBlock.size(); i++)
@@ -163,32 +144,26 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundCol + mapPiece.front().size() >= gridMap.front().size())
 	{
 		//cout << " 1C ";
-		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row; };
-		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
-		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row + foundRow; };
-		const function<int(int, int)> gPartCol = [](int col, int foundCol) { return col; };
-		const function<bool(int, int, int, int, const int, const int)> pPartCod = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row < mapPieceSize && col >= foundCol); };
-
 		//CC
 		const int C_rowStart = -foundRow;
 		const int C_colStart = foundCol;
 		const int C_rowSize = mapPiece.size();
 		const int C_colSize = gridMap.front().size();
-		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
+		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_1C, pPartCol_1C, gPartRow_1C, gPartCol_1C, gridSearchLoopCount);
 
 		//Right
 		const int Right_rowStart = -foundRow;
 		const int Right_colStart = gridMap.front().size();
 		const int Right_rowSize = -foundRow + gridMap.size();
 		const int Right_colSize = foundCol + mapPiece.front().size();
-		addToRight(gridMap, mapPiece, foundRow, foundCol, Right_rowStart, Right_colStart, Right_rowSize, Right_colSize, pPartRow, pPartCol, gPartRow, pPartCod, gridSearchLoopCount);
+		addToRight(gridMap, mapPiece, foundRow, foundCol, Right_rowStart, Right_colStart, Right_rowSize, Right_colSize, pPartRow_1C, pPartCol_1C, gPartRow_1C, pPartCod_1C, gridSearchLoopCount);
 
 		//Top
 		const int Top_rowStart = 0;
 		const int Top_colStart = 0;
 		const int Top_rowSize = -foundRow;
 		const int Top_colSize = mapPiece.front().size() + foundCol;
-		deque<deque<const MapElement*>> Top_mapBlock = addToTop(gridMap, mapPiece, foundRow, foundCol, Top_rowStart, Top_colStart, Top_rowSize, Top_colSize, pPartRow, pPartCol, gPartRow, gPartCol, pPartCod, gridSearchLoopCount);
+		const deque<deque<const MapElement*>> Top_mapBlock = addToTop(gridMap, mapPiece, foundRow, foundCol, Top_rowStart, Top_colStart, Top_rowSize, Top_colSize, pPartRow_1C, pPartCol_1C, gPartRow_1C, gPartCol_1C, pPartCod_1C, gridSearchLoopCount);
 
 
 		//Top +
@@ -200,25 +175,19 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundRow + mapPiece.size() <= gridMap.size())
 	{
 		//cout << " 2A ";
-		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
-		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col; };
-		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
-		const function<int(int, int)> gPartCol = [](int col, int foundCol) { return col + foundCol; };
-		const function<bool(int, int, int, int, const int, const int)> pPartCod = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row >= foundRow && col < mapPieceFrontSize && row < foundRow + mapPieceSize); };
-
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = -foundCol;
 		const int C_rowSize = foundRow + mapPiece.size();
 		const int C_colSize = mapPiece.front().size();
-		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
+		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_2A, pPartCol_2A, gPartRow_2A, gPartCol_2A, gridSearchLoopCount);
 
 		//Left
 		const int Left_rowStart = 0;
 		const int Left_colStart = 0;
 		const int Left_rowSize = gridMap.size();
 		const int Left_colSize = -foundCol + 1;
-		addToLeft(gridMap, mapPiece, foundRow, foundCol, Left_rowStart, Left_colStart, Left_rowSize, Left_colSize, pPartRow, pPartCol, gPartRow, pPartCod, gridSearchLoopCount);
+		addToLeft(gridMap, mapPiece, foundRow, foundCol, Left_rowStart, Left_colStart, Left_rowSize, Left_colSize, pPartRow_2A, pPartCol_2A, gPartRow_2A, pPartCod_2A, gridSearchLoopCount);
 	}
 	//2B
 	else if (foundRow >= 0 && foundCol >= 0 &&
@@ -226,17 +195,12 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundCol + mapPiece.front().size() <= gridMap.front().size())
 	{
 		//cout << " 2B ";
-		const function<const int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
-		const function<const int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
-		const function<const int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
-		const function<const int(int, int)> gPartCol = [](int col, int foundCol) { return col; };
-
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = foundCol;
 		const int C_rowSize = foundRow + mapPiece.size();
 		const int C_colSize = foundCol + mapPiece.front().size();
-		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
+		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_2B, pPartCol_2B, gPartRow_2B, gPartCol_2B, gridSearchLoopCount);
 	}
 	//2C
 	else if (foundRow >= 0 && foundCol > 0 &&
@@ -244,25 +208,19 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundCol + mapPiece.front().size() > gridMap.front().size())
 	{
 		//cout << " 2C ";
-		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
-		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
-		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
-		const function<int(int, int)> gPartCol = [](int col, int foundCol) { return col; };
-		const function<bool(int, int, int, int, const int, const int)> pPartCod = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row >= foundRow && col >= foundCol && row < foundRow + mapPieceSize); };
-
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = foundCol;
 		const int C_rowSize = foundRow + mapPiece.size();
 		const int C_colSize = gridMap.front().size();
-		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
+		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_2C, pPartCol_2C, gPartRow_2C, gPartCol_2C, gridSearchLoopCount);
 
 		//Right
 		const int Right_rowStart = 0;
 		const int Right_colStart = gridMap.front().size();
 		const int Right_rowSize = gridMap.size();
 		const int Right_colSize = foundCol + mapPiece.front().size();
-		addToRight(gridMap, mapPiece, foundRow, foundCol, Right_rowStart, Right_colStart, Right_rowSize, Right_colSize, pPartRow, pPartCol, gPartRow, pPartCod, gridSearchLoopCount);
+		addToRight(gridMap, mapPiece, foundRow, foundCol, Right_rowStart, Right_colStart, Right_rowSize, Right_colSize, pPartRow_2C, pPartCol_2C, gPartRow_2C, pPartCod_2C, gridSearchLoopCount);
 
 	}
 	//3A
@@ -270,33 +228,26 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundRow + mapPiece.size() > gridMap.size())
 	{
 		//cout << " 3A ";
-		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
-		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col; };
-		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
-		const function<int(int, int)> gPartCol = [](int col, int foundCol) { return col + foundCol; };
-		const function<bool(int, int, int, int, const int, const int)> pPartCod = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row >= foundRow && col < mapPieceFrontSize); };
-
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = -foundCol;
 		const int C_rowSize = gridMap.size();
 		const int C_colSize = mapPiece.front().size();
-		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
-
-
+		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_3A, pPartCol_3A, gPartRow_3A, gPartCol_3A, gridSearchLoopCount);
+		
 		//Bottom
 		const int Bottom_rowStart = gridMap.size();
 		const int Bottom_colStart = 0;
 		const int Bottom_rowSize = foundRow + mapPiece.size();
 		const int Bottom_colSize = -foundCol + gridMap.front().size();
-		deque<deque<const MapElement*>> Bottom_mapBlock = addToBottom(gridMap, mapPiece, foundRow, foundCol, Bottom_rowStart, Bottom_colStart, Bottom_rowSize, Bottom_colSize, pPartRow, pPartCol, gPartRow, gPartCol, pPartCod, gridSearchLoopCount);
+		const deque<deque<const MapElement*>> Bottom_mapBlock = addToBottom(gridMap, mapPiece, foundRow, foundCol, Bottom_rowStart, Bottom_colStart, Bottom_rowSize, Bottom_colSize, pPartRow_3A, pPartCol_3A, gPartRow_3A, gPartCol_3A, pPartCod_3A, gridSearchLoopCount);
 
 		//Left
 		const int Left_rowStart = 0;
 		const int Left_colStart = 0;
 		const int Left_rowSize = gridMap.size();
 		const int Left_colSize = -foundCol + 1;
-		addToLeft(gridMap, mapPiece, foundRow, foundCol, Left_rowStart, Left_colStart, Left_rowSize, Left_colSize, pPartRow, pPartCol, gPartRow, pPartCod, gridSearchLoopCount);
+		addToLeft(gridMap, mapPiece, foundRow, foundCol, Left_rowStart, Left_colStart, Left_rowSize, Left_colSize, pPartRow_3A, pPartCol_3A, gPartRow_3A, pPartCod_3A, gridSearchLoopCount);
 
 		//Bottom +
 		for (int i = 0; i < Bottom_mapBlock.size(); i++)
@@ -308,25 +259,19 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundRow + mapPiece.size() > gridMap.size())
 	{
 		//cout << " 3B ";
-		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
-		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
-		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
-		const function<int(int, int)> gPartCol = [](int col, int foundCol) { return col; };
-		const function<bool(int, int, int, int, const int, const int)> pPartCod = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row >= foundRow && col >= foundCol && col < foundCol + mapPieceFrontSize); };
-
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = foundCol;
 		const int C_rowSize = gridMap.size();
 		const int C_colSize = foundCol + mapPiece.front().size();
-		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
+		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_3B, pPartCol_3B, gPartRow_3B, gPartCol_3B, gridSearchLoopCount);
 
 		//Bottom
 		const int Bottom_rowStart = gridMap.size();
 		const int Bottom_colStart = 0;
 		const int Bottom_rowSize = foundRow + mapPiece.size();
 		const int Bottom_colSize = gridMap.front().size();
-		deque<deque<const MapElement*>> Bottom_mapBlock = addToBottom(gridMap, mapPiece, foundRow, foundCol, Bottom_rowStart, Bottom_colStart, Bottom_rowSize, Bottom_colSize, pPartRow, pPartCol, gPartRow, gPartCol, pPartCod, gridSearchLoopCount);
+		const deque<deque<const MapElement*>> Bottom_mapBlock = addToBottom(gridMap, mapPiece, foundRow, foundCol, Bottom_rowStart, Bottom_colStart, Bottom_rowSize, Bottom_colSize, pPartRow_3B, pPartCol_3B, gPartRow_3B, gPartCol_3B, pPartCod_3B, gridSearchLoopCount);
 
 		//Bottom +
 		for (int i = 0; i < Bottom_mapBlock.size(); i++)
@@ -338,32 +283,26 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 		foundRow + mapPiece.size() > gridMap.size())
 	{
 		//cout << " 3C ";
-		const function<int(int, int)> pPartRow = [](int row, int foundRow) { return row - foundRow; };
-		const function<int(int, int)> pPartCol = [](int col, int foundCol) { return col - foundCol; };
-		const function<int(int, int)> gPartRow = [](int row, int foundRow) { return row; };
-		const function<int(int, int)> gPartCol = [](int col, int foundCol) { return col; };
-		const function<bool(int, int, int, int, const int, const int)> pPartCod = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row >= foundRow && col >= foundCol); };
-
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = foundCol;
 		const int C_rowSize = gridMap.size();
 		const int C_colSize = gridMap.front().size();
-		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow, pPartCol, gPartRow, gPartCol, gridSearchLoopCount);
+		compareCenter(gridMap, mapPiece, foundRow, foundCol, C_rowStart, C_colStart, C_rowSize, C_colSize, pPartRow_3C, pPartCol_3C, gPartRow_3C, gPartCol_3C, gridSearchLoopCount);
 
 		//Bottom
 		const int Bottom_rowStart = gridMap.size();
 		const int Bottom_colStart = 0;
 		const int Bottom_rowSize = foundRow + mapPiece.size();
 		const int Bottom_colSize = foundCol + mapPiece.front().size();
-		deque<deque<const MapElement*>> Bottom_mapBlock = addToBottom(gridMap, mapPiece, foundRow, foundCol, Bottom_rowStart, Bottom_colStart, Bottom_rowSize, Bottom_colSize, pPartRow, pPartCol, gPartRow, gPartCol, pPartCod, gridSearchLoopCount);
+		const deque<deque<const MapElement*>> Bottom_mapBlock = addToBottom(gridMap, mapPiece, foundRow, foundCol, Bottom_rowStart, Bottom_colStart, Bottom_rowSize, Bottom_colSize, pPartRow_3C, pPartCol_3C, gPartRow_3C, gPartCol_3C, pPartCod, gridSearchLoopCount);
 
 		//Right
 		const int Right_rowStart = 0;
 		const int Right_colStart = gridMap.front().size();
 		const int Right_rowSize = gridMap.size();
 		const int Right_colSize = foundCol + mapPiece.front().size();
-		addToRight(gridMap, mapPiece, foundRow, foundCol, Right_rowStart, Right_colStart, Right_rowSize, Right_colSize, pPartRow, pPartCol, gPartRow, pPartCod, gridSearchLoopCount);
+		addToRight(gridMap, mapPiece, foundRow, foundCol, Right_rowStart, Right_colStart, Right_rowSize, Right_colSize, pPartRow_3C, pPartCol_3C, gPartRow_3C, pPartCod, gridSearchLoopCount);
 
 		//Bottom +
 		for (int i = 0; i < Bottom_mapBlock.size(); i++)
@@ -380,9 +319,9 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<const Map
 	return Point(foundRow + R, foundCol + C);
 }
 
-void MapStitcher::drawMap(deque<deque<const MapElement*>>& map, const string windowName)
+void MapStitcher::drawMap(deque<deque<const MapElement*>>& map, const string windowName) const
 {
-	Mat mapImg = Mat::zeros(map.size(), map.front().size(), CV_8UC3);
+	Mat mapImg(map.size(), map.front().size(), CV_8UC3);
 	for (int row = 0; row < map.size(); row++)
 		for (int col = 0; col < map.front().size(); col++)
 		{
@@ -420,10 +359,10 @@ deque<deque<const MapElement*>> MapStitcher::addToTop(deque<deque<const MapEleme
 				if (mapPiece.at(pPartRow_Top(row, foundRow)).at(pPartCol_Top(col, foundCol))->type == 0)
 					mapLine.push_back(mapPiece.at(pPartRow_Top(row, foundRow)).at(pPartCol_Top(col, foundCol)));
 				else
-					mapLine.push_back(mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255)));
+					mapLine.push_back(mapElementCollection.searchMapElementByColor(0, 255, 255));
 			}
 			else
-				mapLine.push_back(mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255)));
+				mapLine.push_back(mapElementCollection.searchMapElementByColor(0, 255, 255));
 		}
 		Top_mapBlock.push_front(mapLine);
 	}
@@ -446,10 +385,10 @@ deque<deque<const MapElement*>> MapStitcher::addToBottom(deque<deque<const MapEl
 				if (mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol))->type == 0)
 					mapLine.push_back(mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol)));
 				else
-					mapLine.push_back(mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255)));
+					mapLine.push_back(mapElementCollection.searchMapElementByColor(0, 255, 255));
 			}
 			else
-				mapLine.push_back(mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255)));
+				mapLine.push_back(mapElementCollection.searchMapElementByColor(0, 255, 255));
 		}
 		if (foundRow < 0)
 			Bottom_mapBlock.push_front(mapLine);
@@ -473,10 +412,10 @@ void MapStitcher::addToLeft(deque<deque<const MapElement*>>& gridMap, vector<vec
 				if (mapPiece.at(pPartRow_Left(row, foundRow)).at(pPartCol_Left(col, foundCol))->type == 0)
 					mapElementToAppend = (mapPiece.at(pPartRow_Left(row, foundRow)).at(pPartCol_Left(col, foundCol)));
 				else
-					mapElementToAppend = mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255));
+					mapElementToAppend = mapElementCollection.searchMapElementByColor(0, 255, 255);
 			}
 			else
-				mapElementToAppend = mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255));
+				mapElementToAppend = mapElementCollection.searchMapElementByColor(0, 255, 255);
 
 			gridMap.at(gPartRow_Left(row, foundRow)).push_front(mapElementToAppend);
 		}
@@ -496,10 +435,10 @@ void MapStitcher::addToRight(deque<deque<const MapElement*>>& gridMap, vector<ve
 				if (mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol))->type == 0)
 					mapElementToAppend = (mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol)));
 				else
-					mapElementToAppend = mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255));
+					mapElementToAppend = mapElementCollection.searchMapElementByColor(0, 255, 255);
 			}
 			else
-				mapElementToAppend = mapElementCollection.searchMapElementByColor(Vec3b(0, 255, 255));
+				mapElementToAppend = mapElementCollection.searchMapElementByColor(0, 255, 255);
 
 			gridMap.at(gPartRow_Right(row, foundRow)).push_back(mapElementToAppend);
 		}

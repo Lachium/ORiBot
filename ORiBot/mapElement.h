@@ -25,27 +25,29 @@ private:
 };
 
 struct Vec3bKey {
-	Vec3b color;
+	int blue, green, red;
 	Vec3bKey(int b, int g, int r)
 	{
-		color = Vec3b(b, g, r);
+		blue = b;
+		green = g;
+		red = r;
 	};
-	Vec3bKey(Vec3b colorT)
+	Vec3bKey(Vec3b &colorT)
 	{
-		color = colorT;
+		blue = (int)colorT[0];
+		green = (int)colorT[1];
+		red = (int)colorT[2];
 	};
-
-	// We compare Test objects by their ids. 
+	
 	bool operator<(const Vec3bKey& colorT) const
 	{ 
-		//cout << ((int)this->color[0] + (int)this->color[1] * 100 + (int)this->color[2] * 1000) << "  " << ((int)colorT.color[0] + (int)colorT.color[1] * 100 + (int)colorT.color[2] * 1000) <<  " ";
-		if (abs((int)this->color[0] - (int)colorT.color[0]) < 10
-			&& abs((int)this->color[1] - (int)colorT.color[1]) < 10
-			&& abs((int)this->color[2] - (int)colorT.color[2]) < 10)
+		if (abs(blue - colorT.blue) < 10
+			&& abs(green - colorT.green) < 10
+			&& abs(red - colorT.red) < 10)
 			return false;
 
-		return (((int)this->color[0] + (int)this->color[1] * 100 + (int)this->color[2] * 1000)
-			< ((int)colorT.color[0] + (int)colorT.color[1] * 100 + (int)colorT.color[2] * 1000));
+		return (blue + green * 100 + red * 1000)
+			< (colorT.blue + colorT.green * 100 + colorT.red * 1000);
 	}
 };
 
@@ -56,13 +58,14 @@ public:
 
 	MapElementCollection()
 	{
+		//  -- World Search Color -- Name -- RefColour -- Type --
 		addElement(Vec3bKey(0, 255, 255), new MapElement("Unseen", Vec3b(0, 255, 255), 2));
 		addElement(Vec3bKey(255, 255, 255), new MapElement("Unknown", Vec3b(255, 255, 255), 1));
 		addElement(Vec3bKey(0, 0, 0), new MapElement("Black", Vec3b(0, 0, 0), 1));
 		addElement(Vec3bKey(79, 0, 0), new MapElement("BlockedA", Vec3b(79, 0, 0), 0));
 		addElement(Vec3bKey(0, 0, 79), new MapElement("BlockedB", Vec3b(0, 0, 79), 0));
 		addElement(Vec3bKey(0, 255, 0), new MapElement("WalkableA", Vec3b(0, 255, 0), 0));
-		addElement(Vec3bKey(0, 239, 0), new MapElement("WalkableB", Vec3b(0, 239, 0), 0));
+		addElement(Vec3bKey(0, 239, 0), new MapElement("WalkableB", Vec3b(0, 255, 0), 0));
 		addElement(Vec3bKey(0, 74, 255), new MapElement("WalkableC", Vec3b(0, 74, 255), 0));
 		addElement(Vec3bKey(0, 173, 255), new MapElement("WalkableD", Vec3b(0, 173, 255), 0));
 		addElement(Vec3bKey(255, 255, 0), new MapElement("Water", Vec3b(255, 255, 0), 0));
@@ -79,13 +82,23 @@ public:
 	{
 		mapElements.insert({ color, mapElement });
 	};
-	const MapElement * searchMapElementByColor(Vec3b color)
+	const MapElement * searchMapElementByColor(Vec3b &color) 
 	{
 		if (mapElements.count(Vec3bKey(color)))
 		{
 			return mapElements.at(Vec3bKey(color));
 		}
 		
+		return mapElements.at(Vec3bKey(Vec3bKey(255, 255, 255)));
+	};
+
+	const MapElement* searchMapElementByColor(int blue, int green, int red)
+	{
+		if (mapElements.count(Vec3bKey(blue, green, red)))
+		{
+			return mapElements.at(Vec3bKey(blue, green, red));
+		}
+
 		return mapElements.at(Vec3bKey(Vec3bKey(255, 255, 255)));
 	};
 

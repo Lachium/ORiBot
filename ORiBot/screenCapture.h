@@ -12,41 +12,34 @@ class ScreenCapture
 {
 public:
 	ScreenCapture() {};
-	bool reading = false;
 	Mat img;
 
 	Mat * readImage()
 	{
-		img = Mat(hwnd2mat(GetDesktopWindow()));
+		img = Mat(hwnd2mat());
 		return &img;
 	};
 
 private:
-	Mat hwnd2mat(HWND hwnd = GetDesktopWindow()) {
+	const Mat hwnd2mat(HWND hwnd = GetDesktopWindow()) {
 
-		HDC hwindowDC, hwindowCompatibleDC;
-
-		int height, width, srcheight, srcwidth;
-		HBITMAP hbwindow;
-		Mat src;
-		BITMAPINFOHEADER  bi;
-
-		hwindowDC = GetDC(hwnd);
-		hwindowCompatibleDC = CreateCompatibleDC(hwindowDC);
+		const HDC hwindowDC = GetDC(hwnd);
+		const HDC hwindowCompatibleDC = CreateCompatibleDC(hwindowDC);
 		SetStretchBltMode(hwindowCompatibleDC, COLORONCOLOR);
 
 		RECT windowsize;    // get the height and width of the screen
 		GetClientRect(hwnd, &windowsize);
 
-		srcheight = windowsize.bottom;
-		srcwidth = windowsize.right;
-		height = windowsize.bottom;  //change this to whatever size you want to resize to
-		width = windowsize.right;
+		const int srcheight = windowsize.bottom;
+		const int srcwidth = windowsize.right;
+		const int height = windowsize.bottom;  //change this to whatever size you want to resize to
+		const int width = windowsize.right;
 
-		src.create(height, width, CV_8UC4);
+		Mat src(height, width, CV_8UC4);
 
 		// create a bitmap
-		hbwindow = CreateCompatibleBitmap(hwindowDC, width, height);
+		const HBITMAP hbwindow = CreateCompatibleBitmap(hwindowDC, width, height);
+		BITMAPINFOHEADER  bi;
 		bi.biSize = sizeof(BITMAPINFOHEADER);    //http://msdn.microsoft.com/en-us/library/windows/window/dd183402%28v=vs.85%29.aspx
 		bi.biWidth = width;
 		bi.biHeight = -height;  //this is the line that makes it draw upside down or not

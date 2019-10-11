@@ -11,14 +11,14 @@ using namespace cv;
 class ImageResource
 {
 public:
-	ImageResource(string imgPath) {
+	ImageResource(const string imgPath) {
 		imgColor = imread(imgPath, IMREAD_COLOR);
 	};
-	ImageResource(Mat img) {
+	ImageResource(const Mat img) {
 		imgColor = img;
 	};
 
-	bool cropImage(Rect boundry) {
+	bool cropImage(const Rect boundry) {
 		if (!(boundry.x < 0 || boundry.y < 0 || imgColor.rows < (boundry.height + boundry.y) || imgColor.cols < (boundry.width + boundry.x)))
 		{
 			imgColor = imgColor(boundry);
@@ -43,9 +43,37 @@ public:
 		return &imgColor;
 	};
 
+	vector<vector<Vec3b>>* getVec2D() {
+		if (!vec2D_created)
+		{
+			imageToVec2D();
+			vec2D_created = true;
+		}
+		return &imgColorVec2D;
+	};
+
+	void imageToVec2D()
+	{
+		const int rowSize = (maxVecSize.y < (int)imgColor.rows) ? maxVecSize.y : (int)imgColor.rows;
+		const int colSize = (maxVecSize.x < (int)imgColor.cols) ? maxVecSize.x : (int)imgColor.cols;
+		imgColorVec2D.reserve((int)imgColor.rows);
+		for (int r = 0; r < rowSize; r++)
+		{
+			vector<Vec3b> line;
+			line.reserve((int)imgColor.cols);
+			for (int c = 0; c < colSize; c++)
+			{
+				line.push_back(imgColor.at<Vec3b>(Point(c, r)));
+			}
+			imgColorVec2D.push_back(line);
+		}
+	};
+
 private:
 	Mat imGray;
-	Mat imgColor;
+	Mat imgColor; vector<vector<Vec3b>> imgColorVec2D;
+	bool vec2D_created = false;
+	Point maxVecSize = Point(2, 2);
 };
 
 class ImageResourceCollection

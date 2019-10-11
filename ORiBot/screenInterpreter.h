@@ -17,6 +17,7 @@
 #define binWidth 26.667
 #define binHeight 26.667
 
+
 using namespace std;
 using namespace cv;
 
@@ -28,13 +29,12 @@ public:
 
 private:
 	Point2f getGridBinOffset(ImageResource& img);
-	vector<vector<const MapElement*>> getGridPixels(ImageResource& img, Point2f binOffsets);
+	vector<vector<const MapElement*>> calculateGridPixels(ImageResource& img, Point2f binOffsets);
 	bool cropToGameWindow(ImageResource& img);
-	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint);
-	bool colorSearchSingleMap(Mat& imgColor, Vec3b color, Point& matchPoint);
-	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint);
-	void imageTo2dCollorVec(Mat& colorImgInput, vector<vector<Vec3b>>& cVecOutput, Point size);
-	const MapElement* getMode(vector<Vec4b> colors);
+	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint) const;
+	bool colorSearchSingleMap(Mat& imgColor, Vec3b color, Point& matchPoint) const;
+	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint) const;
+	const MapElement* getMode(vector<Vec3b> &colors);
 	vector<vector<Point2f>> expectedPoints;
 	Point gameLogoPos = Point(-1, -1);
 	ImageResourceCollection imageResourceCollection;
