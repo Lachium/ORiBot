@@ -25,16 +25,16 @@ class ScreenInterpreter
 {
 public:
 	ScreenInterpreter();
-	bool screenToMapElements(Mat& screenImg, vector<vector<const MapElement*>>& world);
+	bool screenToMapElements(Mat& screenImg, vector<vector<MapElement*>>& world);
 
 private:
 	Point2f getGridBinOffset(ImageResource& img);
-	vector<vector<const MapElement*>> calculateGridPixels(ImageResource& img, Point2f binOffsets);
+	vector<vector<MapElement*>> calculateGridPixels(ImageResource& img, Point2f binOffsets);
 	bool cropToGameWindow(ImageResource& img);
 	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint) const;
 	bool colorSearchSingleMap(Mat& imgColor, Vec3b color, Point& matchPoint) const;
 	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint) const;
-	const MapElement* getMode(vector<Vec3b> &colors);
+	MapElement* getMode(vector<Vec3b> &colors);
 	vector<vector<Point2f>> expectedPoints;
 	Point gameLogoPos = Point(-1, -1);
 	ImageResourceCollection imageResourceCollection;

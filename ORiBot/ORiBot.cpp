@@ -21,9 +21,9 @@ atomic<bool> shouldMappingTerminate = false;
 HANDLE hEvent_StitchMapThread = CreateEvent(NULL, true, false, L"FIRE_STITCH_MAP");
 
 Mat lastScreen;
-vector<vector<const MapElement*>> lastWorld;
-vector<vector<const MapElement*>> world;
-deque<deque<const MapElement*>> gridMap;
+vector<vector<MapElement*>> lastWorld;
+vector<vector<MapElement*>> world;
+deque<deque<MapTile>> gridMap;
 
 ScreenCapture screenCapture;
 ScreenInterpreter screenInterpreter = ScreenInterpreter();

@@ -24,6 +24,22 @@ public:
 private:
 };
 
+
+class MapTile
+{
+public:
+	int timeScore = -1;
+	MapElement * mapElement;
+
+	MapTile(MapElement *pMapElement)
+	{
+		mapElement = pMapElement;
+	};
+
+private:
+};
+
+
 struct Vec3bKey {
 	int blue, green, red;
 	Vec3bKey(int b, int g, int r)
@@ -54,7 +70,7 @@ struct Vec3bKey {
 class MapElementCollection
 {
 public:
-	map<Vec3bKey, const MapElement*> mapElements;
+	map<Vec3bKey, MapElement*> mapElements;
 
 	MapElementCollection()
 	{
@@ -82,7 +98,7 @@ public:
 	{
 		mapElements.insert({ color, mapElement });
 	};
-	const MapElement * searchMapElementByColor(Vec3b &color) 
+	MapElement * searchMapElementByColor(Vec3b &color) 
 	{
 		if (mapElements.count(Vec3bKey(color)))
 		{
@@ -92,7 +108,7 @@ public:
 		return mapElements.at(Vec3bKey(Vec3bKey(255, 255, 255)));
 	};
 
-	const MapElement* searchMapElementByColor(int blue, int green, int red)
+	MapElement* searchMapElementByColor(int blue, int green, int red)
 	{
 		if (mapElements.count(Vec3bKey(blue, green, red)))
 		{

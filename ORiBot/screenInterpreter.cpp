@@ -16,7 +16,7 @@ ScreenInterpreter::ScreenInterpreter()
 	}
 }
 
-bool ScreenInterpreter::screenToMapElements(Mat& screenImg, vector<vector<const MapElement*>>& world)
+bool ScreenInterpreter::screenToMapElements(Mat& screenImg, vector<vector<MapElement*>>& world)
 {
 	ImageResource imgScreen = ImageResource(screenImg);
 
@@ -174,16 +174,16 @@ bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec
 	return true;
 }
 
-vector<vector<const MapElement*>> ScreenInterpreter::calculateGridPixels(ImageResource& img, Point2f binOffsets)
+vector<vector<MapElement*>> ScreenInterpreter::calculateGridPixels(ImageResource& img, Point2f binOffsets)
 {
 	const int boarder = 1;
 	const int rezize = 2;
 
-	vector<vector<const MapElement*>> map;
+	vector<vector<MapElement*>> map;
 	map.reserve(expectedPoints.size());
 	for (int r = boarder; r < expectedPoints.size() - boarder; r++)
 	{
-		vector<const MapElement*> mapLine;
+		vector<MapElement*> mapLine;
 		mapLine.reserve(expectedPoints.front().size());
 		for (int c = boarder; c < expectedPoints.front().size() - boarder; c++)
 		{
@@ -213,7 +213,7 @@ vector<vector<const MapElement*>> ScreenInterpreter::calculateGridPixels(ImageRe
 	return map;
 }
 
-const MapElement* ScreenInterpreter::getMode(vector<Vec3b>& colors)
+MapElement* ScreenInterpreter::getMode(vector<Vec3b>& colors)
 {
 	Vec3b& number = colors.front();
 	Vec3b& mode = number;
