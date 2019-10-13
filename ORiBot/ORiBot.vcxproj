@@ -164,6 +164,8 @@
     <ClCompile Include="mapStitcher.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="navigation.h" />
+    <ClInclude Include="inputEmulator.h" />
     <ClInclude Include="screenCapture.h" />
     <ClInclude Include="mapStitcher.h" />
     <ClInclude Include="mapElement.h" />

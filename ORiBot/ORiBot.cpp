@@ -2,42 +2,58 @@
 #include "screenInterpreter.h"
 #include "mapStitcher.h"
 #include "mapElement.h"
+#include "InputEmulator.h"
 #include <atomic>
 
 using namespace std;
 using namespace cv;
 
-void StitchMapThread(void);
-void ScreenCaptureThread(void);
 atomic<bool> shouldGameTerminate = false;
+
+void ScreenCaptureThread(void);
+thread screenCaptureThread(ScreenCaptureThread);
 atomic<bool> shouldScreenCaptureTerminate = false;
+HANDLE hEvent_ScreenCaptureThread = CreateEvent(NULL, true, false, L"FIRE_SCREEN_CAPTURE");
+
+void StitchMapThread(void);
+thread stictMapThread(StitchMapThread);
 atomic<bool> shouldMappingTerminate = false;
+HANDLE hEvent_StitchMapThread = CreateEvent(NULL, true, false, L"FIRE_STITCH_MAP");
 
 Mat lastScreen;
 vector<vector<const MapElement*>> lastWorld;
+vector<vector<const MapElement*>> world;
+deque<deque<const MapElement*>> gridMap;
+
+ScreenCapture screenCapture;
+ScreenInterpreter screenInterpreter = ScreenInterpreter();
+MapStitcher mapStitcher = MapStitcher();
+InputEmulator inputEmulator = InputEmulator();
+
+void printTime(string name, clock_t start)
+{
+	double time_taken = double((clock() - start) / double(CLOCKS_PER_SEC));
+	cout << "|" << name << " "<< fixed << time_taken * 1000 << setprecision(0); cout << "ms ";
+	//cout << fixed << 1 / time_taken << setprecision(1); cout << "FPS|";
+	cout << endl;
+}
 
 int main(int argv, char** argc)
 {
-	HANDLE hEvent_ScreenCaptureThread = CreateEvent(NULL, true, false, L"FIRE_SCREEN_CAPTURE");
-	thread screenCaptureThread(ScreenCaptureThread);
-
-	ScreenCapture screenCapture;
 	
-
-	int key = 0;
 	while (!shouldGameTerminate)
 	{
 		clock_t start = clock();
 
-		Mat * screen = screenCapture.readImage();
-		lastScreen = *screen;
+		//Body--------###
+
+		lastScreen = *screenCapture.readImage();
+		//lastScreen = *screen;
 		SetEvent(hEvent_ScreenCaptureThread);
-		
-		double time_taken = double((clock() - start) / double(CLOCKS_PER_SEC));
-		cout << "|Capture " << fixed << time_taken * 1000 << setprecision(0); cout << "ms ";
-		cout << fixed << 1 / time_taken << setprecision(1); cout << "FPS|";
-		cout << endl;
-		//key = waitKey(1);
+
+		//Body--------###
+		printTime("Capture" , start);
+		waitKey(1);
 	}
 	shouldScreenCaptureTerminate = true;
 	screenCaptureThread.join();
@@ -47,33 +63,29 @@ int main(int argv, char** argc)
 
 void ScreenCaptureThread()
 {
-	ScreenInterpreter screenInterpreter = ScreenInterpreter();
-	HANDLE hEvent_ScreenCaptureThread = CreateEvent(NULL, true, false, L"FIRE_SCREEN_CAPTURE");
+	//Thread Stuffs
+	if (!hEvent_ScreenCaptureThread) assert(false);	
+	//Thread Stuffs
 
-	if (!hEvent_ScreenCaptureThread)
-	{
-		assert(false);
-	}
-
-	vector<vector<const MapElement*>> world;
-	thread stictMapThread(StitchMapThread);
-	HANDLE hEvent_StitchMapThread = CreateEvent(NULL, true, false, L"FIRE_STITCH_MAP");
-
-	int key = 0;
 	while (!shouldScreenCaptureTerminate)
 	{
 		WaitForSingleObject(hEvent_ScreenCaptureThread, INFINITE);
 
 		clock_t start = clock();
+		//Body--------###
 		if (screenInterpreter.screenToMapElements(lastScreen, world))
 		{
+
 			lastWorld = world;
 			SetEvent(hEvent_StitchMapThread);
-		}
+			//inputEmulator.SetNumLock(true);
 
-		cout << "|World " << fixed << double((clock() - start) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms|" << endl;
+		}
+		//Body--------###
+
+		printTime("World", start);
 		ResetEvent(hEvent_ScreenCaptureThread);
-		//key = waitKey(1);
+		waitKey(1);
 	}
 	shouldMappingTerminate = true;
 	stictMapThread.join();
@@ -83,24 +95,20 @@ void ScreenCaptureThread()
 
 void StitchMapThread()
 {
-	MapStitcher mapStitcher = MapStitcher();
-	HANDLE hEvent_StitchMapThread = CreateEvent(NULL, true, false, L"FIRE_STITCH_MAP");
+	if (!hEvent_StitchMapThread) assert(false);
 
-	if (!hEvent_StitchMapThread)
-	{
-		assert(false);
-	}
-
-	int key = 0;
 	while (!shouldMappingTerminate)
 	{
 		WaitForSingleObject(hEvent_StitchMapThread, INFINITE);
+		//Body--------###
 
 		clock_t start = clock();
 		mapStitcher.appendToMap(lastWorld);
-		cout << "|Map " << fixed << double((clock() - start) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms|" << endl;
+		printTime("Map", start);
 		ResetEvent(hEvent_StitchMapThread);
-		key = waitKey(1);
+
+		//Body--------###
+		waitKey(1);
 	}
 	shouldGameTerminate = true;
 }

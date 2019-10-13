@@ -41,5 +41,11 @@
     <ClInclude Include="imageResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inputEmulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="navigation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
