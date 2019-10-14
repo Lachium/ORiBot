@@ -16,10 +16,15 @@ public:
 	int type;
 	MapElement(const string qName, const Vec3b qColor, const int pType)
 	{
+		//cout << "\nNew Map element\n";
 		name = qName;
 		color = qColor;
 		type = pType;
 	};
+	//MapElement(const MapElement& mapElement) :name(mapElement.name), color(mapElement.color), type(mapElement.type)
+	//{
+	//	cout << "\COPPIED\n";
+	//}
 
 private:
 };
@@ -35,6 +40,12 @@ public:
 		mapElement = pMapElement;
 		timeScore = pTimeScore;
 	};
+
+	//MapTile(const MapTile& mapTile) :mapElement(mapTile.mapElement), timeScore(mapTile.timeScore)
+	//{
+	//	cout << "\COPPIED\n";
+	//}
+	
 
 	int getTimeCount() const
 	{

@@ -20,6 +20,8 @@ thread stictMapThread(StitchMapThread);
 atomic<bool> shouldMappingTerminate = false;
 HANDLE hEvent_StitchMapThread = CreateEvent(NULL, true, false, L"FIRE_STITCH_MAP");
 
+atomic<bool> shouldRecapture = true;
+
 Mat lastScreen;
 vector<vector<MapElement*>> lastWorld;
 vector<vector<MapElement*>> world;
@@ -39,16 +41,18 @@ void printTime(string name, clock_t start)
 }
 
 int main(int argv, char** argc)
-{
-	
+{	
 	while (!shouldGameTerminate)
 	{
 		clock_t start = clock();
 
 		//Body--------###
 
-		lastScreen = *screenCapture.readImage();
-		//lastScreen = *screen;
+		Mat* screen = screenCapture.readImage();
+		while (!shouldRecapture);
+		shouldRecapture = false;
+		lastScreen = *screen;
+
 		SetEvent(hEvent_ScreenCaptureThread);
 
 		//Body--------###
@@ -81,6 +85,8 @@ void ScreenCaptureThread()
 			//inputEmulator.SetNumLock(true);
 
 		}
+		else
+			shouldRecapture = true;
 		//Body--------###
 
 		printTime("World", start);
@@ -104,7 +110,8 @@ void StitchMapThread()
 
 		clock_t start = clock();
 		mapStitcher.appendToMap(lastWorld);
-		printTime("Map", start);
+		printTime("Map", start); 
+		shouldRecapture = true;
 		ResetEvent(hEvent_StitchMapThread);
 
 		//Body--------###
