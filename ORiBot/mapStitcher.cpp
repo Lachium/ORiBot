@@ -46,7 +46,9 @@ void MapStitcher::appendToMap(vector<vector<MapElement*>>& mapPiece)
 			for (int foundCol = yStart; foundCol < gridMap.front().size() - mapPiece.front().size() + border * 2 + 1 && foundCol < yEnd; foundCol++)
 			{
 				matchLoopOuterCount++;
-				if (gridMap.at(foundRow).at(foundCol).mapElement->name == mapPiece.at(border).at(border)->name || gridMap.at(foundRow).at(foundCol).mapElement->type == 1 || mapPiece.at(border).at(border)->type == 1)
+				if (gridMap.at(foundRow).at(foundCol).mapElement->name == mapPiece.at(border).at(border)->name ||
+					gridMap.at(foundRow).at(foundCol).mapElement->type == 2 ||
+					mapPiece.at(border).at(border)->type == 2)
 				{
 					negativeMatch = 0;
 					for (int row = 1; ((row + foundRow) < gridMap.size() && row < (mapPiece.size() - border * 2)); row++)
@@ -55,7 +57,8 @@ void MapStitcher::appendToMap(vector<vector<MapElement*>>& mapPiece)
 						{
 							matchLoopInnerCount++;
 							if (!(gridMap.at((row + foundRow)).at((col + foundCol)).mapElement->color == mapPiece.at(row + border).at(col + border)->color ||
-								gridMap.at((row + foundRow)).at((col + foundCol)).mapElement->type == 1 || mapPiece.at(row + border).at(col + border)->type == 1))
+								gridMap.at((row + foundRow)).at((col + foundCol)).mapElement->type == 2 ||
+								mapPiece.at(row + border).at(col + border)->type == 2))
 							{
 								negativeMatch++;
 								if (negativeMatch > 1)
@@ -309,6 +312,8 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 			gridMap.push_back(Bottom_mapBlock.at(i));
 	}
 	drawMap(gridMap, "grid");
+	drawMapHeatMap(gridMap, "grid_heat_map");
+	
 	//cout << "Grid Search Loops: " << gridSearchLoopCount << " @ " << fixed << double((clock() - startGridLook) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
 
 	int R = gridMap.size() - GridSartRows;
@@ -331,6 +336,18 @@ void MapStitcher::drawMap(deque<deque<MapTile>>& map, const string windowName) c
 	imshow(windowName, mapImg);
 };
 
+void MapStitcher::drawMapHeatMap(deque<deque<MapTile>>& map, const string windowName) const
+{
+	Mat mapImg(map.size(), map.front().size(), CV_8UC3);
+	for (int row = 0; row < map.size(); row++)
+		for (int col = 0; col < map.front().size(); col++)
+		{
+			mapImg.at<Vec3b>(Point(col, row)) = Vec3b::all(map.at(row).at(col).getIncTimeCount());
+		}
+	cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
+	imshow(windowName, mapImg);
+};
+
 void MapStitcher::compareCenter(deque<deque<MapTile>>& gridMap, vector<vector<MapElement*>>& mapPiece, int foundRow, int foundCol, const int C_rowStart, const int C_colStart, const int C_rowSize, const int C_colSize, const function<int(int, int)>& pPartRow_CC, const function<int(int, int)>& pPartCol_CC, const function<int(int, int)>& gPartRow_CC, const function<int(int, int)>& gPartCol_CC, int& gridSearchLoopCount)
 {
 	for (int row = C_rowStart; row < C_rowSize; row++)
@@ -338,7 +355,8 @@ void MapStitcher::compareCenter(deque<deque<MapTile>>& gridMap, vector<vector<Ma
 		for (int col = C_colStart; col < C_colSize; col++)
 		{
 			gridSearchLoopCount++;
-			if (mapPiece.at(pPartRow_CC(row, foundRow)).at(pPartCol_CC(col, foundCol))->type == 0)
+			if (mapPiece.at(pPartRow_CC(row, foundRow)).at(pPartCol_CC(col, foundCol))->type == 0 ||
+				mapPiece.at(pPartRow_CC(row, foundRow)).at(pPartCol_CC(col, foundCol))->type == 1)
 				gridMap.at(gPartRow_CC(row, foundRow)).at(gPartCol_CC(col, foundCol)) = (mapPiece.at(pPartRow_CC(row, foundRow)).at(pPartCol_CC(col, foundCol)));
 		}
 	}
@@ -356,7 +374,8 @@ deque<deque<MapTile>> MapStitcher::addToTop(deque<deque<MapTile>>& gridMap, vect
 
 			if (pPartCod_Top(row, foundRow, col, foundCol, mapPiece.size(), mapPiece.front().size()))
 			{
-				if (mapPiece.at(pPartRow_Top(row, foundRow)).at(pPartCol_Top(col, foundCol))->type == 0)
+				if (mapPiece.at(pPartRow_Top(row, foundRow)).at(pPartCol_Top(col, foundCol))->type == 0 ||
+					mapPiece.at(pPartRow_Top(row, foundRow)).at(pPartCol_Top(col, foundCol))->type == 1)
 					mapLine.push_back(mapPiece.at(pPartRow_Top(row, foundRow)).at(pPartCol_Top(col, foundCol)));
 				else
 					mapLine.push_back(MapTile(mapElementCollection.searchMapElementByColor(0, 255, 255)));
@@ -382,7 +401,8 @@ deque<deque<MapTile>> MapStitcher::addToBottom(deque<deque<MapTile>>& gridMap, v
 
 			if (pPartCod_Bottom(row, foundRow, col, foundCol, mapPiece.size(), mapPiece.front().size()))
 			{
-				if (mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol))->type == 0)
+				if (mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol))->type == 0 ||
+					mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartRow_Bottom(col, foundCol))->type == 1)
 					mapLine.push_back(mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol)));
 				else
 					mapLine.push_back(MapTile(mapElementCollection.searchMapElementByColor(0, 255, 255)));
@@ -409,7 +429,8 @@ void MapStitcher::addToLeft(deque<deque<MapTile>>& gridMap, vector<vector<MapEle
 			MapTile* mapTileToAppend;
 			if (pPartCod_Left(row, foundRow, col, foundCol, mapPiece.size(), mapPiece.front().size()))
 			{
-				if (mapPiece.at(pPartRow_Left(row, foundRow)).at(pPartCol_Left(col, foundCol))->type == 0)
+				if (mapPiece.at(pPartRow_Left(row, foundRow)).at(pPartCol_Left(col, foundCol))->type == 0 ||
+					mapPiece.at(pPartRow_Left(row, foundRow)).at(pPartCol_Left(col, foundCol))->type == 1)
 					mapTileToAppend = new MapTile(mapPiece.at(pPartRow_Left(row, foundRow)).at(pPartCol_Left(col, foundCol)));
 				else
 					mapTileToAppend = new MapTile(mapElementCollection.searchMapElementByColor(0, 255, 255));
@@ -432,7 +453,8 @@ void MapStitcher::addToRight(deque<deque<MapTile>>& gridMap, vector<vector<MapEl
 			MapTile  * mapTileToAppend;
 			if (pPartCod_Right(row, foundRow, col, foundCol, mapPiece.size(), mapPiece.front().size()))
 			{
-				if (mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol))->type == 0)
+				if (mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol))->type == 0 ||
+					mapPiece.at(pPartCol_Right(row, foundRow)).at(pPartCol_Right(col, foundCol))->type == 1)
 					mapTileToAppend = new MapTile(mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol)));
 				else
 					mapTileToAppend = new MapTile(mapElementCollection.searchMapElementByColor(0, 255, 255));

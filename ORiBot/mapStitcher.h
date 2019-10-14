@@ -17,6 +17,7 @@ private:
 	deque<deque<MapTile>> gridMap;
 	Point lastGridPos = Point(-1, -1);
 	void drawMap(deque<deque<MapTile>>& map, const string windowName) const;
+	void drawMapHeatMap(deque<deque<MapTile>>& map, const string windowName) const;
 	Point StitchMap(int foundRow, int foundCol, vector<vector<MapElement*>>& mapPiece);
 	void compareCenter(deque<deque<MapTile>>& gridMap, vector<vector<MapElement*>>& mapPiece, int foundRow, int foundCol, const int C_rowStart, const int C_colStart, const int C_rowSize, const int C_colSize, const function<int(int, int)>& pPartRow_CC, const function<int(int, int)>& pPartCol_CC, const function<int(int, int)>& gPartRow_CC, const function<int(int, int)>& gPartCol_CC, int& gridSearchLoopCount);
 	deque<deque<MapTile>> addToTop(deque<deque<MapTile>>& gridMap, vector<vector<MapElement*>>& mapPiece, int foundRow, int foundCol, const int Top_rowStart, const int Top_colStart, const int Top_rowSize, const int Top_colSize, const function<int(int, int)>& pPartRow_Top, const function<int(int, int)>& pPartCol_Top, const function<int(int, int)>& gPartRow_Top, const function<int(int, int)>& gPartCol_Top, const function<bool(int, int, int, int, const int, const int)>& pPartCod_Top, int& gridSearchLoopCount);
