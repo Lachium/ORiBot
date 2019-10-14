@@ -16,6 +16,7 @@ public:
 private:
 	deque<deque<MapTile>> gridMap;
 	Point lastGridPos = Point(-1, -1);
+	int maxMapTime = 1;
 	void drawMap(deque<deque<MapTile>>& map, const string windowName) const;
 	void drawMapHeatMap(deque<deque<MapTile>>& map, const string windowName) const;
 	Point StitchMap(int foundRow, int foundCol, vector<vector<MapElement*>>& mapPiece);

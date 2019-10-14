@@ -30,23 +30,20 @@ class MapTile
 public:
 	MapElement* mapElement;
 
-	MapTile(MapElement* pMapElement)
+	MapTile(MapElement* pMapElement, const int pTimeScore)
 	{
 		mapElement = pMapElement;
-		if (pMapElement->type == 1)
-			timeScore = 1;
-		else
-			timeScore = 0;
+		timeScore = pTimeScore;
 	};
 
-	int getIncTimeCount()
+	int getTimeCount() const
 	{
-		if (timeScore < 1 || timeScore>254)
-			return timeScore;
-		
-		timeScore++;
-
 		return timeScore;
+	}
+
+	void setTimeCount(const int pTimeScore)
+	{
+		timeScore = pTimeScore;
 	}
 
 private:
