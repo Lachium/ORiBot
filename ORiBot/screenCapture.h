@@ -12,10 +12,12 @@ class ScreenCapture
 {
 public:
 	ScreenCapture() {};
+	Mat img;
 
-	Mat readImage()
+	Mat * readImage()
 	{
-		return Mat(hwnd2mat());
+		img = Mat(hwnd2mat());
+		return &img;
 	};
 
 private:
