@@ -46,7 +46,7 @@ private:
 	const function<int(int, int)> pPartCol_1C = [](int col, int foundCol) { return col - foundCol; };
 	const function<int(int, int)> gPartRow_1C = [](int row, int foundRow) { return row + foundRow; };
 	const function<int(int, int)> gPartCol_1C = [](int col, int foundCol) { return col; };
-	const function<bool(int, int, int, int, const int, const int)> pPartCod_1C = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row < mapPieceSize && col >= foundCol); };
+	const function<bool(int, int, int, int, const int, const int)> pPartCod_1C = [](int row, int foundRow, int col, int foundCol, const int mapPieceSize, const int mapPieceFrontSize) { return (row < mapPieceSize && col >= foundCol && col - foundCol < mapPieceFrontSize); };
 	//2A
 	const function<int(int, int)> pPartRow_2A = [](int row, int foundRow) { return row - foundRow; };
 	const function<int(int, int)> pPartCol_2A = [](int col, int foundCol) { return col; };

@@ -508,7 +508,7 @@ void MapStitcher::addToRight(deque<deque<MapTile>>& gridMap, vector<vector<MapEl
 			{
 				if (mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol))->type == 1)
 					mapTileToAppend = new MapTile(mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol)), 0);
-				else if (mapPiece.at(pPartCol_Right(row, foundRow)).at(pPartCol_Right(col, foundCol))->type == 0)
+				else if (mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol))->type == 0)
 					mapTileToAppend = new MapTile(mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol)), -1);
 				else
 					mapTileToAppend = new MapTile(mapElementCollection.searchMapElementByColor(255, 255, 255), -1);
