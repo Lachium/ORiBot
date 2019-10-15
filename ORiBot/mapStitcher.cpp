@@ -80,6 +80,7 @@ bool MapStitcher::appendToMap(vector<vector<MapElement*>>& mapPiece)
 					//Append to Grid Map
 					//cout << "Search Loops: " << matchLoopOuterCount << " @ " << fixed << double((clock() - startMatchLook) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
 					lastGridPos = StitchMap(foundRow - border, foundCol - border, mapPiece);
+					myGridPos = lastGridPos + Point(mapPiece.size() / 2, mapPiece.front().size() / 2);
 					lastGridPos += Point(border, border);
 					return true;
 				}
@@ -87,6 +88,7 @@ bool MapStitcher::appendToMap(vector<vector<MapElement*>>& mapPiece)
 			nextGrid:;
 			}
 	}
+	cout << "\n--------I am lost--------\n";
 	//debugSaveImage(getDequeImgMat(gridMap), "grid");
 	//debugSaveImage(getVectorImgMat(mapPiece), "Map");
 	return false;
@@ -331,14 +333,18 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 
 	int R = gridMap.size() - GridSartRows;
 	int C = gridMap.front().size() - GridSartCols;
+	Point myNewGridPos = Point(foundRow + R, foundCol + C) + Point(mapPiece.size() / 2, mapPiece.front().size() / 2);
 
-	if (R != 0 || C != 0) //Were Lines appended to the map?
+	if (R != 0 || C != 0 || myNewGridPos != myGridPos) //Did I move?
 	{
 		maxMapTime++;
 	}
 
 	if (foundRow >= 0) R = 0;
 	if (foundCol >= 0) C = 0;
+
+	myGridPos = myNewGridPos;
+
 	return Point(foundRow + R, foundCol + C);
 }
 

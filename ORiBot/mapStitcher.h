@@ -16,6 +16,7 @@ public:
 private:
 	deque<deque<MapTile>> gridMap;
 	Point lastGridPos = Point(-1, -1);
+	Point myGridPos = Point(-1, -1);
 	int maxMapTime = 1;
 	void drawMap(deque<deque<MapTile>>& map, const string windowName) const;
 	Mat getDequeImgMat(deque<deque<MapTile>>& map) const;
