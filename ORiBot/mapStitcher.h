@@ -13,6 +13,8 @@ class MapStitcher
 public:
 	MapStitcher() {};
 	bool appendToMap(vector<vector<MapElement*>>& mapPiece);
+	const deque<deque<MapTile>>& getGridMap() { return gridMap; };
+	Point getMyGridPos() { return myGridPos; };
 private:
 	deque<deque<MapTile>> gridMap;
 	Point lastGridPos = Point(-1, -1);

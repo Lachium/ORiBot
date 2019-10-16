@@ -3,6 +3,7 @@
 #include "mapStitcher.h"
 #include "mapElement.h"
 #include "InputEmulator.h"
+#include "navigation.h"
 #include <atomic>
 
 using namespace std;
@@ -30,6 +31,7 @@ ScreenCapture screenCapture;
 ScreenInterpreter screenInterpreter = ScreenInterpreter();
 MapStitcher mapStitcher = MapStitcher();
 InputEmulator inputEmulator = InputEmulator();
+Navigator navigator = Navigator();
 
 void printTime(string name, clock_t start)
 {
@@ -109,8 +111,14 @@ void StitchMapThread()
 		//Body--------###
 
 		clock_t start = clock();
-		std::this_thread::sleep_for(std::chrono::microseconds(30));
-		mapStitcher.appendToMap(lastWorld);
+		if (mapStitcher.appendToMap(lastWorld))
+		{
+			navigator.getDestinationCell(mapStitcher.getGridMap());
+			/*const deque<deque<MapTile>>& getGridMap() { return gridMap; };
+			Point getMyGridPos() { return myGridPos; };*/
+		}
+		
+		
 		printTime("Map", start); 
 		ResetEvent(hEvent_StitchMapThread);
 
