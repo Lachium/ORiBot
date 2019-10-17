@@ -56,7 +56,7 @@ int main(int argv, char** argc)
 		SetEvent(hEvent_ScreenInterpreterThread);
 
 		//Body--------###
-		printTime("Capture" , start);
+		//printTime("Capture" , start);
 		waitKey(1);
 		WaitForSingleObject(hEvent_ScreenCaptureThread, INFINITE);
 	}
@@ -89,7 +89,7 @@ void ScreenInterpreterThread()
 			SetEvent(hEvent_ScreenCaptureThread);
 		//Body--------###
 
-		printTime("World", start);
+		//printTime("World", start);
 		ResetEvent(hEvent_ScreenInterpreterThread);
 		waitKey(1);
 	}
@@ -113,13 +113,14 @@ void StitchMapThread()
 		clock_t start = clock();
 		if (mapStitcher.appendToMap(lastWorld))
 		{
-			navigator.getDestinationCell(mapStitcher.getGridMap());
+			navigator.getDestinationCell(mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
+
 			/*const deque<deque<MapTile>>& getGridMap() { return gridMap; };
 			Point getMyGridPos() { return myGridPos; };*/
 		}
 		
 		
-		printTime("Map", start); 
+		//printTime("Map", start); 
 		ResetEvent(hEvent_StitchMapThread);
 
 		//Body--------###

@@ -2,6 +2,7 @@
 
 #include<opencv2/opencv.hpp>
 #include "mapElement.h"
+#include "A_Star.h"
 #include <vector>
 
 using namespace std;
@@ -10,6 +11,7 @@ using namespace cv;
 class Navigator
 {
 public:
+	A_Star *Apathfinder = new A_Star();
 	shared_ptr<Point> globalPos;
 	int type;
 	Navigator(/*shared_ptr<Point> pGlobalPos*/)
@@ -17,7 +19,7 @@ public:
 		//globalPos = pGlobalPos;
 	};
 
-	vector<Point> getDestinationCell(const deque<deque<MapTile>>& gridMap) const
+	vector<Point> getDestinationCell(const deque<deque<MapTile>>& gridMap, Point myPosition) const
 	{
 		int maxTimeCountRead = INT_MAX;
 		vector<Point> matchedPoints;
@@ -26,6 +28,7 @@ public:
 		{
 			for (int col = 0; col < gridMap.at(row).size(); col++)
 			{
+
 				if (gridMap.at(row).at(col).getTimeCount() <= maxTimeCountRead && gridMap.at(row).at(col).getTimeCount() >= 0)
 				{
 					if (gridMap.at(row).at(col).getTimeCount() < maxTimeCountRead)
@@ -37,6 +40,12 @@ public:
 				}
 			}
 		}
+
+		if (matchedPoints.size() > 0)
+			Apathfinder->doPathdindingB(myPosition.y, myPosition.x, matchedPoints.front().y, matchedPoints.front().x, gridMap);
+
+
+
 		return matchedPoints;
 	}
 private:

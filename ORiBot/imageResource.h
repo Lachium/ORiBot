@@ -3,7 +3,7 @@
 #include<string>
 #include "screenCapture.h"
 
-#define dir "C:/ORiBot/Content/img/"
+#define Imgdir "C:/ORiBot/Content/img/"
 
 using namespace std;
 using namespace cv;
@@ -79,6 +79,6 @@ private:
 class ImageResourceCollection
 {
 public:
-	const String directory = dir;
+	const String directory = Imgdir;
 	ImageResource imgGameLogo = ImageResource(directory + "templates/gameLogo.bmp");
 };

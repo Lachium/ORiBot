@@ -15,6 +15,7 @@ bool MapStitcher::appendToMap(vector<vector<MapElement*>>& mapPiece)
 				gridLine.push_back(MapTile(mapElement, maxMapTime));
 			gridMap.push_back(gridLine);
 		}
+		myGridPos = Point(mapPiece.size() / 2, mapPiece.front().size() / 2);
 		return true;
 	}
 	else
