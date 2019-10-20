@@ -336,6 +336,9 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 	int C = gridMap.front().size() - GridSartCols;
 	Point myNewGridPos = Point(foundRow + R, foundCol + C) + Point(mapPiece.size() / 2, mapPiece.front().size() / 2);
 
+	if (R != 0 || C != 0)
+		gridGrow = true;
+
 	if (R != 0 || C != 0 || myNewGridPos != myGridPos) //Did I move?
 	{
 		maxMapTime++;
@@ -344,6 +347,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 	if (foundRow >= 0) R = 0;
 	if (foundCol >= 0) C = 0;
 
+	mapGrowthOffset += Point(R, C);
 	myGridPos = myNewGridPos;
 
 	return Point(foundRow + R, foundCol + C);
@@ -461,7 +465,7 @@ deque<deque<MapTile>> MapStitcher::addToBottom(deque<deque<MapTile>>& gridMap, v
 			{
 				if (mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol))->type == 1)
 					mapLine.push_back(MapTile(mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol)), 0));
-				else if (mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartRow_Bottom(col, foundCol))->type == 0)
+				else if (mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol))->type == 0)
 					mapLine.push_back(MapTile(mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol)), -1));
 				else
 					mapLine.push_back(MapTile(mapElementCollection.searchMapElementByColor(255, 255, 255), -1));
@@ -526,6 +530,16 @@ void MapStitcher::addToRight(deque<deque<MapTile>>& gridMap, vector<vector<MapEl
 			gridMap.at(gPartRow_Right(row, foundRow)).push_back(*mapTileToAppend);
 		}
 	}
+}
+
+
+bool MapStitcher::didGridGrow()
+{
+	if (!gridGrow)
+		return false;
+	
+	gridGrow = false;
+	return true;
 }
 
 void MapStitcher::debugSaveImage(Mat imageToSave, String fileName)

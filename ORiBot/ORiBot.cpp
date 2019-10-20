@@ -113,7 +113,8 @@ void StitchMapThread()
 		clock_t start = clock();
 		if (mapStitcher.appendToMap(lastWorld))
 		{
-			navigator.getDestinationCell(mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
+			if (mapStitcher.didGridGrow())
+				navigator.doPathFinding(mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
 
 			/*const deque<deque<MapTile>>& getGridMap() { return gridMap; };
 			Point getMyGridPos() { return myGridPos; };*/

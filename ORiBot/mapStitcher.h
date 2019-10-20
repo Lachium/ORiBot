@@ -15,10 +15,14 @@ public:
 	bool appendToMap(vector<vector<MapElement*>>& mapPiece);
 	const deque<deque<MapTile>>& getGridMap() { return gridMap; };
 	Point getMyGridPos() { return myGridPos; };
+	Point getMapGrowthOffset() { return mapGrowthOffset; };
+	bool didGridGrow();
 private:
+	bool gridGrow = false;
 	deque<deque<MapTile>> gridMap;
 	Point lastGridPos = Point(-1, -1);
 	Point myGridPos = Point(-1, -1);
+	Point mapGrowthOffset = Point(0, 0);
 	int maxMapTime = 1;
 	void drawMap(deque<deque<MapTile>>& map, const string windowName) const;
 	Mat getDequeImgMat(deque<deque<MapTile>>& map) const;
