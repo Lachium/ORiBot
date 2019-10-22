@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="StaticStuffs">
+      <UniqueIdentifier>{3a9bfc52-bef5-45e4-8958-a12663751e21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ORiBot.cpp">
@@ -25,14 +28,14 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="oRiUtils.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>StaticStuffs</Filter>
+    </ClCompile>
+    <ClCompile Include="mapElement.cpp">
+      <Filter>StaticStuffs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="screenCapture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mapElement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mapStitcher.h">
@@ -54,7 +57,10 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="oRiUtils.h">
-      <Filter>Resource Files</Filter>
+      <Filter>StaticStuffs</Filter>
+    </ClInclude>
+    <ClInclude Include="mapElement.h">
+      <Filter>StaticStuffs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

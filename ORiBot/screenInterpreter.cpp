@@ -195,7 +195,7 @@ vector<vector<MapElement*>> ScreenInterpreter::calculateGridPixels(ImageResource
 			if (!colors.empty())
 				mapLine.push_back(getMode(colors));
 			else
-				mapLine.push_back(ORiUtils::searchMapElementByColor(0, 255, 255));
+				mapLine.push_back(MapElementCollection::searchMapElementByColor(0, 255, 255));
 		}
 		map.push_back(mapLine);
 	}
@@ -224,5 +224,5 @@ MapElement* ScreenInterpreter::getMode(vector<Vec3b>& colors)
 			number = colors.at(i);
 		}
 	}
-	return ORiUtils::searchMapElementByColor(mode);
+	return MapElementCollection::searchMapElementByColor(mode);
 }

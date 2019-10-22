@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="mapElement.cpp" />
     <ClCompile Include="screenInterpreter.cpp" />
     <ClCompile Include="ORiBot.cpp" />
     <ClCompile Include="mapStitcher.cpp" />

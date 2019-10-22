@@ -428,10 +428,10 @@ deque<deque<MapTile>> MapStitcher::addToTop(deque<deque<MapTile>>& gridMap, vect
 				else if (mapPiece.at(pPartRow_Top(row, foundRow)).at(pPartCol_Top(col, foundCol))->type == 0)
 					mapLine.push_back(MapTile(mapPiece.at(pPartRow_Top(row, foundRow)).at(pPartCol_Top(col, foundCol)), -1));
 				else
-					mapLine.push_back(MapTile(ORiUtils::searchMapElementByColor(255, 255, 255), -1));
+					mapLine.push_back(MapTile(MapElementCollection::searchMapElementByColor(255, 255, 255), -1));
 			}
 			else
-				mapLine.push_back(MapTile(ORiUtils::searchMapElementByColor(0, 255, 255), -1));
+				mapLine.push_back(MapTile(MapElementCollection::searchMapElementByColor(0, 255, 255), -1));
 		}
 		Top_mapBlock.push_front(mapLine);
 	}
@@ -456,10 +456,10 @@ deque<deque<MapTile>> MapStitcher::addToBottom(deque<deque<MapTile>>& gridMap, v
 				else if (mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol))->type == 0)
 					mapLine.push_back(MapTile(mapPiece.at(pPartRow_Bottom(row, foundRow)).at(pPartCol_Bottom(col, foundCol)), -1));
 				else
-					mapLine.push_back(MapTile(ORiUtils::searchMapElementByColor(255, 255, 255), -1));
+					mapLine.push_back(MapTile(MapElementCollection::searchMapElementByColor(255, 255, 255), -1));
 			}
 			else
-				mapLine.push_back(MapTile(ORiUtils::searchMapElementByColor(0, 255, 255), -1));
+				mapLine.push_back(MapTile(MapElementCollection::searchMapElementByColor(0, 255, 255), -1));
 		}
 		if (foundRow < 0)
 			Bottom_mapBlock.push_front(mapLine);
@@ -485,10 +485,10 @@ void MapStitcher::addToLeft(deque<deque<MapTile>>& gridMap, vector<vector<MapEle
 				else if (mapPiece.at(pPartRow_Left(row, foundRow)).at(pPartCol_Left(col, foundCol))->type == 0)
 					mapTileToAppend = new MapTile(mapPiece.at(pPartRow_Left(row, foundRow)).at(pPartCol_Left(col, foundCol)), -1);
 				else
-					mapTileToAppend = new MapTile(ORiUtils::searchMapElementByColor(255, 255, 255), -1);
+					mapTileToAppend = new MapTile(MapElementCollection::searchMapElementByColor(255, 255, 255), -1);
 			}
 			else
-				mapTileToAppend = new MapTile(ORiUtils::searchMapElementByColor(0, 255, 255), -1);
+				mapTileToAppend = new MapTile(MapElementCollection::searchMapElementByColor(0, 255, 255), -1);
 
 			gridMap.at(gPartRow_Left(row, foundRow)).push_front(*mapTileToAppend);
 		}
@@ -510,10 +510,10 @@ void MapStitcher::addToRight(deque<deque<MapTile>>& gridMap, vector<vector<MapEl
 				else if (mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol))->type == 0)
 					mapTileToAppend = new MapTile(mapPiece.at(pPartRow_Right(row, foundRow)).at(pPartCol_Right(col, foundCol)), -1);
 				else
-					mapTileToAppend = new MapTile(ORiUtils::searchMapElementByColor(255, 255, 255), -1);
+					mapTileToAppend = new MapTile(MapElementCollection::searchMapElementByColor(255, 255, 255), -1);
 			}
 			else
-				mapTileToAppend = new MapTile(ORiUtils::searchMapElementByColor(0, 255, 255), -1);
+				mapTileToAppend = new MapTile(MapElementCollection::searchMapElementByColor(0, 255, 255), -1);
 
 			gridMap.at(gPartRow_Right(row, foundRow)).push_back(*mapTileToAppend);
 		}
