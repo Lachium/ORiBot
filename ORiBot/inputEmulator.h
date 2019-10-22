@@ -11,10 +11,7 @@ class InputEmulator
 public:
 	shared_ptr<Point> globalPos;
 	int type;
-	InputEmulator(/*shared_ptr<Point> pGlobalPos*/)
-	{
-		//globalPos = pGlobalPos;
-	};
+	InputEmulator() {};
 
 	void SetNumLock(BOOL bState)
 	{
@@ -38,5 +35,72 @@ public:
 		}
 	};
 
+	void setGlobalOffset(int pGlobalOffsetX, int pGlobalOffsetY)
+	{
+		globalOffsetX = pGlobalOffsetX;
+		globalOffsetY = pGlobalOffsetY;
+	};
+
+	void moveCursorAndClick(Point CellPos, Point myPos)
+	{
+		Point posOffset = myPos - CellPos;
+		SetCursorPos(CellPos.x + globalOffsetX, CellPos.y + globalOffsetY);
+	};
+
+
+	void followRoute(vector<Point>& route, Point myPos)
+	{
+		while (getDistance(myPos, route.back()) < 3)
+			if (route.size() > 1)
+				route.pop_back();
+			else
+			{
+				ReleaseLeftClick();
+				route.pop_back();
+				return;
+			}
+
+
+
+		Point posOffset = route.back() - myPos;
+
+		int c = 7;
+		int xPos = gameWindownWidth / 2 + (posOffset.y * binHeight) + globalOffsetX;
+		int yPos = gameWindownHeight / 2 + (posOffset.x * binWidth) + globalOffsetY;
+		cout << posOffset << "==" << Point(xPos, yPos) << endl;
+		SetCursorPos(xPos, yPos);
+		PressLeftClick();
+	};
+
+	double getDistance(Point pointA, Point pointB)
+	{
+		return double(sqrt((pointA.x - pointB.x) * (pointA.x - pointB.x) + (pointA.y - pointB.y) * (pointA.y - pointB.y)));
+	};
+
+	void PressLeftClick()
+	{
+		INPUT    Input = { 0 };
+		// left down 
+		Input.type = INPUT_MOUSE;
+		Input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+		::SendInput(1, &Input, sizeof(INPUT));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		// left up
+		//::ZeroMemory(&Input, sizeof(INPUT));
+		//Input.type = INPUT_MOUSE;
+		//Input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+		//::SendInput(1, &Input, sizeof(INPUT));
+	};
+	void ReleaseLeftClick()
+	{
+		INPUT    Input = { 0 };
+
+		::ZeroMemory(&Input, sizeof(INPUT));
+		Input.type = INPUT_MOUSE;
+		Input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+		::SendInput(1, &Input, sizeof(INPUT));
+	};
 private:
+	int globalOffsetX = 0;
+	int globalOffsetY = 0;
 };

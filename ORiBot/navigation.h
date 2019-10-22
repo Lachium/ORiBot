@@ -10,6 +10,7 @@ using namespace cv;
 
 struct mapNode
 {
+public:
 	Point possition;
 	int timeScore;
 	mapNode(Point possition, int timeScore) :possition(possition), timeScore(timeScore) {}
@@ -28,33 +29,41 @@ class Navigator
 {
 public:
 	A_Star *Apathfinder = new A_Star();
-	shared_ptr<Point> globalPos;
 	int type;
-	Navigator(/*shared_ptr<Point> pGlobalPos*/)
+	Navigator(){};
+
+	bool pathFind()
 	{
-		//globalPos = pGlobalPos;
+
 	};
-	bool doPathFinding(const deque<deque<MapTile>>& gridMap, Point myPosition)
+
+
+	vector<Point> doPathFinding(const deque<deque<MapTile>>& gridMap, Point myPosition)
 	{
 		vector<mapNode> matchedPoints = getDestinationCell(gridMap, myPosition);
 
 		while (matchedPoints.size() > 0)
 		{
-			if (Apathfinder->doPathdinding(myPosition.x, myPosition.y, matchedPoints.back().possition.x, matchedPoints.back().possition.y, gridMap))
-				return true;
+			vector<Point> route = Apathfinder->doPathdinding(myPosition.x, myPosition.y, matchedPoints.back().possition.x, matchedPoints.back().possition.y, gridMap);
+			if (route.size() > 0)
+			{
+				drawMap(gridMap, route, "Path");
+				return route;
+			}
 			else
 				matchedPoints.pop_back();
 		}
-		return false;
+		return vector<Point>();
 	}
 
 	static double getDistance(Point pointA, Point pointB)
 	{
-		return double(sqrt((pointA.x * pointB.x) + (pointA.y + pointB.y)));
+		return double(sqrt((pointA.x - pointB.x) * (pointA.x - pointB.x) + (pointA.y - pointB.y) * (pointA.y - pointB.y)));
 	}
-private:
 
-	vector<mapNode> getDestinationCell(const deque<deque<MapTile>>& gridMap, Point myPosition)
+private:
+	InputEmulator inputEmulator = InputEmulator();
+	vector<mapNode> getDestinationCell(const deque<deque<MapTile>> & gridMap, Point myPosition)
 	{
 		vector<mapNode> matchedNodes;
 
@@ -68,4 +77,19 @@ private:
 		return matchedNodes;
 	};
 
+	void drawMap(const deque<deque<MapTile>> & map, vector<Point> & path,const string windowName) const
+	{
+		Mat mapImg(map.size(), map.front().size(), CV_8UC3);
+		for (int row = 0; row < map.size(); row++)
+			for (int col = 0; col < map.front().size(); col++)
+			{
+				mapImg.at<Vec3b>(Point(col, row)) = map.at(row).at(col).mapElement->color;
+			}
+
+
+		for (int i = 0; i < path.size(); i++)
+			mapImg.at<Vec3b>(Point(path.at(i).y, path.at(i).x)) = Vec3b::all(255);
+		//cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
+		imshow(windowName, mapImg);
+	};
 };

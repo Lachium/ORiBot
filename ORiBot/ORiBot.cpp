@@ -10,6 +10,7 @@ using namespace std;
 using namespace cv;
 
 atomic<bool> shouldGameTerminate = false;
+atomic<int> globalOffsetX, globalOffsetY;
 
 void ScreenInterpreterThread(void);
 atomic<bool> shouldScreenInterpreterTerminate = false;
@@ -25,7 +26,8 @@ mutex mtx;
 
 Mat screen;
 vector<vector<MapElement*>> world;
-deque<deque<MapTile>> gridMap;
+deque<deque<MapTile>> gridMap; 
+vector<Point> route;
 
 ScreenCapture screenCapture;
 ScreenInterpreter screenInterpreter = ScreenInterpreter();
@@ -82,8 +84,11 @@ void ScreenInterpreterThread()
 		//Body--------###
 		if (screenInterpreter.screenToMapElements(lastScreen, world))
 		{
+			Point globalOffset = screenInterpreter.getGlobalWindowOffset();
+			globalOffsetX = globalOffset.x;
+			globalOffsetY = globalOffset.y;
+
 			SetEvent(hEvent_StitchMapThread);
-			//inputEmulator.SetNumLock(true);
 		}
 		else
 			SetEvent(hEvent_ScreenCaptureThread);
@@ -113,9 +118,19 @@ void StitchMapThread()
 		clock_t start = clock();
 		if (mapStitcher.appendToMap(lastWorld))
 		{
-			if (mapStitcher.didGridGrow())
-				navigator.doPathFinding(mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
+			if (mapStitcher.didGridGrow() || route.size() ==0)
+			{
+				route = navigator.doPathFinding(mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
+			}
+			else if(route.size() > 0)
+			{
+				inputEmulator.followRoute(route, mapStitcher.getMyGridPos());
+			}
 
+
+			inputEmulator.setGlobalOffset(globalOffsetX, globalOffsetY);
+			//inputEmulator.moveCursorAndClick(0,0);
+			
 			/*const deque<deque<MapTile>>& getGridMap() { return gridMap; };
 			Point getMyGridPos() { return myGridPos; };*/
 		}

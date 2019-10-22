@@ -26,6 +26,7 @@ class ScreenInterpreter
 public:
 	ScreenInterpreter();
 	bool screenToMapElements(Mat& screenImg, vector<vector<MapElement*>>& world);
+	Point getGlobalWindowOffset() { return gameLogoPos + Point(-6,18); };
 
 private:
 	Point2f getGridBinOffset(ImageResource& img);

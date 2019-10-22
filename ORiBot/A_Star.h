@@ -79,7 +79,7 @@ public:
 	{
 	};
 
-	bool doPathdinding(int rowA, int colA, int rowB, int colB, const deque<deque<MapTile>>& gridMap)
+	vector<Point> doPathdinding(int rowA, int colA, int rowB, int colB, const deque<deque<MapTile>>& gridMap)
 	{
 		vector<vector<int>> mapArr;
 		srand(time(NULL));
@@ -97,65 +97,17 @@ public:
 			}
 			mapArr.push_back(mapArrLine);
 		}
-		
-		// randomly select start and finish locations
 
-		// get the route
-		clock_t start = clock();
-		string route = pathFind(colA, rowA, colB, rowB, mapArr);
-		if (route == "") {
-			cout << "An empty route generated!" << endl;
-			return false;
-		}
-		clock_t end = clock();
-		double time_elapsed = double(end - start);
-		cout << "Time to calculate the route (ms): " << time_elapsed << endl;
-		cout << "Route:" << endl;
-		cout << route << endl << endl;
-
-		// follow the route on the map and display it 
-		if (route.length() > 0)
-		{
-			int j; char c;
-			int col = colA;
-			int row = rowA;
-			mapArr[row][col] = 2;
-			for (int i = 0; i < route.length(); i++)
-			{
-				c = route.at(i);
-				j = atoi(&c);
-				col = col + dx[j];
-				row = row + dy[j];
-				mapArr[row][col] = 3;
-			}
-			mapArr[row][col] = 4;
-
-			// display the map with the route
-			for (int row = 0; row < mapArr.size(); row++)
-			{
-				for (int col = 0; col < mapArr.front().size(); col++)
-					if (mapArr[row][col] == 0)
-						cout << ".";
-					else if (mapArr[row][col] == 1)
-						cout << "O"; //obstacle
-					else if (mapArr[row][col] == 2)
-						cout << "S"; //start
-					else if (mapArr[row][col] == 3)
-						cout << "R"; //route
-					else if (mapArr[row][col] == 4)
-						cout << "F"; //finish
-				cout << endl;
-			}
-		}
-		return true;
+		return pathFind(colA, rowA, colB, rowB, mapArr);
 	};
 
 	// A-star algorithm.
 	// The route returned is a string of direction digits.
-	string pathFind(const int& xStart, const int& yStart,
+	vector<Point> pathFind(const int& xStart, const int& yStart,
 		const int& xFinish, const int& yFinish,
 		vector<vector<int>> & mapArr)
 	{
+		vector<Point> foundPath;
 		static priority_queue<node> pq[2]; // list of open (not-yet-tried) nodes
 		static int pqi; // pq index
 		static node* n0;
@@ -196,12 +148,10 @@ public:
 			{
 				// generate the path from finish to start
 				// by following the directions
-				string path = "";
 				while (!(x == xStart && y == yStart))
 				{
 					j = dir_map[y][x];
-					c = '0' + (j + 8 / 2) % 8;
-					path = c + path;
+					foundPath.emplace_back(Point(y,x));
 					x += dx[j];
 					y += dy[j];
 				}
@@ -210,7 +160,7 @@ public:
 				delete n0;
 				// empty the leftover nodes
 				while (!pq[pqi].empty()) pq[pqi].pop();
-				return path;
+				return foundPath;
 			}
 
 			// generate moves (child nodes) in all possible directions
@@ -246,13 +196,15 @@ public:
 						// by emptying one pq to the other one
 						// except the node to be replaced will be ignored
 						// and the new node will be pushed in instead
-						while (!(pq[pqi].top().getxPos() == xdx && pq[pqi].top().getyPos() == ydy))
+						if (pq[pqi].size() > 0)
 						{
-							pq[1 - pqi].push(pq[pqi].top());
-							pq[pqi].pop();
+							while (!(pq[pqi].top().getxPos() == xdx && pq[pqi].top().getyPos() == ydy))
+							{
+								pq[1 - pqi].push(pq[pqi].top());
+								pq[pqi].pop();
+							}
+							pq[pqi].pop(); // remove the wanted node
 						}
-						pq[pqi].pop(); // remove the wanted node
-
 						// empty the larger size pq to the smaller one
 						if (pq[pqi].size() > pq[1 - pqi].size()) pqi = 1 - pqi;
 						while (!pq[pqi].empty())
@@ -268,6 +220,6 @@ public:
 			}
 			delete n0; // garbage collection
 		}
-		return ""; // no route found
+		return foundPath; // no route found
 	};
 };
