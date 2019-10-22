@@ -1,19 +1,7 @@
 #include "screenInterpreter.h"
-
 ScreenInterpreter::ScreenInterpreter()
 {
-	//Generate Cell Pixel Lookup Grid
-	for (int r = 0; r < maxBinsY; r++)
-	{
-		vector<Point2f> line;
-		for (int c = 0; c < maxBinsX; c++)
-		{
-			const double xShift = ((-(maxBinsX * 0.5) + c) * (0.5 - shiftA / 1000.0)) + (-(maxBinsX * 0.5) + c) * ((-(maxBinsY * 0.5) + r)) * (shiftB / 10000.0);
-			const double yShift = r * (1 - shiftC / 1000.0);
-			line.push_back(Point2f((c * binWidth + xShift), (r * binHeight + yShift)));
-		}
-		expectedPoints.push_back(line);
-	}
+
 }
 
 bool ScreenInterpreter::screenToMapElements(Mat& screenImg, vector<vector<MapElement*>>& world)
@@ -96,6 +84,7 @@ Point2f ScreenInterpreter::getGridBinOffset(ImageResource& img)
 	if (!colorSearchSingleMap(*img.getColor(), Vec3b(0, 255, 0), firstTile))
 		return Point2f(0, 0);
 
+	const vector<vector<Point2f>>& expectedPoints = ORiUtils::cellPositionalMap;
 	const int  exBinX = (int)(firstTile.x / (binWidth + (firstTile.x / 1280.0) * 0.567));
 	const int  exBinY = (int)(firstTile.y / binHeight);
 	const int  xOffset = ((40 - xOffsetConst / 10.0) - (expectedPoints.at(exBinY).at(exBinX).x - firstTile.x));
@@ -178,7 +167,7 @@ vector<vector<MapElement*>> ScreenInterpreter::calculateGridPixels(ImageResource
 {
 	const int boarder = 1;
 	const int rezize = 2;
-
+	const vector<vector<Point2f>>& expectedPoints = ORiUtils::cellPositionalMap;
 	vector<vector<MapElement*>> map;
 	map.reserve(expectedPoints.size());
 	for (int r = boarder; r < expectedPoints.size() - boarder; r++)
@@ -206,7 +195,7 @@ vector<vector<MapElement*>> ScreenInterpreter::calculateGridPixels(ImageResource
 			if (!colors.empty())
 				mapLine.push_back(getMode(colors));
 			else
-				mapLine.push_back(mapElementCollection.searchMapElementByColor(0, 255, 255));
+				mapLine.push_back(ORiUtils::searchMapElementByColor(0, 255, 255));
 		}
 		map.push_back(mapLine);
 	}
@@ -235,5 +224,5 @@ MapElement* ScreenInterpreter::getMode(vector<Vec3b>& colors)
 			number = colors.at(i);
 		}
 	}
-	return mapElementCollection.searchMapElementByColor(mode);
+	return ORiUtils::searchMapElementByColor(mode);
 }

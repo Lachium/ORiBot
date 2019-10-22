@@ -1,21 +1,15 @@
 #pragma once
 #include "imageResource.h"
 #include "mapElement.h"
+#include "oRiUtils.h"
 
-#define maxBinsX 47
-#define maxBinsY 27
 #define gameWindownHeight 720
 #define gameWindownWidth 1280
 #define blockWidth 6
 #define blockHeight 6
-#define shiftA 331
-#define shiftB 140
-#define shiftC 904
 #define xOffsetConst 412
 #define yOffsetConst 221
 #define binWithShift 280
-#define binWidth 26.667
-#define binHeight 26.667
 
 
 using namespace std;
@@ -36,8 +30,6 @@ private:
 	bool colorSearchSingleMap(Mat& imgColor, Vec3b color, Point& matchPoint) const;
 	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint) const;
 	MapElement* getMode(vector<Vec3b> &colors);
-	vector<vector<Point2f>> expectedPoints;
 	Point gameLogoPos = Point(-1, -1);
 	ImageResourceCollection imageResourceCollection;
-	MapElementCollection mapElementCollection;
 };

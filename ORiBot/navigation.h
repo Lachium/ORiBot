@@ -2,6 +2,7 @@
 
 #include<opencv2/opencv.hpp>
 #include "mapElement.h"
+#include "ORiUtils.h"
 #include "A_Star.h"
 #include <vector>
 

@@ -24,6 +24,9 @@
     <ClCompile Include="screenInterpreter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="oRiUtils.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="screenCapture.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="A_Star.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="oRiUtils.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>

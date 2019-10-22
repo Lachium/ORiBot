@@ -162,6 +162,7 @@
     <ClCompile Include="screenInterpreter.cpp" />
     <ClCompile Include="ORiBot.cpp" />
     <ClCompile Include="mapStitcher.cpp" />
+    <ClCompile Include="oRiUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="A_Star.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="mapElement.h" />
     <ClInclude Include="screenInterpreter.h" />
     <ClInclude Include="imageResource.h" />
+    <ClInclude Include="oRiUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

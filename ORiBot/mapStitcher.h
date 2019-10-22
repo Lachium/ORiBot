@@ -1,15 +1,14 @@
 #pragma once
-#include<opencv2/opencv.hpp>
+#include "oRiUtils.h"
 #include<string>
 #include <iostream>
-#include "mapElement.h"
+
 
 using namespace std;
 using namespace cv;
 
 class MapStitcher
 {
-	MapElementCollection mapElementCollection;
 public:
 	MapStitcher() {};
 	bool appendToMap(vector<vector<MapElement*>>& mapPiece);
@@ -24,7 +23,6 @@ private:
 	Point myGridPos = Point(-1, -1);
 	Point mapGrowthOffset = Point(0, 0);
 	int maxMapTime = 1;
-	void drawMap(deque<deque<MapTile>>& map, const string windowName) const;
 	Mat getDequeImgMat(deque<deque<MapTile>>& map) const;
 	Mat getVectorImgMat(vector<vector<MapElement*>>& map) const;
 	void drawMapHeatMap(deque<deque<MapTile>>& map, const string windowName) const;
