@@ -1,13 +1,13 @@
 #include "screenInterpreter.h"
 
-bool ScreenInterpreter::screenToMapElements(Mat& screenImg, vector<vector<MapElement*>>& world)
+bool ScreenInterpreter::screenToMapElements(Mat& screenImg, vector<vector<MapElement*>>& world, Point2f& cellOffset)
 {
 	ImageResource imgScreen = ImageResource(screenImg);
 
 	if (cropToGameWindow(imgScreen))
 	{
-		Point2f offset = getGridBinOffset(imgScreen);
-		world = calculateGridPixels(imgScreen, offset);
+		 cellOffset = getGridBinOffset(imgScreen);
+		world = calculateGridPixels(imgScreen, cellOffset);
 		return !world.empty();
 	}
 	else

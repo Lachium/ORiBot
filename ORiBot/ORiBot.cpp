@@ -24,6 +24,7 @@ HANDLE hEvent_ScreenCaptureThread = CreateEvent(NULL, true, false, L"FIRE_SCREEN
 
 Mat screen;
 vector<vector<MapElement*>> world;
+Point2f internalCellOffset;
 deque<deque<MapTile>> gridMap; 
 vector<Point> route;
 
@@ -46,7 +47,7 @@ int main(int argv, char** argc)
 		SetEvent(hEvent_ScreenInterpreterThread);
 
 		//Body--------###
-		ORiUtils::ConsoleLogTimed("Capture" , start);
+		//ORiUtils::ConsoleLogTimed("Capture" , start);
 		waitKey(1);
 		WaitForSingleObject(hEvent_ScreenCaptureThread, INFINITE);
 	}
@@ -70,7 +71,7 @@ void ScreenInterpreterThread()
 
 		clock_t start = clock();
 		//Body--------###
-		if (screenInterpreter.screenToMapElements(lastScreen, world))
+		if (screenInterpreter.screenToMapElements(lastScreen, world, internalCellOffset))
 		{
 			Point globalOffset = screenInterpreter.getGlobalWindowOffset();
 			globalOffsetX = globalOffset.x;
@@ -82,7 +83,7 @@ void ScreenInterpreterThread()
 			SetEvent(hEvent_ScreenCaptureThread);
 		//Body--------###
 
-		ORiUtils::ConsoleLogTimed("World", start);
+		//ORiUtils::ConsoleLogTimed("World", start);
 		ResetEvent(hEvent_ScreenInterpreterThread);
 		waitKey(1);
 	}
@@ -100,6 +101,7 @@ void StitchMapThread()
 	{
 		WaitForSingleObject(hEvent_StitchMapThread, INFINITE);
 		vector<vector<MapElement*>> lastWorld = world;
+		Point2f lastInternalCellOffset = internalCellOffset;
 		SetEvent(hEvent_ScreenCaptureThread);
 		//Body--------###
 
@@ -112,7 +114,7 @@ void StitchMapThread()
 			}
 			else if(route.size() > 0)
 			{
-				inputEmulator.followRoute(route, mapStitcher.getMyGridPos());
+				inputEmulator.followRoute(route, mapStitcher.getMyGridPos(), lastInternalCellOffset);
 			}
 
 
@@ -124,7 +126,7 @@ void StitchMapThread()
 		}
 		
 		
-		ORiUtils::ConsoleLogTimed("Map", start);
+		//ORiUtils::ConsoleLogTimed("Map", start);
 		ResetEvent(hEvent_StitchMapThread);
 
 		//Body--------###

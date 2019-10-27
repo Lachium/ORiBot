@@ -198,12 +198,15 @@ public:
 						// and the new node will be pushed in instead
 						if (pq[pqi].size() > 0)
 						{
-							while (!(pq[pqi].top().getxPos() == xdx && pq[pqi].top().getyPos() == ydy))
+							while (pq[pqi].size() > 0 && !(pq[pqi].top().getxPos() == xdx && pq[pqi].top().getyPos() == ydy))
 							{
 								pq[1 - pqi].push(pq[pqi].top());
 								pq[pqi].pop();
+								if (pq[pqi].size() <= 0)
+									break;
 							}
-							pq[pqi].pop(); // remove the wanted node
+							if (pq[pqi].size() > 0)
+								pq[pqi].pop(); // remove the wanted node
 						}
 						// empty the larger size pq to the smaller one
 						if (pq[pqi].size() > pq[1 - pqi].size()) pqi = 1 - pqi;

@@ -43,9 +43,11 @@ void ORiUtils::ConsoleLog(string log)
 	mtx.unlock();
 }
 
-Point ORiUtils::mapCellIndexToLocalPixelPosition(int row, int col)
+Point ORiUtils::CellPixelPositionByOffset(int rowOffset, int colOffset)
 {
 	try {
+		int row = ((cellPositionalMap.size()) / 2) + rowOffset;
+		int col = (cellPositionalMap.front().size() / 2) + colOffset;
 		return ORiUtils::cellPositionalMap.at(row).at(col);
 	}
 	catch (...) {

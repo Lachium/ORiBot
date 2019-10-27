@@ -29,7 +29,7 @@ public:
 	static double getDistance(Point pointA, Point pointB);
 	static void ConsoleLogTimed(string name, clock_t start);
 	static void ConsoleLog(string log);
-	static Point mapCellIndexToLocalPixelPosition(int row, int col);
+	static Point CellPixelPositionByOffset(int rowOffset, int colOffset);
 
 private:
 	static mutex mtx;

@@ -18,7 +18,7 @@ using namespace cv;
 class ScreenInterpreter
 {
 public:
-	bool screenToMapElements(Mat& screenImg, vector<vector<MapElement*>>& world);
+	bool screenToMapElements(Mat& screenImg, vector<vector<MapElement*>>& world, Point2f& cellOffset);
 	Point getGlobalWindowOffset() { return gameLogoPos + Point(-6,18); };
 
 private:

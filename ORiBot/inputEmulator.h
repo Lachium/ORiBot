@@ -49,28 +49,44 @@ public:
 	};
 
 
-	void followRoute(vector<Point>& route, Point myPos)
+	void followRoute(vector<Point>& route, Point myPos, Point2f internalCellOffset)
 	{
-		while (ORiUtils::getDistance(myPos, route.back()) < 3)
-			if (route.size() > 1)
+
+		if (route.size() < 1)
+			return;
+
+		Point posOffset;
+
+		while (route.size() > 1)
+		{
+			posOffset = route.back() - myPos;
+			if (abs(posOffset.x) < 10 && abs(posOffset.y) < 10)
 				route.pop_back();
 			else
-			{
-				ReleaseLeftClick();
-				route.pop_back();
-				return;
-			}
+				break;
+		}
 
 
+		posOffset = route.back() - myPos;
+		
+		Point pixPos = ORiUtils::CellPixelPositionByOffset(posOffset.x, posOffset.y);
 
-		Point posOffset = route.back() - myPos;
+		int xPos = pixPos.x +globalOffsetX + internalCellOffset.x;
+		int yPos = pixPos.y +globalOffsetY + internalCellOffset.y;
 
-		int c = 7;
-		int xPos = gameWindownWidth / 2 + (posOffset.y * binHeight) + globalOffsetX;
-		int yPos = gameWindownHeight / 2 + (posOffset.x * binWidth) + globalOffsetY;
-		cout << posOffset << "==" << Point(xPos, yPos) << endl;
+		//cout << posOffset << "==" << Point(xPos, yPos) << "==" << Point(xPos2,yPos2) <<endl;
+
 		SetCursorPos(xPos, yPos);
 		PressLeftClick();
+	};
+
+	void holdLeftClick()
+	{
+		INPUT    Input = { 0 };
+		// left down 
+		Input.type = INPUT_MOUSE;
+		Input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+		::SendInput(1, &Input, sizeof(INPUT));
 	};
 
 	void PressLeftClick()
@@ -80,13 +96,14 @@ public:
 		Input.type = INPUT_MOUSE;
 		Input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
 		::SendInput(1, &Input, sizeof(INPUT));
-		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		// left up
-		//::ZeroMemory(&Input, sizeof(INPUT));
-		//Input.type = INPUT_MOUSE;
-		//Input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
-		//::SendInput(1, &Input, sizeof(INPUT));
+		::ZeroMemory(&Input, sizeof(INPUT));
+		Input.type = INPUT_MOUSE;
+		Input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+		::SendInput(1, &Input, sizeof(INPUT));
 	};
+
 	void ReleaseLeftClick()
 	{
 		INPUT    Input = { 0 };
