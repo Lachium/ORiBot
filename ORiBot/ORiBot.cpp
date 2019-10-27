@@ -22,8 +22,6 @@ HANDLE hEvent_StitchMapThread = CreateEvent(NULL, true, false, L"FIRE_STITCH_MAP
 
 HANDLE hEvent_ScreenCaptureThread = CreateEvent(NULL, true, false, L"FIRE_SCREEN_CAPTURE");
 
-mutex mtx;
-
 Mat screen;
 vector<vector<MapElement*>> world;
 deque<deque<MapTile>> gridMap; 
@@ -34,16 +32,6 @@ ScreenInterpreter screenInterpreter = ScreenInterpreter();
 MapStitcher mapStitcher = MapStitcher();
 InputEmulator inputEmulator = InputEmulator();
 Navigator navigator = Navigator();
-
-void printTime(string name, clock_t start)
-{
-	mtx.lock();
-	double time_taken = double((clock() - start) / double(CLOCKS_PER_SEC));
-	cout << "|" << name << " "<< fixed << time_taken * 1000 << setprecision(0); cout << "ms ";
-	cout << fixed << 1 / time_taken << setprecision(1); cout << "FPS|";
-	cout << endl;
-	mtx.unlock();
-}
 
 int main(int argv, char** argc)
 {
@@ -58,7 +46,7 @@ int main(int argv, char** argc)
 		SetEvent(hEvent_ScreenInterpreterThread);
 
 		//Body--------###
-		//printTime("Capture" , start);
+		ORiUtils::ConsoleLogTimed("Capture" , start);
 		waitKey(1);
 		WaitForSingleObject(hEvent_ScreenCaptureThread, INFINITE);
 	}
@@ -94,7 +82,7 @@ void ScreenInterpreterThread()
 			SetEvent(hEvent_ScreenCaptureThread);
 		//Body--------###
 
-		//printTime("World", start);
+		ORiUtils::ConsoleLogTimed("World", start);
 		ResetEvent(hEvent_ScreenInterpreterThread);
 		waitKey(1);
 	}
@@ -136,7 +124,7 @@ void StitchMapThread()
 		}
 		
 		
-		//printTime("Map", start); 
+		ORiUtils::ConsoleLogTimed("Map", start);
 		ResetEvent(hEvent_StitchMapThread);
 
 		//Body--------###

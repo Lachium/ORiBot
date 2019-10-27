@@ -108,7 +108,6 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 	//1A
 	if (foundRow < 0 && foundCol < 0)
 	{
-		//cout << " 1A ";
 		//CC
 		const int C_rowStart = -foundRow;
 		const int C_colStart = -foundCol;
@@ -139,7 +138,6 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 	else if (foundRow < 0 && foundCol >= 0 &&
 		foundCol + mapPiece.front().size() <= gridMap.front().size())
 	{
-		//cout << " 1B ";
 		//CC
 		const int C_rowStart = -foundRow;
 		const int C_colStart = foundCol;
@@ -162,7 +160,6 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 	else if (foundRow < 0 && foundCol > 0 &&
 		foundCol + mapPiece.front().size() >= gridMap.front().size())
 	{
-		//cout << " 1C ";
 		//CC
 		const int C_rowStart = -foundRow;
 		const int C_colStart = foundCol;
@@ -193,7 +190,6 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 	else if (foundRow >= 0 && foundCol < 0 &&
 		foundRow + mapPiece.size() <= gridMap.size())
 	{
-		//cout << " 2A ";
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = -foundCol;
@@ -213,7 +209,6 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 		foundRow + mapPiece.size() <= gridMap.size() &&
 		foundCol + mapPiece.front().size() <= gridMap.front().size())
 	{
-		//cout << " 2B ";
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = foundCol;
@@ -226,7 +221,6 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 		foundRow + mapPiece.size() <= gridMap.size() &&
 		foundCol + mapPiece.front().size() > gridMap.front().size())
 	{
-		//cout << " 2C ";
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = foundCol;
@@ -246,7 +240,6 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 	else if (foundRow > 0 && foundCol < 0 &&
 		foundRow + mapPiece.size() > gridMap.size())
 	{
-		//cout << " 3A ";
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = -foundCol;
@@ -277,7 +270,6 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 		foundCol + mapPiece.front().size() <= gridMap.front().size() &&
 		foundRow + mapPiece.size() > gridMap.size())
 	{
-		//cout << " 3B ";
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = foundCol;
@@ -301,7 +293,6 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 		foundCol + mapPiece.front().size() > gridMap.front().size() &&
 		foundRow + mapPiece.size() > gridMap.size())
 	{
-		//cout << " 3C ";
 		//CC
 		const int C_rowStart = foundRow;
 		const int C_colStart = foundCol;

@@ -2,6 +2,7 @@
 #include<opencv2/opencv.hpp>
 #include<string>
 #include "screenCapture.h"
+#include "oRiUtils.h"
 
 #define Imgdir "C:/ORiBot/Content/img/"
 
@@ -28,7 +29,7 @@ public:
 		}
 		else
 		{
-			cout << "Invalid Boundry " << boundry;
+			ORiUtils::ConsoleLog("Invalid Boundry ");
 			return false;
 		}
 	};

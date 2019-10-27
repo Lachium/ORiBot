@@ -3,6 +3,7 @@
 #include<opencv2/opencv.hpp>
 #include <windows.h>
 #include "mapElement.h"
+#include <atomic>
 
 #define maxBinsX 47
 #define maxBinsY 27
@@ -21,14 +22,17 @@ using namespace cv;
 static class ORiUtils
 {
 public:
-	ORiUtils() { };
 	//Variables
 	static const vector<vector<Point2f>> cellPositionalMap;
 	//Functions
-	static void draw(deque<deque<MapTile>>& map, const string windowName, const int resize = 1);
-
+	static void draw(deque<deque<MapTile>>& map, const string windowName, const int resize = 1); 
+	static double getDistance(Point pointA, Point pointB);
+	static void ConsoleLogTimed(string name, clock_t start);
+	static void ConsoleLog(string log);
+	static Point mapCellIndexToLocalPixelPosition(int row, int col);
 
 private:
+	static mutex mtx;
 	static const vector<vector<Point2f>> generateCellPositionalMap()
 	{
 		vector<vector<Point2f>> thisCellPositionalMap;

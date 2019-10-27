@@ -51,7 +51,7 @@ public:
 
 	void followRoute(vector<Point>& route, Point myPos)
 	{
-		while (getDistance(myPos, route.back()) < 3)
+		while (ORiUtils::getDistance(myPos, route.back()) < 3)
 			if (route.size() > 1)
 				route.pop_back();
 			else
@@ -71,11 +71,6 @@ public:
 		cout << posOffset << "==" << Point(xPos, yPos) << endl;
 		SetCursorPos(xPos, yPos);
 		PressLeftClick();
-	};
-
-	double getDistance(Point pointA, Point pointB)
-	{
-		return double(sqrt((pointA.x - pointB.x) * (pointA.x - pointB.x) + (pointA.y - pointB.y) * (pointA.y - pointB.y)));
 	};
 
 	void PressLeftClick()

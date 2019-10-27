@@ -57,10 +57,6 @@ public:
 		return vector<Point>();
 	}
 
-	static double getDistance(Point pointA, Point pointB)
-	{
-		return double(sqrt((pointA.x - pointB.x) * (pointA.x - pointB.x) + (pointA.y - pointB.y) * (pointA.y - pointB.y)));
-	}
 
 private:
 	InputEmulator inputEmulator = InputEmulator();

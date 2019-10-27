@@ -11,7 +11,6 @@ using namespace cv;
 class ScreenCapture
 {
 public:
-	ScreenCapture() {};
 
 	Mat readImage()
 	{
