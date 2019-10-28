@@ -29,6 +29,7 @@ public:
 	static double getDistance(Point pointA, Point pointB);
 	static void ConsoleLogTimed(string name, clock_t start);
 	static void ConsoleLog(string log);
+	static Point CellPixelPosition(int row, int col);
 	static Point CellPixelPositionByOffset(int rowOffset, int colOffset);
 
 private:

@@ -59,8 +59,11 @@
     <ClInclude Include="oRiUtils.h">
       <Filter>StaticStuffs</Filter>
     </ClInclude>
+    <ClInclude Include="environment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="mapElement.h">
-      <Filter>StaticStuffs</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

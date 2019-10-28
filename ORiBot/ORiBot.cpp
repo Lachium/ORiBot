@@ -4,6 +4,7 @@
 #include "mapElement.h"
 #include "InputEmulator.h"
 #include "navigation.h"
+#include "environment.h"
 #include <atomic>
 
 using namespace std;
@@ -108,21 +109,33 @@ void StitchMapThread()
 		clock_t start = clock();
 		if (mapStitcher.appendToMap(lastWorld))
 		{
-			if (mapStitcher.didGridGrow() || route.size() ==0)
-			{
-				route = navigator.doPathFinding(mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
-			}
-			else if(route.size() > 0)
-			{
-				inputEmulator.followRoute(route, mapStitcher.getMyGridPos(), lastInternalCellOffset);
-			}
-
-
+			Environment environment(lastWorld, mapStitcher.getMyGridPos());
 			inputEmulator.setGlobalOffset(globalOffsetX, globalOffsetY);
-			//inputEmulator.moveCursorAndClick(0,0);
-			
-			/*const deque<deque<MapTile>>& getGridMap() { return gridMap; };
-			Point getMyGridPos() { return myGridPos; };*/
+
+			if (environment.mobiles.size() > 0)  
+				//Attack mobs in view
+			{
+				cout << "attack!";
+				inputEmulator.PressKeyF2();
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				inputEmulator.moveCursorToCell(environment.mobiles.back().pos, lastInternalCellOffset);
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				inputEmulator.PressRighttClick();
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+			else 
+				//Do Path finding
+				if (mapStitcher.didGridGrow() || route.size() == 0)
+				{
+					route = navigator.doPathFinding(mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
+				}
+				else if (route.size() > 0)
+				{
+					inputEmulator.followRoute(route, mapStitcher.getMyGridPos(), lastInternalCellOffset);
+				}
+
+
 		}
 		
 		

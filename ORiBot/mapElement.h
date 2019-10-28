@@ -95,8 +95,8 @@ private:
 		thisMapElements.insert({ Vec3bKey(255, 255, 255), new MapElement("Unknown", Vec3b(255, 255, 255), 2) });
 		thisMapElements.insert({ Vec3bKey(0, 0, 0), new MapElement("Black", Vec3b(0, 0, 0), 2) });
 
-		thisMapElements.insert({ Vec3bKey(79, 0, 0), new MapElement("BlockedA", Vec3b(79, 0, 0), 0) });
-		thisMapElements.insert({ Vec3bKey(0, 0, 79), new MapElement("BlockedB", Vec3b(0, 0, 79), 0) });
+		thisMapElements.insert({ Vec3bKey(255, 107, 181), new MapElement("BlockedA", Vec3b(255, 107, 181), 0) });
+		thisMapElements.insert({ Vec3bKey(0, 0, 74), new MapElement("BlockedB", Vec3b(0, 0, 74), 0) });
 
 		thisMapElements.insert({ Vec3bKey(0, 255, 0), new MapElement("WalkableA", Vec3b(0, 255, 0), 1) });
 		thisMapElements.insert({ Vec3bKey(0, 239, 0), new MapElement("WalkableB", Vec3b(0, 255, 0), 1) });
@@ -110,6 +110,8 @@ private:
 		thisMapElements.insert({ Vec3bKey(57, 0, 0), new MapElement("bigfoot", Vec3b(57, 0, 0), 2) });//
 		thisMapElements.insert({ Vec3bKey(90, 0, 0), new MapElement("dustiness", Vec3b(90, 0, 0), 2) });//
 		thisMapElements.insert({ Vec3bKey(107, 0, 0), new MapElement("caramel", Vec3b(107, 0, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(123, 0, 0), new MapElement("green_plant", Vec3b(123, 0, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(140, 0, 0), new MapElement("shining_plant", Vec3b(140, 0, 0), 2) });
 
 		return thisMapElements;
 	};

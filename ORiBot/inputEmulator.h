@@ -14,6 +14,13 @@ public:
 	int type;
 	InputEmulator() {};
 
+	void PressKeyF2()
+	{
+			keybd_event(VK_F2, 0, 0, 0);
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			keybd_event(VK_F2, 0, KEYEVENT_KEYUP, 0);
+	}
+
 	void SetNumLock(BOOL bState)
 	{
 		BYTE keyState[256];
@@ -42,14 +49,16 @@ public:
 		globalOffsetY = pGlobalOffsetY;
 	};
 
-	void moveCursorAndClick(Point CellPos, Point myPos)
+	void moveCursorToCell(Point Cell, Point2f internalCellOffset)
 	{
-		Point posOffset = myPos - CellPos;
-		SetCursorPos(CellPos.x + globalOffsetX, CellPos.y + globalOffsetY);
+		Point pixPos = ORiUtils::CellPixelPosition(Cell.x + 1, Cell.y + 1);
+		int xPos = pixPos.x + globalOffsetX + internalCellOffset.x;
+		int yPos = pixPos.y + globalOffsetY + internalCellOffset.y;
+		SetCursorPos(xPos, yPos);
 	};
 
 
-	void followRoute(vector<Point>& route, Point myPos, Point2f internalCellOffset)
+	void followRoute(vector<Point>& route, Point dollPoss, Point2f internalCellOffset)
 	{
 
 		if (route.size() < 1)
@@ -59,7 +68,7 @@ public:
 
 		while (route.size() > 1)
 		{
-			posOffset = route.back() - myPos;
+			posOffset = route.back() - dollPoss;
 			if (abs(posOffset.x) < 10 && abs(posOffset.y) < 10)
 				route.pop_back();
 			else
@@ -67,7 +76,7 @@ public:
 		}
 
 
-		posOffset = route.back() - myPos;
+		posOffset = route.back() - dollPoss;
 		
 		Point pixPos = ORiUtils::CellPixelPositionByOffset(posOffset.x, posOffset.y);
 
@@ -113,7 +122,23 @@ public:
 		Input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
 		::SendInput(1, &Input, sizeof(INPUT));
 	};
+
+	void PressRighttClick()
+	{
+		INPUT    Input = { 0 };
+		// right down 
+		Input.type = INPUT_MOUSE;
+		Input.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+		::SendInput(1, &Input, sizeof(INPUT));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		// right up
+		::ZeroMemory(&Input, sizeof(INPUT));
+		Input.type = INPUT_MOUSE;
+		Input.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+		::SendInput(1, &Input, sizeof(INPUT));
+	};
 private:
 	int globalOffsetX = 0;
-	int globalOffsetY = 0;
+	int globalOffsetY = 0; 
+	const int KEYEVENT_KEYUP = 0x02;
 };

@@ -43,6 +43,17 @@ void ORiUtils::ConsoleLog(string log)
 	mtx.unlock();
 }
 
+Point ORiUtils::CellPixelPosition(int row, int col)
+{
+	try {
+		return ORiUtils::cellPositionalMap.at(row).at(col);
+	}
+	catch (...) {
+		ORiUtils::ConsoleLog("[ERROR] CellPosMap out of bounds");
+		return Point(0, 0);
+	}
+}
+
 Point ORiUtils::CellPixelPositionByOffset(int rowOffset, int colOffset)
 {
 	try {
