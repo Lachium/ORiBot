@@ -11,7 +11,7 @@ class MapStitcher
 {
 public:
 	bool appendToMap(vector<vector<MapElement*>>& mapPiece);
-	const deque<deque<MapTile>>& getGridMap() { return gridMap; };
+	deque<deque<MapTile>>& getGridMap() { return gridMap; };
 	Point getMyGridPos() { return myGridPos; };
 	Point getMapGrowthOffset() { return mapGrowthOffset; };
 	bool didGridGrow();

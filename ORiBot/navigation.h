@@ -9,13 +9,19 @@
 using namespace std;
 using namespace cv;
 
-struct mapNode
+class MapNode
 {
 public:
 	Point possition;
-	int timeScore;
-	mapNode(Point possition, int timeScore) :possition(possition), timeScore(timeScore) {}
-	mapNode() {};
+	MapTile* maptileRef;
+
+	MapNode(Point pPossition, MapTile* pMaptileRef)
+	{
+		possition = pPossition;
+		maptileRef = pMaptileRef;
+
+	};
+	//MapNode() {};
 };
 
 class order_mapNode_score_then_distance
@@ -23,12 +29,12 @@ class order_mapNode_score_then_distance
 public:
 	order_mapNode_score_then_distance(Point pDollPos) { dollPos = pDollPos; };
 	Point dollPos;
-	inline bool operator() (const mapNode& struct1, const mapNode& struct2)
+	inline bool operator() (MapNode& struct1, MapNode& struct2)
 	{
-		if (struct1.timeScore == struct2.timeScore)
+		if (struct1.maptileRef->timeScore == struct2.maptileRef->timeScore)
 			return (ORiUtils::getDistance(struct1.possition, dollPos) > ORiUtils::getDistance(struct2.possition, dollPos));
 		else
-			return (struct1.timeScore > struct2.timeScore);
+			return (struct1.maptileRef->timeScore > struct2.maptileRef->timeScore);
 	}
 };
 
@@ -45,9 +51,9 @@ public:
 	};
 
 
-	vector<Point> doPathFinding(const deque<deque<MapTile>>& gridMap, Point dollPos)
+	vector<Point> doPathFinding(deque<deque<MapTile>>& gridMap, Point dollPos)
 	{
-		vector<mapNode> matchedPoints = getDestinationCell(gridMap, dollPos);
+		vector<MapNode> matchedPoints = getDestinationCell(gridMap, dollPos);
 
 		while (matchedPoints.size() > 0)
 		{
@@ -58,7 +64,10 @@ public:
 				return route;
 			}
 			else
+			{
+				matchedPoints.back().maptileRef->setTimeCount(matchedPoints.front().maptileRef->getTimeCount());
 				matchedPoints.pop_back();
+			}
 		}
 		return vector<Point>();
 	}
@@ -66,14 +75,14 @@ public:
 
 private:
 	InputEmulator inputEmulator = InputEmulator();
-	vector<mapNode> getDestinationCell(const deque<deque<MapTile>> & gridMap, Point dollPos)
+	vector<MapNode> getDestinationCell(deque<deque<MapTile>> & gridMap, Point dollPos)
 	{
-		vector<mapNode> matchedNodes;
+		vector<MapNode> matchedNodes;
 
 		for (int row = 0; row < gridMap.size(); row++)
 			for (int col = 0; col < gridMap.at(row).size(); col++)
 				if (gridMap.at(row).at(col).getTimeCount() >= 0)
-					matchedNodes.emplace_back(Point(row, col), gridMap.at(row).at(col).getTimeCount());
+					 matchedNodes.emplace_back(Point(row, col), &gridMap.at(row).at(col));
 
 		std::sort(matchedNodes.begin(), matchedNodes.end(), order_mapNode_score_then_distance(dollPos));
 		
@@ -92,7 +101,7 @@ private:
 
 		for (int i = 0; i < path.size(); i++)
 			mapImg.at<Vec3b>(Point(path.at(i).y, path.at(i).x)) = Vec3b::all(255);
-		cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
+		//cv::resize(mapImg, mapImg, cv::Size(), 3, 3, INTER_NEAREST);
 		imshow(windowName, mapImg);
 	};
 };

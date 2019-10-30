@@ -26,7 +26,7 @@ HANDLE hEvent_ScreenCaptureThread = CreateEvent(NULL, true, false, L"FIRE_SCREEN
 Mat screen;
 vector<vector<MapElement*>> world;
 Point2f internalCellOffset;
-deque<deque<MapTile>> gridMap; 
+//deque<deque<MapTile>> gridMap; 
 vector<Point> route;
 
 ScreenCapture screenCapture;
@@ -117,17 +117,17 @@ void StitchMapThread()
 			{
 				cout << "attack!";
 				inputEmulator.PressKeyF2();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				inputEmulator.moveCursorToCell(environment.mobiles.back().pos, lastInternalCellOffset);
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				inputEmulator.PressRighttClick();
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				inputEmulator.PressLeftClick();
+				//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
 			else 
 				//Do Path finding
 				if (mapStitcher.didGridGrow() || route.size() == 0)
 				{
+					inputEmulator.ReleaseLeftClick();
 					route = navigator.doPathFinding(mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
 				}
 				else if (route.size() > 0)
@@ -139,7 +139,7 @@ void StitchMapThread()
 		}
 		
 		
-		//ORiUtils::ConsoleLogTimed("Map", start);
+		ORiUtils::ConsoleLogTimed("Map", start);
 		ResetEvent(hEvent_StitchMapThread);
 
 		//Body--------###

@@ -17,7 +17,7 @@ public:
 	void PressKeyF2()
 	{
 			keybd_event(VK_F2, 0, 0, 0);
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			keybd_event(VK_F2, 0, KEYEVENT_KEYUP, 0);
 	}
 
@@ -61,15 +61,19 @@ public:
 	void followRoute(vector<Point>& route, Point dollPoss, Point2f internalCellOffset)
 	{
 
-		if (route.size() < 1)
+		if (route.size() <= 1)
+		{
+			route.clear(); 
+			ReleaseLeftClick();
 			return;
+		}
 
 		Point posOffset;
 
 		while (route.size() > 1)
 		{
 			posOffset = route.back() - dollPoss;
-			if (abs(posOffset.x) < 10 && abs(posOffset.y) < 10)
+			if (abs(posOffset.x) < 6 && abs(posOffset.y) < 6)
 				route.pop_back();
 			else
 				break;
@@ -86,7 +90,7 @@ public:
 		//cout << posOffset << "==" << Point(xPos, yPos) << "==" << Point(xPos2,yPos2) <<endl;
 
 		SetCursorPos(xPos, yPos);
-		PressLeftClick();
+		holdLeftClick();
 	};
 
 	void holdLeftClick()
@@ -105,7 +109,7 @@ public:
 		Input.type = INPUT_MOUSE;
 		Input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
 		::SendInput(1, &Input, sizeof(INPUT));
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		// left up
 		::ZeroMemory(&Input, sizeof(INPUT));
 		Input.type = INPUT_MOUSE;

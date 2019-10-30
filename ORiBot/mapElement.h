@@ -29,6 +29,7 @@ class MapTile
 {
 public:
 	MapElement* mapElement;
+	int timeScore;
 
 	MapTile(MapElement* pMapElement, const int pTimeScore)
 	{
@@ -39,15 +40,14 @@ public:
 	int getTimeCount() const
 	{
 		return timeScore;
-	}
+	};
 
-	void setTimeCount(const int pTimeScore)
+	void setTimeCount(int pTimeScore)
 	{
 		timeScore = pTimeScore;
-	}
+	};
 
 private:
-	int timeScore;
 };
 
 

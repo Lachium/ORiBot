@@ -40,7 +40,7 @@ public:
 	Environment(vector<vector<MapElement*>> &itemMap, Point dollPos) {
 		for (size_t row = 0; row < itemMap.size(); row++)
 			for (size_t col = 0; col < itemMap.at(row).size(); col++)
-				if (itemMap.at(row).at(col)->type == 2 && itemMap.at(row).at(col)->name != "Unknown" && itemMap.at(row).at(col)->name != "Black")
+				if (itemMap.at(row).at(col)->type == 2 && itemMap.at(row).at(col)->name != "Unknown" && itemMap.at(row).at(col)->name != "Black" && itemMap.at(row).at(col)->name != "shining_plant" && itemMap.at(row).at(col)->name != "green_plant")
 					mobiles.push_back(Mobile(itemMap.at(row).at(col)->name, Point(row,col)));
 
 

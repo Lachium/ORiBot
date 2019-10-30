@@ -71,7 +71,7 @@ bool MapStitcher::appendToMap(vector<vector<MapElement*>>& mapPiece)
 										//	<< (int)mapPiece.at(row + border).at(col + border)->color[0] << " "
 										//	<< (int)mapPiece.at(row + border).at(col + border)->color[0] << " " 
 										//	<< (int)mapPiece.at(row + border).at(col + border)->color[0] << " " << ")" << col + border << "\n";
-										if (negativeMatch > 3)
+										if (negativeMatch > 1)
 										{
 											goto nextGrid;
 										}
@@ -319,7 +319,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 			gridMap.push_back(Bottom_mapBlock.at(i));
 	}
 	//drawMap(gridMap, "grid");
-	//ORiUtils::draw(gridMap, "grid_heat_map");
+	//drawMapHeatMap(gridMap, "grid_heat_map");
 
 	//cout << "Grid Search Loops: " << gridSearchLoopCount << " @ " << fixed << double((clock() - startGridLook) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
 
@@ -377,7 +377,7 @@ void MapStitcher::drawMapHeatMap(deque<deque<MapTile>>& map, const string window
 			else
 				mapImg.at<Vec3b>(Point(col, row)) = Vec3b::all(map.at(row).at(col).getTimeCount());
 		}
-	//cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
+	cv::resize(mapImg, mapImg, cv::Size(), 6, 6, INTER_NEAREST);
 	imshow(windowName, mapImg);
 };
 
@@ -391,9 +391,14 @@ void MapStitcher::compareCenter(deque<deque<MapTile>>& gridMap, vector<vector<Ma
 			if (row == C_rowStart || col == C_colStart || row == C_rowSize - 1 || col == C_colSize - 1)
 				thisMapTime = gridMap.at(gPartRow_CC(row, foundRow)).at(gPartCol_CC(col, foundCol)).getTimeCount();
 
+			if (thisMapTime == -1)
+				thisMapTime = 0;
+
 			gridSearchLoopCount++;
 			if (mapPiece.at(pPartRow_CC(row, foundRow)).at(pPartCol_CC(col, foundCol))->type == 1)
+			{
 				gridMap.at(gPartRow_CC(row, foundRow)).at(gPartCol_CC(col, foundCol)) = MapTile(mapPiece.at(pPartRow_CC(row, foundRow)).at(pPartCol_CC(col, foundCol)), thisMapTime);
+			}
 			else if (mapPiece.at(pPartRow_CC(row, foundRow)).at(pPartCol_CC(col, foundCol))->type == 0)
 				gridMap.at(gPartRow_CC(row, foundRow)).at(gPartCol_CC(col, foundCol)) = MapTile(mapPiece.at(pPartRow_CC(row, foundRow)).at(pPartCol_CC(col, foundCol)), -1);
 			else
