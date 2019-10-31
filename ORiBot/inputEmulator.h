@@ -83,6 +83,11 @@ public:
 		posOffset = route.back() - dollPoss;
 		
 		Point pixPos = ORiUtils::CellPixelPositionByOffset(posOffset.x, posOffset.y);
+		if (pixPos == Point(-1, -1))
+		{
+			route.clear();
+			return;
+		}
 
 		int xPos = pixPos.x +globalOffsetX + internalCellOffset.x;
 		int yPos = pixPos.y +globalOffsetY + internalCellOffset.y;

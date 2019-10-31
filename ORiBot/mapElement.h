@@ -93,6 +93,7 @@ private:
 		//  -- World Search Color -- Name -- RefColour -- Type --
 		thisMapElements.insert({ Vec3bKey(0, 255, 255), new MapElement("Unseen", Vec3b(0, 255, 255), 3) });
 		thisMapElements.insert({ Vec3bKey(255, 255, 255), new MapElement("Unknown", Vec3b(255, 255, 255), 2) });
+		thisMapElements.insert({ Vec3bKey(74, 74, 206), new MapElement("shadow", Vec3b(74, 74, 206), 2) });
 		thisMapElements.insert({ Vec3bKey(0, 0, 0), new MapElement("Black", Vec3b(0, 0, 0), 2) });
 
 		thisMapElements.insert({ Vec3bKey(255, 107, 181), new MapElement("BlockedA", Vec3b(255, 107, 181), 0) });

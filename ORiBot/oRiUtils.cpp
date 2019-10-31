@@ -50,7 +50,7 @@ Point ORiUtils::CellPixelPosition(int row, int col)
 	}
 	catch (...) {
 		ORiUtils::ConsoleLog("[ERROR] CellPosMap out of bounds");
-		return Point(0, 0);
+		return Point(-1, -1);
 	}
 }
 
@@ -63,6 +63,6 @@ Point ORiUtils::CellPixelPositionByOffset(int rowOffset, int colOffset)
 	}
 	catch (...) {
 		ORiUtils::ConsoleLog("[ERROR] CellPosMap out of bounds");
-		return Point(0,0);
+		return Point(-1, -1);
 	}
 }

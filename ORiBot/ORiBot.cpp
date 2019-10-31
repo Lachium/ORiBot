@@ -117,11 +117,8 @@ void StitchMapThread()
 			{
 				cout << "attack!";
 				inputEmulator.PressKeyF2();
-				//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				inputEmulator.moveCursorToCell(environment.mobiles.back().pos, lastInternalCellOffset);
-				//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				inputEmulator.PressLeftClick();
-				//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
 			else 
 				//Do Path finding
@@ -137,6 +134,7 @@ void StitchMapThread()
 
 
 		}
+		inputEmulator.ReleaseLeftClick();
 		
 		
 		ORiUtils::ConsoleLogTimed("Map", start);
