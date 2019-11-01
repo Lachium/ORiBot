@@ -73,6 +73,14 @@ public:
 		while (route.size() > 1)
 		{
 			posOffset = route.back() - dollPoss;
+
+			if (abs(posOffset.x) >= 6 && abs(posOffset.y) >= 6)
+			{
+				route.clear();
+				ReleaseLeftClick();
+				return;
+			}
+
 			if (abs(posOffset.x) < 6 && abs(posOffset.y) < 6)
 				route.pop_back();
 			else

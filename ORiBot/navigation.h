@@ -60,7 +60,7 @@ public:
 			vector<Point> route = Apathfinder->doPathdinding(dollPos.x, dollPos.y, matchedPoints.back().possition.x, matchedPoints.back().possition.y, gridMap);
 			if (route.size() > 0)
 			{
-				drawMap(gridMap, route, "Path");
+				drawPath(gridMap, route, "Path");
 				return route;
 			}
 			else
@@ -89,7 +89,7 @@ private:
 		return matchedNodes;
 	};
 
-	void drawMap(const deque<deque<MapTile>> & map, vector<Point> & path, const string windowName) const
+	void drawPath(const deque<deque<MapTile>> & map, vector<Point> & path, const string windowName) const
 	{
 		Mat mapImg(map.size(), map.front().size(), CV_8UC3);
 		for (int row = 0; row < map.size(); row++)
@@ -100,8 +100,8 @@ private:
 
 
 		for (int i = 0; i < path.size(); i++)
-			mapImg.at<Vec3b>(Point(path.at(i).y, path.at(i).x)) = Vec3b::all(255);
-		//cv::resize(mapImg, mapImg, cv::Size(), 3, 3, INTER_NEAREST);
+			mapImg.at<Vec3b>(Point(path.at(i).y, path.at(i).x)) = Vec3b(0,0,0);
+		//cv::resize(mapImg, mapImg, cv::Size(), 2, 2, INTER_NEAREST);
 		imshow(windowName, mapImg);
 	};
 };

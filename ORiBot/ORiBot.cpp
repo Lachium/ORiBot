@@ -5,6 +5,7 @@
 #include "InputEmulator.h"
 #include "navigation.h"
 #include "environment.h"
+#include <future>
 #include <atomic>
 
 using namespace std;
@@ -23,6 +24,10 @@ HANDLE hEvent_StitchMapThread = CreateEvent(NULL, true, false, L"FIRE_STITCH_MAP
 
 HANDLE hEvent_ScreenCaptureThread = CreateEvent(NULL, true, false, L"FIRE_SCREEN_CAPTURE");
 
+atomic<bool> pathfindingDone = true;
+vector<Point> FindPath(deque<deque<MapTile>> gridMap, Point DolPoss);
+
+
 Mat screen;
 vector<vector<MapElement*>> world;
 Point2f internalCellOffset;
@@ -38,6 +43,7 @@ Navigator navigator = Navigator();
 int main(int argv, char** argc)
 {
 	thread screenInterpreterThread(ScreenInterpreterThread);
+	thread stictMapThread(StitchMapThread);
 
 	while (!shouldGameTerminate)
 	{
@@ -54,13 +60,13 @@ int main(int argv, char** argc)
 	}
 	shouldScreenInterpreterTerminate = true;
 	screenInterpreterThread.join();
+	stictMapThread.join();
 	waitKey(0);
 	return 0;
 }
 
 void ScreenInterpreterThread()
 {
-	thread stictMapThread(StitchMapThread);
 	//Thread Stuffs
 	if (!hEvent_ScreenInterpreterThread) assert(false);
 	//Thread Stuffs
@@ -89,7 +95,6 @@ void ScreenInterpreterThread()
 		waitKey(1);
 	}
 	shouldMappingTerminate = true;
-	stictMapThread.join();
 
 	shouldGameTerminate = true;
 }
@@ -97,6 +102,7 @@ void ScreenInterpreterThread()
 void StitchMapThread()
 {
 	if (!hEvent_StitchMapThread) assert(false);
+	std::future<vector<Point>> path = std::async(std::launch::async, FindPath, mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
 
 	while (!shouldMappingTerminate)
 	{
@@ -107,41 +113,59 @@ void StitchMapThread()
 		//Body--------###
 
 		clock_t start = clock();
-		if (mapStitcher.appendToMap(lastWorld))
-		{
-			Environment environment(lastWorld, mapStitcher.getMyGridPos());
-			inputEmulator.setGlobalOffset(globalOffsetX, globalOffsetY);
 
-			if (environment.mobiles.size() > 0)  
-				//Attack mobs in view
+			if (mapStitcher.appendToMap(lastWorld))
 			{
-				cout << "attack!";
-				inputEmulator.PressKeyF2();
-				inputEmulator.moveCursorToCell(environment.mobiles.back().pos, lastInternalCellOffset);
-				inputEmulator.PressLeftClick();
+				Environment environment(lastWorld, mapStitcher.getMyGridPos());
+				inputEmulator.setGlobalOffset(globalOffsetX, globalOffsetY);
+
+				if (environment.mobiles.size() > 0)
+					//Attack mobs in view
+				{
+					cout << "attack!";
+					inputEmulator.PressKeyF2();
+					inputEmulator.moveCursorToCell(environment.mobiles.back().pos, lastInternalCellOffset);
+					inputEmulator.PressLeftClick();
+				}
+				else
+					//Do Path finding
+					if (mapStitcher.didGridGrow() || route.size() == 0)
+					{
+						if (pathfindingDone)
+						{
+							route = path.get();
+							path = std::async(std::launch::async, FindPath, mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
+							pathfindingDone = false;
+						}
+
+						//pathFindingTHreadCopiedGrid = false;
+					}
+					else if (route.size() > 0)
+					{
+						inputEmulator.followRoute(route, mapStitcher.getMyGridPos(), lastInternalCellOffset);
+					}
+				ORiUtils::ConsoleLogTimed("Map", start);
 			}
-			else 
-				//Do Path finding
-				if (mapStitcher.didGridGrow() || route.size() == 0)
-				{
-					inputEmulator.ReleaseLeftClick();
-					route = navigator.doPathFinding(mapStitcher.getGridMap(), mapStitcher.getMyGridPos());
-				}
-				else if (route.size() > 0)
-				{
-					inputEmulator.followRoute(route, mapStitcher.getMyGridPos(), lastInternalCellOffset);
-				}
+			else
+				inputEmulator.ReleaseLeftClick();
 
 
-		}
-		inputEmulator.ReleaseLeftClick();
-		
-		
-		ORiUtils::ConsoleLogTimed("Map", start);
 		ResetEvent(hEvent_StitchMapThread);
 
 		//Body--------###
 		waitKey(1);
 	}
 	shouldGameTerminate = true;
+}
+
+vector<Point> FindPath(deque<deque<MapTile>> gridMap, Point DolPoss)
+{
+		//Body--------###
+		clock_t start = clock();
+		vector<Point> routeF = navigator.doPathFinding(gridMap, DolPoss);
+		ORiUtils::ConsoleLogTimed("Pathing", start); 
+		pathfindingDone = true;
+		waitKey(1);
+		return routeF;
+		//Body--------###
 }

@@ -318,7 +318,7 @@ Point MapStitcher::StitchMap(int foundRow, int foundCol, vector<vector<MapElemen
 		for (int i = 0; i < Bottom_mapBlock.size(); i++)
 			gridMap.push_back(Bottom_mapBlock.at(i));
 	}
-	//drawMap(gridMap, "grid");
+	//ORiUtils::draw(gridMap, "grid");
 	//drawMapHeatMap(gridMap, "grid_heat_map");
 
 	//cout << "Grid Search Loops: " << gridSearchLoopCount << " @ " << fixed << double((clock() - startGridLook) / double(CLOCKS_PER_SEC)) * 1000 << setprecision(0); cout << "ms  ";
