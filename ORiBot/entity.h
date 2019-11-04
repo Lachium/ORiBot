@@ -108,8 +108,11 @@ namespace  Doll_Actions
 		case(pecopeco):
 		case(peco_egg):
 		case(picky):
+		case(picky_):
 		case(ant_egg):
 		case(drops):
+		case(piere):
+		case(andre):
 			return Doll_Actions::NormaAttack;
 		case(bigfoot):
 		case(dustiness):
@@ -149,11 +152,14 @@ namespace  Doll_Actions
 		case(marin):
 		case(peco_egg):
 		case(picky):
+		case(picky_):
 		case(ant_egg):
 		case(drops):
 			return 10;
 		case(jakk):
 			return 15;
+		case(andre):
+		case(piere):
 		case(bigfoot):
 		case(dustiness):
 		case(caramel):

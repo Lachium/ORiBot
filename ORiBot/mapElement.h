@@ -8,7 +8,7 @@
 using namespace std;
 using namespace cv;
 
-static enum MapElementEnums { Unseen, Unidentified, Shadow, Black, BlockedA, BlockedB, WalkableA, WalkableB, WalkableC, WalkableD, Water, mandragora, poporing, smokie, bigfoot, dustiness, caramel, green_plant, shining_plant, sasquatch, garm_baby_MVP, garm_MVP, marin, jakk,pecopeco, peco_egg, picky, yellow_plant, ant_egg, drops};
+static enum MapElementEnums { Unseen, Unidentified, Shadow, Black, BlockedA, BlockedB, WalkableA, WalkableB, WalkableC, WalkableD, Water, mandragora, poporing, smokie, bigfoot, dustiness, caramel, green_plant, shining_plant, sasquatch, garm_baby_MVP, garm_MVP, marin, jakk,pecopeco, peco_egg, picky, yellow_plant, ant_egg, drops, piere, andre, picky_};
 
 
 class MapElement
@@ -126,7 +126,10 @@ private:
 		thisMapElements.insert({ Vec3bKey(223, 0, 0), new MapElement(MapElementEnums::picky, Vec3b(223, 0, 0), 2) });
 		thisMapElements.insert({ Vec3bKey(239, 0, 0), new MapElement(MapElementEnums::yellow_plant, Vec3b(239, 0, 0), 2) });
 		thisMapElements.insert({ Vec3bKey(0, 24, 0), new MapElement(MapElementEnums::ant_egg, Vec3b(0, 24, 0), 2) });
-		thisMapElements.insert({ Vec3bKey(24, 24, 0), new MapElement(MapElementEnums::drops, Vec3b(24, 24, 0), 2) });		
+		thisMapElements.insert({ Vec3bKey(24, 24, 0), new MapElement(MapElementEnums::drops, Vec3b(24, 24, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(24, 41, 0), new MapElement(MapElementEnums::piere, Vec3b(24, 41, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(24, 57, 0), new MapElement(MapElementEnums::andre, Vec3b(24, 57, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(24, 74, 0), new MapElement(MapElementEnums::picky_, Vec3b(24, 74, 0), 2) });
 		
 		return thisMapElements;
 	};

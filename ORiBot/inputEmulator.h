@@ -71,7 +71,7 @@ public:
 		{
 			posOffset = route.back() - dollPoss;
 
-			if (abs(posOffset.x) >= 6 && abs(posOffset.y) >= 6)
+			if (abs(posOffset.x) >= 6 || abs(posOffset.y) >= 6)
 			{
 				route.clear();
 				ReleaseLeftClick();
