@@ -167,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="A_Star.h" />
+    <ClInclude Include="entity.h" />
     <ClInclude Include="environment.h" />
     <ClInclude Include="navigation.h" />
     <ClInclude Include="inputEmulator.h" />

@@ -11,14 +11,11 @@ class InputEmulator
 {
 public:
 	shared_ptr<Point> globalPos;
-	int type;
-	InputEmulator() {};
 
-	void PressKeyF2()
+	void PressKey(int Key)
 	{
-			keybd_event(VK_F2, 0, 0, 0);
-			//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			keybd_event(VK_F2, 0, KEYEVENT_KEYUP, 0);
+			keybd_event(Key, 0, 0, 0);
+			keybd_event(Key, 0, KEYEVENT_KEYUP, 0);
 	}
 
 	void SetNumLock(BOOL bState)

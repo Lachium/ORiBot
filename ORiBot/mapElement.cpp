@@ -23,11 +23,11 @@ MapElement* MapElementCollection::searchMapElementByColor(int blue, int green, i
 	return mapElements.at(Vec3bKey(Vec3bKey(255, 255, 255)));
 };
 
-string MapElementCollection::getMapElementNameByColor(Vec3b color)
+int MapElementCollection::getMapElementNameByColor(Vec3b color)
 {
 	if (mapElements.count(color))
 	{
 		return mapElements.at(color)->name;
 	}
-	return "Unknown";
+	return MapElementEnums::Unidentified;
 };

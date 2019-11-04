@@ -25,6 +25,17 @@ double ORiUtils::getDistance(Point pointA, Point pointB)
 }
 
 
+int ORiUtils::getDistanceBins(Point pointA, Point pointB)
+{
+	return int(abs(pointA.x -pointB.x) + abs(pointA.y -pointB.y));
+}
+
+Point ORiUtils::getDollDefaultPos()
+{
+	return Point(12,22);
+}
+
+
 void ORiUtils::ConsoleLogTimed(string name, clock_t start)
 {
 	mtx.lock();

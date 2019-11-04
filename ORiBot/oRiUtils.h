@@ -27,10 +27,12 @@ public:
 	//Functions
 	static void draw(deque<deque<MapTile>>& map, const string windowName, const int resize = 1); 
 	static double getDistance(Point pointA, Point pointB);
+	static int getDistanceBins(Point pointA, Point pointB);
 	static void ConsoleLogTimed(string name, clock_t start);
 	static void ConsoleLog(string log);
 	static Point CellPixelPosition(int row, int col);
 	static Point CellPixelPositionByOffset(int rowOffset, int colOffset);
+	static Point getDollDefaultPos();
 
 private:
 	static mutex mtx;

@@ -37,7 +37,7 @@ vector<Point> route;
 ScreenCapture screenCapture;
 ScreenInterpreter screenInterpreter = ScreenInterpreter();
 MapStitcher mapStitcher = MapStitcher();
-InputEmulator inputEmulator = InputEmulator();
+static InputEmulator inputEmulator = InputEmulator();
 Navigator navigator = Navigator();
 
 int main(int argv, char** argc)
@@ -116,16 +116,14 @@ void StitchMapThread()
 
 			if (mapStitcher.appendToMap(lastWorld))
 			{
-				Environment environment(lastWorld, mapStitcher.getMyGridPos());
+				Environment environment(lastWorld);
 				inputEmulator.setGlobalOffset(globalOffsetX, globalOffsetY);
 
 				if (environment.mobiles.size() > 0)
 					//Attack mobs in view
 				{
-					cout << "attack!";
-					inputEmulator.PressKeyF2();
-					inputEmulator.moveCursorToCell(environment.mobiles.back().pos, lastInternalCellOffset);
-					inputEmulator.PressLeftClick();
+					cout << "Action!";
+					Doll_Actions::getAction(environment.mobiles.back().name)(inputEmulator, environment.mobiles.back().pos, lastInternalCellOffset);
 				}
 				else
 					//Do Path finding
