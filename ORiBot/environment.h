@@ -61,6 +61,17 @@ public:
 		return true;
 	}
 
+	int countIgnores(int name)
+	{
+		int count = 0;
+		for (Entity entity : ignores)
+			if (entity.name == name)
+			{
+				count++;
+			}
+		return count;
+	}
+
 	// Returns the list of points from (x0, y0) to (x1, y1)
 	vector<Point> BresenhamLine(int x0, int y0, int x1, int y1) {
 		// Optimization: it would be preferable to calculate in

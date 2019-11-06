@@ -35,7 +35,9 @@ namespace  Doll_Actions
 	static void Teleport(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
 	{
 		inputEmulator.PressKey(VK_F1);
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		inputEmulator.PressKey(VK_RETURN);
+		std::this_thread::sleep_for(std::chrono::milliseconds(600));
 	};
 
 	static void NormaAttack(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
@@ -51,6 +53,37 @@ namespace  Doll_Actions
 		inputEmulator.ReleaseLeftClick();
 		inputEmulator.PressKey(VK_F2);
 		inputEmulator.PressLeftClick();
+	};
+
+
+	static void F2_SkillCast_On_Target_Then_Normal_Attack(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F2);
+		inputEmulator.PressLeftClick();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		NormaAttack(inputEmulator, CellPos, internalCellOffset);
+	};
+
+	static void F3_SkillCast_On_Target_Then_Normal_Attack(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F3);
+		inputEmulator.PressLeftClick();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		NormaAttack(inputEmulator, CellPos, internalCellOffset);
+	};
+
+	static void F5_SkillCast_On_Target_Then_Normal_Attack(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F5);
+		inputEmulator.PressLeftClick();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		NormaAttack(inputEmulator, CellPos, internalCellOffset);
 	};
 
 	static void F3_SkillCast_On_Target(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
@@ -100,20 +133,22 @@ namespace  Doll_Actions
 		case(shining_plant):
 		case(yellow_plant):
 		case(jakk):
-			return Doll_Actions::F3_SkillCast_On_Target;
+			return Doll_Actions::F2_SkillCast_On_Target_Then_Normal_Attack;
+		case(peco_egg):
+			return Doll_Actions::F3_SkillCast_On_Target_Then_Normal_Attack;
 		case(mandragora):
 		case(poporing):
 		case(smokie):
-		case(marin):
-		case(pecopeco):
-		case(peco_egg):
+		case(drops):
 		case(picky):
 		case(picky_):
+			return Doll_Actions::F5_SkillCast_On_Target_Then_Normal_Attack;
 		case(ant_egg):
-		case(drops):
+		case(marin):
 		case(piere):
 		case(andre):
-			return Doll_Actions::NormaAttack;
+		case(pecopeco):
+			return Doll_Actions::F3_SkillCast_On_Target_Then_Normal_Attack;
 		case(bigfoot):
 		case(dustiness):
 		case(caramel):

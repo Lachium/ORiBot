@@ -14,6 +14,8 @@ using namespace cv;
 atomic<bool> shouldGameTerminate = false;
 atomic<int> globalOffsetX, globalOffsetY;
 
+void reactToWorld(vector<vector<MapElement*>>& lastWorld, Point2f lastInternalCellOffset);
+
 void ScreenInterpreterThread(void);
 atomic<bool> shouldScreenInterpreterTerminate = false;
 HANDLE hEvent_ScreenInterpreterThread = CreateEvent(NULL, true, false, L"FIRE_SCREEN_Interpreter");
@@ -40,10 +42,11 @@ MapStitcher mapStitcher = MapStitcher();
 static InputEmulator inputEmulator = InputEmulator();
 Navigator navigator = Navigator();
 
+
 int main(int argv, char** argc)
 {
-	thread screenInterpreterThread(ScreenInterpreterThread);
-	thread stictMapThread(StitchMapThread);
+	//thread screenInterpreterThread(ScreenInterpreterThread);
+	//thread stictMapThread(StitchMapThread);
 
 	while (!shouldGameTerminate)
 	{
@@ -51,16 +54,23 @@ int main(int argv, char** argc)
 
 		//Body--------###
 		screen = screenCapture.readImage();
-		SetEvent(hEvent_ScreenInterpreterThread);
+		if (screenInterpreter.screenToMapElements(screen, world, internalCellOffset))
+		{
+			Point globalOffset = screenInterpreter.getGlobalWindowOffset();
+			globalOffsetX = globalOffset.x;
+			globalOffsetY = globalOffset.y;
+
+			reactToWorld(world, internalCellOffset);
+		}
 
 		//Body--------###
 		//ORiUtils::ConsoleLogTimed("Capture" , start);
 		waitKey(1);
-		WaitForSingleObject(hEvent_ScreenCaptureThread, INFINITE);
+		//WaitForSingleObject(hEvent_ScreenCaptureThread, INFINITE);
 	}
 	shouldScreenInterpreterTerminate = true;
-	screenInterpreterThread.join();
-	stictMapThread.join();
+	//screenInterpreterThread.join();
+	//stictMapThread.join();
 	waitKey(0);
 	return 0;
 }
@@ -97,6 +107,28 @@ void ScreenInterpreterThread()
 	shouldMappingTerminate = true;
 
 	shouldGameTerminate = true;
+}
+
+void reactToWorld(vector<vector<MapElement*>>& world, Point2f InternalCellOffset)
+{
+	Environment environment(world);
+	inputEmulator.setGlobalOffset(globalOffsetX, globalOffsetY);
+
+	if (environment.mobiles.size() > 0)
+		//Attack mobs in view
+	{
+		inputEmulator.PressKey(VK_DOWN);
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		inputEmulator.PressKey(VK_RETURN);
+		//std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		Doll_Actions::getAction(environment.mobiles.back().name)(inputEmulator, environment.mobiles.back().pos, InternalCellOffset);
+	}
+	else if(environment.countIgnores(Black) == 0)
+	{
+
+		Doll_Actions::Teleport(inputEmulator, Point(0,0), InternalCellOffset);
+		//cout << "NOTHING!";
+	}
 }
 
 void StitchMapThread()
