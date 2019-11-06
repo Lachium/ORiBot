@@ -76,6 +76,16 @@ namespace  Doll_Actions
 		NormaAttack(inputEmulator, CellPos, internalCellOffset);
 	};
 
+	static void F4_SkillCast_On_Target_Then_Normal_Attack(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F4);
+		inputEmulator.PressLeftClick();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		NormaAttack(inputEmulator, CellPos, internalCellOffset);
+	};
+
 	static void F5_SkillCast_On_Target_Then_Normal_Attack(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
 	{
 		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
@@ -132,6 +142,7 @@ namespace  Doll_Actions
 		case(green_plant):
 		case(shining_plant):
 		case(yellow_plant):
+			return Doll_Actions::F4_SkillCast_On_Target_Then_Normal_Attack;
 		case(jakk):
 			return Doll_Actions::F2_SkillCast_On_Target_Then_Normal_Attack;
 		case(peco_egg):
