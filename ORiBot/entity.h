@@ -202,8 +202,6 @@ namespace  Doll_Actions
 		case(ant_egg):
 		case(drops):
 			return 10;
-		case(jakk):
-			return 15;
 		case(andre):
 		case(piere):
 		case(bigfoot):
@@ -212,6 +210,7 @@ namespace  Doll_Actions
 		case(pecopeco):
 			return 20;
 		case(sasquatch):
+		case(jakk):
 			return 30;
 		case(garm_baby_MVP):
 			return 80;
