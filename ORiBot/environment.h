@@ -37,7 +37,7 @@ public:
 
 		for (size_t row = 0; row < itemMap.size(); row++)
 			for (size_t col = 0; col < itemMap.at(row).size(); col++)
-				if (itemMap.at(row).at(col)->name == Unknown || itemMap.at(row).at(col)->name == Unidentified || itemMap.at(row).at(col)->name == Black || itemMap.at(row).at(col)->name == Shadow || itemMap.at(row).at(col)->name == yellow_plant || itemMap.at(row).at(col)->name == green_plant)
+				if (Doll_Actions::getPriority(itemMap.at(row).at(col)->name) == 0)//Unknown || itemMap.at(row).at(col)->name == Unidentified || itemMap.at(row).at(col)->name == Black || itemMap.at(row).at(col)->name == Shadow || itemMap.at(row).at(col)->name == yellow_plant || itemMap.at(row).at(col)->name == green_plant)
 					ignores.push_back(Entity(itemMap.at(row).at(col)->name, Point(row, col)));
 				else if (itemMap.at(row).at(col)->type == 2)\
 				{ 

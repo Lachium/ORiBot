@@ -37,11 +37,12 @@ namespace  Doll_Actions
 		inputEmulator.PressKey(VK_F1);
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		inputEmulator.PressKey(VK_RETURN);
-		std::this_thread::sleep_for(std::chrono::milliseconds(600));
+		std::this_thread::sleep_for(std::chrono::milliseconds(800));
 	};
 
 	static void NormaAttack(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
 	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(600));
 		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
 		inputEmulator.ReleaseLeftClick();
 		inputEmulator.PressLeftClick();
@@ -96,6 +97,16 @@ namespace  Doll_Actions
 		NormaAttack(inputEmulator, CellPos, internalCellOffset);
 	};
 
+	static void F6_SkillCast_On_Target_Then_Normal_Attack(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F6);
+		inputEmulator.PressLeftClick();
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		NormaAttack(inputEmulator, CellPos, internalCellOffset);
+	};
+
 	static void F3_SkillCast_On_Target(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
 	{
 		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
@@ -142,10 +153,14 @@ namespace  Doll_Actions
 		case(green_plant):
 		case(shining_plant):
 		case(yellow_plant):
-			return Doll_Actions::F4_SkillCast_On_Target_Then_Normal_Attack;
 		case(jakk):
+			return Doll_Actions::F4_SkillCast_On_Target_Then_Normal_Attack;
+		case(caramel):
 			return Doll_Actions::F2_SkillCast_On_Target_Then_Normal_Attack;
+		case(creamy):
+			return Doll_Actions::F6_SkillCast_On_Target_Then_Normal_Attack;
 		case(peco_egg):
+		case(pupa):
 			return Doll_Actions::F3_SkillCast_On_Target_Then_Normal_Attack;
 		case(mandragora):
 		case(poporing):
@@ -153,6 +168,8 @@ namespace  Doll_Actions
 		case(drops):
 		case(picky):
 		case(picky_):
+		case(poring):
+		case(rocker):
 			return Doll_Actions::F5_SkillCast_On_Target_Then_Normal_Attack;
 		case(ant_egg):
 		case(marin):
@@ -162,10 +179,10 @@ namespace  Doll_Actions
 			return Doll_Actions::F3_SkillCast_On_Target_Then_Normal_Attack;
 		case(bigfoot):
 		case(dustiness):
-		case(caramel):
 			return Doll_Actions::F2_SkillCast_On_Target;
 		case(sasquatch):
 		case(garm_baby_MVP):
+		case(vocal):
 			return Doll_Actions::F2_SkillCast_On_Target_TP_if_Close;
 		case(garm_MVP):
 			return Doll_Actions::Teleport;
@@ -191,16 +208,21 @@ namespace  Doll_Actions
 		case(green_plant):
 		case(shining_plant):
 		case(yellow_plant):
+		case(poring):
+		case(rocker):
+		case(creamy):
+		case(poporing):
 			return 0;
 		case(mandragora):
-		case(poporing):
 		case(smokie):
 		case(marin):
 		case(peco_egg):
+		case(pupa):
 		case(picky):
 		case(picky_):
 		case(ant_egg):
 		case(drops):
+		case(jakk):
 			return 10;
 		case(andre):
 		case(piere):
@@ -210,11 +232,11 @@ namespace  Doll_Actions
 		case(pecopeco):
 			return 20;
 		case(sasquatch):
-		case(jakk):
 			return 30;
 		case(garm_baby_MVP):
 			return 80;
 		case(garm_MVP):
+		case(vocal):
 			return 100;
 		}
 		ORiUtils::ConsoleLog("Entity action unspecified: " + to_string(name));
