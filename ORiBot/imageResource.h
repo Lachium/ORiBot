@@ -82,4 +82,6 @@ class ImageResourceCollection
 public:
 	const String directory = Imgdir;
 	ImageResource imgGameLogo = ImageResource(directory + "templates/gameLogo.bmp");
+	//fullHealthPars	fullHealthCeles	fullHealthSerp	fullHealthMelida
+	ImageResource imgFullHealth = ImageResource(directory + "templates/fullHealthMelida.bmp");
 };

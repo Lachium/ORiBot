@@ -41,7 +41,6 @@ public:
 					ignores.push_back(Entity(itemMap.at(row).at(col)->name, Point(row, col)));
 				else if (itemMap.at(row).at(col)->type == 2)\
 				{ 
-					auto a = BresenhamLine(dollPos.x, dollPos.y, row, col);
 					int aname = itemMap.at(row).at(col)->name;
 					if (hasLineOfSite(BresenhamLine(dollPos.x, dollPos.y, row, col), itemMap))
 					{
@@ -55,7 +54,7 @@ public:
 	bool hasLineOfSite(const vector<Point> BresenhamLine, const vector<vector<MapElement*>>& itemMap)
 	{
 		for (Point BresenhamPoint : BresenhamLine)
-				if (itemMap.at(BresenhamPoint.x).at(BresenhamPoint.y)->name == BlockedA)
+				if (itemMap.at(BresenhamPoint.x).at(BresenhamPoint.y)->name == BlockedA )//|| itemMap.at(BresenhamPoint.x).at(BresenhamPoint.y)->name == BlockedB )
 					return false;
 
 		return true;

@@ -19,7 +19,8 @@ class ScreenInterpreter
 {
 public:
 	bool screenToMapElements(Mat& screenImg, vector<vector<MapElement*>>& world, Point2f& cellOffset);
-	Point getGlobalWindowOffset() { return gameLogoPos + Point(-6,18); };
+	Point getGlobalWindowOffset() { return gameLogoPos + Point(-6,18); }; 
+	bool isFullHealth;
 
 private:
 	Point2f getGridBinOffset(ImageResource& img);
@@ -27,8 +28,9 @@ private:
 	bool cropToGameWindow(ImageResource& img);
 	bool singleTemplateMatchingGrey(Mat& mInput, Mat& mTemplate, float Threshold, Point& matchPoint) const;
 	bool colorSearchSingleMap(Mat& imgColor, Vec3b color, Point& matchPoint) const;
-	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint) const;
+	bool singleColorMatchingFast(Mat& mInput, vector<vector<Vec3b>>& cTemplate, Point& matchPoint, int MaxOffset = 10) const;
 	MapElement* getMode(vector<Vec3b> &colors);
 	Point gameLogoPos = Point(-1, -1);
+	Point fullHealhPos = Point(-1, -1);
 	ImageResourceCollection imageResourceCollection;
 };

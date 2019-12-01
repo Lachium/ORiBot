@@ -37,12 +37,14 @@ namespace  Doll_Actions
 		inputEmulator.PressKey(VK_F1);
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		inputEmulator.PressKey(VK_RETURN);
+
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(800));
 	};
 
 	static void NormaAttack(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(600));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
 		inputEmulator.ReleaseLeftClick();
 		inputEmulator.PressLeftClick();
@@ -115,9 +117,17 @@ namespace  Doll_Actions
 		inputEmulator.PressLeftClick();
 	};
 
+	static void F4_SkillCast_On_Target(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F4);
+		inputEmulator.PressLeftClick();
+	};
+
 	static void F2_SkillCast_On_Target_TP_if_Close(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
 	{
-		if (ORiUtils::getDistanceBins(CellPos, ORiUtils::getDollDefaultPos()) < 2)
+		if (ORiUtils::getDistanceBins(CellPos, ORiUtils::getDollDefaultPos()) < 5)
 		{
 			Doll_Actions::Teleport(inputEmulator, CellPos, internalCellOffset);
 			return;
@@ -125,6 +135,59 @@ namespace  Doll_Actions
 		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
 		inputEmulator.ReleaseLeftClick();
 		inputEmulator.PressKey(VK_F2);
+		inputEmulator.PressLeftClick();
+	};
+
+	static void F3_SkillCast_On_Target_TP_if_Close(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		if (ORiUtils::getDistanceBins(CellPos, ORiUtils::getDollDefaultPos()) < 5)
+		{
+			Doll_Actions::Teleport(inputEmulator, CellPos, internalCellOffset);
+			return;
+		}
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F3);
+		inputEmulator.PressLeftClick();
+	};
+
+	static void F4_SkillCast_On_Target_TP_if_Close(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		if (ORiUtils::getDistanceBins(CellPos, ORiUtils::getDollDefaultPos()) < 6)
+		{
+			Doll_Actions::Teleport(inputEmulator, CellPos, internalCellOffset);
+			return;
+		}
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F4);
+		inputEmulator.PressLeftClick();
+	};
+
+	static void F5_SkillCast_On_Target_TP_if_Close(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		if (ORiUtils::getDistanceBins(CellPos, ORiUtils::getDollDefaultPos()) < 5)
+		{
+			Doll_Actions::Teleport(inputEmulator, CellPos, internalCellOffset);
+			return;
+		}
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F5);
+		inputEmulator.PressLeftClick();
+	};
+
+	static void F6_SkillCast_On_Target_TP_if_Close(InputEmulator& inputEmulator, Point CellPos, Point2f internalCellOffset)
+	{
+		cout << ORiUtils::getDistanceBins(CellPos, ORiUtils::getDollDefaultPos());
+		if (ORiUtils::getDistanceBins(CellPos, ORiUtils::getDollDefaultPos()) < 5)
+		{
+			Doll_Actions::Teleport(inputEmulator, CellPos, internalCellOffset);
+			return;
+		}
+		inputEmulator.moveCursorToCell(CellPos, internalCellOffset);
+		inputEmulator.ReleaseLeftClick();
+		inputEmulator.PressKey(VK_F6);
 		inputEmulator.PressLeftClick();
 	};
 
@@ -153,17 +216,27 @@ namespace  Doll_Actions
 		case(green_plant):
 		case(shining_plant):
 		case(yellow_plant):
-		case(jakk):
 			return Doll_Actions::F4_SkillCast_On_Target_Then_Normal_Attack;
+		case(eggyra):
+		case(elder_wilow):
+		case(poporing):
+		case(kobold_archer):
+			return Doll_Actions::F2_SkillCast_On_Target;
+		case(bigfoot):
+			return Doll_Actions::F3_SkillCast_On_Target;
 		case(caramel):
 			return Doll_Actions::F2_SkillCast_On_Target_Then_Normal_Attack;
+		case(wild_rose):
+		case(dustiness):
+		case(jakk):
+			return Doll_Actions::F4_SkillCast_On_Target;
 		case(creamy):
-			return Doll_Actions::F6_SkillCast_On_Target_Then_Normal_Attack;
 		case(peco_egg):
 		case(pupa):
+		case(horn):
+		case(stainer):
 			return Doll_Actions::F3_SkillCast_On_Target_Then_Normal_Attack;
 		case(mandragora):
-		case(poporing):
 		case(smokie):
 		case(drops):
 		case(picky):
@@ -177,9 +250,10 @@ namespace  Doll_Actions
 		case(andre):
 		case(pecopeco):
 			return Doll_Actions::F3_SkillCast_On_Target_Then_Normal_Attack;
-		case(bigfoot):
-		case(dustiness):
+		case(porcelio):
 			return Doll_Actions::F2_SkillCast_On_Target;
+		case(flora):
+			return Doll_Actions::F3_SkillCast_On_Target_TP_if_Close;
 		case(sasquatch):
 		case(garm_baby_MVP):
 		case(vocal):
@@ -208,9 +282,10 @@ namespace  Doll_Actions
 		case(green_plant):
 		case(shining_plant):
 		case(yellow_plant):
-		case(poring):
 		case(rocker):
-		case(creamy):
+		case(horn):
+		case(stainer):
+			return 0;
 		case(poporing):
 			return 0;
 		case(mandragora):
@@ -222,25 +297,38 @@ namespace  Doll_Actions
 		case(picky_):
 		case(ant_egg):
 		case(drops):
+		case(poring):
+		case(eggyra):
+		case(bigfoot):
+		case(elder_wilow):
+			return 0;
 		case(jakk):
-			return 10;
+			return 5;
+		case(dustiness):
+		case(wild_rose):
+			return 0;
+		case(kobold_archer):
+			return 0;
+		case(porcelio):
+		case(creamy):
+			return 0;
+		case(flora):
+			return 0;
 		case(andre):
 		case(piere):
-		case(bigfoot):
-		case(dustiness):
 		case(caramel):
 		case(pecopeco):
-			return 20;
+			return 0;
 		case(sasquatch):
-			return 30;
+			return 0;
 		case(garm_baby_MVP):
-			return 80;
+			return 0;
 		case(garm_MVP):
 		case(vocal):
-			return 100;
+			return 0;
 		}
 		ORiUtils::ConsoleLog("Entity action unspecified: " + to_string(name));
-		return 99;
+		return 0;
 	}
 
 }

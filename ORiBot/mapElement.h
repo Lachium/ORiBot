@@ -8,9 +8,10 @@
 using namespace std;
 using namespace cv;
 
-static enum MapElementEnums { Unseen, Unidentified, Shadow, Black, BlockedA, BlockedB, WalkableA, WalkableB, WalkableC, 
+static enum MapElementEnums { Damage, Unseen, Unidentified, Shadow, Black, BlockedA, BlockedB, WalkableA, WalkableB, WalkableC, 
 WalkableD, Water, mandragora, poporing, smokie, bigfoot, dustiness, caramel, green_plant, shining_plant, sasquatch, garm_baby_MVP, 
-garm_MVP, marin, jakk,pecopeco, peco_egg, picky, yellow_plant, ant_egg, drops, piere, andre, picky_, creamy, rocker, poring, pupa, vocal
+garm_MVP, marin, jakk,pecopeco, peco_egg, picky, yellow_plant, ant_egg, drops, piere, andre, picky_, creamy, rocker, poring, pupa, vocal, porcelio, flora,
+horn, stainer, eggyra, elder_wilow, wild_rose, kobold_archer
 };
 
 
@@ -138,7 +139,14 @@ private:
 		thisMapElements.insert({ Vec3bKey(24, 123, 0), new MapElement(MapElementEnums::pupa, Vec3b(24, 123, 0), 2) });
 		thisMapElements.insert({ Vec3bKey(24, 140, 0), new MapElement(MapElementEnums::poring, Vec3b(24, 140, 0), 2) });
 		thisMapElements.insert({ Vec3bKey(24, 156, 0), new MapElement(MapElementEnums::vocal, Vec3b(24, 156, 0), 2) });
-		
+		thisMapElements.insert({ Vec3bKey(24, 173, 0), new MapElement(MapElementEnums::elder_wilow, Vec3b(24, 173, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(24, 189, 0), new MapElement(MapElementEnums::porcelio, Vec3b(24, 189, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(24, 206, 0), new MapElement(MapElementEnums::flora, Vec3b(24, 206, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(24, 223, 0), new MapElement(MapElementEnums::horn, Vec3b(24, 223, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(41, 24, 0), new MapElement(MapElementEnums::stainer, Vec3b(41, 24, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(41, 41, 0), new MapElement(MapElementEnums::eggyra, Vec3b(41, 41, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(41, 57, 0), new MapElement(MapElementEnums::wild_rose, Vec3b(41, 57, 0), 2) });
+		thisMapElements.insert({ Vec3bKey(41, 74, 0), new MapElement(MapElementEnums::kobold_archer, Vec3b(41, 74, 0), 2) });
 		return thisMapElements;
 	};
 };

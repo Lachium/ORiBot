@@ -6,7 +6,11 @@ bool ScreenInterpreter::screenToMapElements(Mat& screenImg, vector<vector<MapEle
 
 	if (cropToGameWindow(imgScreen))
 	{
-		 cellOffset = getGridBinOffset(imgScreen);
+		isFullHealth = singleColorMatchingFast(*imgScreen.getColor(), *imageResourceCollection.imgFullHealth.getVec2D(), fullHealhPos, 0);
+		if (!isFullHealth)
+			isFullHealth = singleTemplateMatchingGrey(*imgScreen.getGray(), *imageResourceCollection.imgFullHealth.getGray(), 0.9999f, fullHealhPos);
+
+		cellOffset = getGridBinOffset(imgScreen);
 		world = calculateGridPixels(imgScreen, cellOffset);
 		return !world.empty();
 	}
@@ -103,7 +107,7 @@ bool ScreenInterpreter::cropToGameWindow(ImageResource& img)
 	return false;
 }
 
-bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec3b>>& cTemplate, Point& searhPoint) const
+bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec3b>>& cTemplate, Point& searhPoint, int MaxOffset) const
 {
 	if (((cTemplate.at(0).size() + searhPoint.x) >= colorImg.cols) || ((cTemplate.size() + searhPoint.y) >= colorImg.rows) || searhPoint.x < 0 || searhPoint.y < 0)
 	{
@@ -120,7 +124,7 @@ bool ScreenInterpreter::singleColorMatchingFast(Mat& colorImg, vector<vector<Vec
 					abs((colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y))[1] - (cTemplate.at(r).at(c)[1]))) +
 					abs((colorImg.at<Vec4b>(Point(c + searhPoint.x, r + searhPoint.y))[2] - (cTemplate.at(r).at(c)[2])));
 
-				if (offset > 10)
+				if (offset > MaxOffset)
 				{
 					ORiUtils::ConsoleLog("No Fast Color Found");
 					return false;

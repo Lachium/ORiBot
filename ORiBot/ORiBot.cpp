@@ -7,10 +7,12 @@
 #include "environment.h"
 #include <future>
 #include <atomic>
+#include "DBManager.h"
 
 using namespace std;
 using namespace cv;
 
+DBManager dBManager = DBManager();
 atomic<bool> shouldGameTerminate = false;
 atomic<int> globalOffsetX, globalOffsetY;
 
@@ -42,6 +44,8 @@ MapStitcher mapStitcher = MapStitcher();
 static InputEmulator inputEmulator = InputEmulator();
 Navigator navigator = Navigator();
 
+int countFrames = 0;
+int mapPlayers = -1;
 
 int main(int argv, char** argc)
 {
@@ -51,7 +55,7 @@ int main(int argv, char** argc)
 	while (!shouldGameTerminate)
 	{
 		clock_t start = clock();
-
+		//dBManager.getMapSats("asd");
 		//Body--------###
 		screen = screenCapture.readImage();
 		if (screenInterpreter.screenToMapElements(screen, world, internalCellOffset))
@@ -111,23 +115,53 @@ void ScreenInterpreterThread()
 
 void reactToWorld(vector<vector<MapElement*>>& world, Point2f InternalCellOffset)
 {
+	countFrames++;
 	Environment environment(world);
 	inputEmulator.setGlobalOffset(globalOffsetX, globalOffsetY);
 
-	if (environment.mobiles.size() > 0)
-		//Attack mobs in view
+	if (environment.countIgnores(Shadow) >= 6)
 	{
-		inputEmulator.PressKey(VK_DOWN);
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));
-		inputEmulator.PressKey(VK_RETURN);
-		//std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		Doll_Actions::getAction(environment.mobiles.back().name)(inputEmulator, environment.mobiles.back().pos, InternalCellOffset);
-	}
-	else if(environment.countIgnores(Black) == 0)
-	{
+		cout << "Shadows: " << environment.countIgnores(Shadow);
 
-		Doll_Actions::Teleport(inputEmulator, Point(0,0), InternalCellOffset);
-		//cout << "NOTHING!";
+		Doll_Actions::Teleport(inputEmulator, Point(0, 0), InternalCellOffset);
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		Doll_Actions::Teleport(inputEmulator, Point(0, 0), InternalCellOffset);
+	}
+	else if (!screenInterpreter.isFullHealth)
+	{
+		cout << "Health not Full";
+		Doll_Actions::Teleport(inputEmulator, Point(0, 0), InternalCellOffset);
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		Doll_Actions::Teleport(inputEmulator, Point(0, 0), InternalCellOffset);
+	}
+	else
+	{
+		//ein_fild08	gef_fild00	mjolnir_06	ein_fild09	cmd_fild09	pay_fild08	moc_fild11
+		ORiUtils::ConsoleLog("countFrames: " + to_string(countFrames));
+		if (countFrames > 100)
+		{
+			mapPlayers = dBManager.getMapPlayerCountStatWithiTimeLimit("moc_fild11", 70);
+			ORiUtils::ConsoleLog("Map Count: " + to_string(mapPlayers));
+			countFrames = 0;
+		}
+
+		if (mapPlayers <= 1 && mapPlayers >= 0)
+		{
+			if (environment.mobiles.size() > 0)
+			{
+				cout << "Acction on " + to_string(environment.mobiles.back().name);
+				inputEmulator.PressKey(VK_DOWN);
+				std::this_thread::sleep_for(std::chrono::milliseconds(5));
+				inputEmulator.PressKey(VK_RETURN);
+
+				Doll_Actions::getAction(environment.mobiles.back().name)(inputEmulator, environment.mobiles.back().pos, InternalCellOffset);
+			}
+			else
+			{
+				cout << "No mobs in sight";
+				Doll_Actions::Teleport(inputEmulator, Point(0, 0), InternalCellOffset);
+			}
+		}
 	}
 }
 
